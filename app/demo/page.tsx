@@ -6,14 +6,11 @@ import { type DragEvent, useState, useEffect, useRef } from "react";
 import { MyUIMessage } from '@/lib/types';
 import { TypewriterText } from '@/components/typewrter';
 import { Button } from '@/components/ui/button';
-import { FileTextIcon, UserSearchIcon, PenLineIcon, LandmarkIcon, CheckIcon, StarIcon, HouseIcon, GavelIcon, ClipboardMinusIcon, Loader2Icon, SearchIcon, CopyIcon, TriangleAlertIcon, DownloadIcon, ChartBarBigIcon, ChartBar, XCircleIcon, InfoIcon, EyeIcon, SparklesIcon, Check, ChevronRightIcon } from 'lucide-react';
+import { Loader2Icon, TriangleAlertIcon,  ChartBarBigIcon, EyeIcon, SparklesIcon} from 'lucide-react';
 import { uploadPdfToSupabase } from '@/lib/supabase/upload';
 import { motion, AnimatePresence } from 'motion/react'
 import { Hero } from '@/components/hero';
-import { Streamdown } from 'streamdown';
 import { CodeBlock } from '@/components/ai-elements/code-block';
-import ShinyText from '@/components/ShinyText';
-import { TaskLogEntry, type LogEntry } from '@/components/task-log-entry';
 import { Workflow } from '@/components/workflow';
 import PropertySearch from '@/components/property-search'
 import NameSearch from '@/components/name-search';
@@ -21,72 +18,11 @@ import Order from '@/components/order';
 
 
 import {
-  Conversation,
-  ConversationContent,
-  ConversationScrollButton,
-} from '@/components/conversation';
-import { Message, MessageContent } from '@/components/message'; 
-import { Response } from '@/components/ai-elements/response';
-
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-
-
-import {
   Card,
-  CardAction,
   CardContent,
-  CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-
-import { LoaderIcon } from "lucide-react"
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-  InputGroupText,
-} from "@/components/ui/input-group"
-import { Spinner } from "@/components/ui/spinner"
-
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-  FieldLegend,
-  FieldSet,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemGroup,
-  ItemDescription,
-  ItemMedia,
-  ItemTitle,
-} from "@/components/ui/item"
-
-import {
-  ChainOfThought,
-  ChainOfThoughtContent,
-  ChainOfThoughtHeader,
-  ChainOfThoughtImage,
-  ChainOfThoughtSearchResult,
-  ChainOfThoughtSearchResults,
-  ChainOfThoughtStep,
-} from '@/components/ai-elements/chain-of-thought';
 
 async function convertFilesToDataURLs(
   files: FileList,
@@ -125,19 +61,14 @@ async function convertFilesToDataURLs(
 }
 
 export default function Page() {
-  const [notification, setNotification] = useState({ message: ''});
-  const { messages, sendMessage, status } = useChat<MyUIMessage>({
-    onData: ({ data, type }) => {
-      if (type === 'data-log') {
-        setNotification({ message: data.message });
-      }
-    },
+
+  const { messages, sendMessage } = useChat<MyUIMessage>({
     transport: new DefaultChatTransport({ 
       api: '/api/research' // Your API route
     }),
   });
 
-  const [input, setInput] = useState('');
+  // const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -145,7 +76,7 @@ export default function Page() {
   }, [messages])
 
   const [isDragging, setIsDragging] = useState(false);
-  const [files, setFiles] = useState<FileList | null>(null);
+  // const [files, setFiles] = useState<FileList | null>(null);
 
 
 const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
@@ -174,7 +105,7 @@ const handleDrop = async (event: DragEvent<HTMLDivElement>) => {
 
       const dataTransfer = new DataTransfer();
       validFiles.forEach((file) => dataTransfer.items.add(file));
-      setFiles(dataTransfer.files);
+      // setFiles(dataTransfer.files);
 
       const dataURLS = await convertFilesToDataURLs(dataTransfer.files);
       sendMessage({ text: '' },{ body:{ filePart: dataURLS[0]}});
@@ -422,12 +353,3 @@ const generatePDF = async (data: any) => {
   );
 }
 
-
-/*
-icon
-title
-steps? { status: }
-description?
-status: 'pending' | 'active' | 'complete' | 'failed'
-content?: { type: 'text' | 'list', | 'table' }
-*/

@@ -1,13 +1,10 @@
 import { google } from '@ai-sdk/google';
-import { streamText, streamObject, generateText, UIMessage, convertToModelMessages, createUIMessageStream, createUIMessageStreamResponse, Output, type UIMessageStreamWriter, type FilePart, readUIMessageStream} from 'ai';
+import { streamText, generateText, UIMessage, createUIMessageStream, createUIMessageStreamResponse, Output, type FilePart} from 'ai';
 import { MyUIMessage } from '@/lib/types';
-import z, { property } from 'zod';
+import z from 'zod';
 import { orderEntryAgent } from '@/lib/agents/order-entry-agent';
-import { classificationAgent } from '@/lib/agents/classify-agent';
-import { propertySearchAgent } from '@/lib/agents/property-search-agent';
 import { PropertySyncClient } from '@/lib/propertysync/client';
 import { subdivisionAgent } from '@/lib/agents/subdivision-agent';
-import { createServerClient } from '@supabase/ssr';
 import { createClient } from '@/lib/supabase/server';
 import { nameSearchAgent } from '@/lib/agents/name-search-agent';
 
@@ -16,7 +13,7 @@ export const maxDuration = 30;
 
 export async function POST(req: Request) {
 
-  const { messages, attachmentURL, filePart }: { messages: UIMessage[], attachmentURL: string, filePart?: FilePart } = await req.json();
+  const { filePart }: { messages: UIMessage[], attachmentURL: string, filePart?: FilePart } = await req.json();
 
   const stream = createUIMessageStream<MyUIMessage>({
     async execute({ writer }) {
@@ -147,7 +144,7 @@ export async function POST(req: Request) {
       };
 
       const searchResponse = await client.searchDocuments(documentGroupId, searchQuery);
-      let searchResults = await client.retrieveResults(documentGroupId, searchResponse.id);
+      const searchResults = await client.retrieveResults(documentGroupId, searchResponse.id);
       // const createOrderResponse = await client.createOrder(documentGroupId, companyId, { title: `AI-${orderInfo.orderNumber}`, searchID: searchResponse.id})
       // propertySyncOrderId = createOrderResponse.id;
       const documentResults = searchResults.filter((r)=>r.documentType != 'ORDER').map((result)=>{
@@ -346,7 +343,7 @@ export async function POST(req: Request) {
     
     },
     originalMessages:[],
-    onFinish: async ({ messages, isContinuation, responseMessage }) => {
+    onFinish: async ({ messages }) => {
       console.log('Stream finished with messages:', messages);
 
       // Save Messages to Database

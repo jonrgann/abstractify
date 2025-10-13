@@ -1,6 +1,3 @@
-import { NextLogo } from "./next-logo";
-import { SupabaseLogo } from "./supabase-logo";
-import { LoginForm } from "./login-form";
 
 export function Hero() {
   return (

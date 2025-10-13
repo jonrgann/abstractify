@@ -1,6 +1,6 @@
-import { google, GoogleGenerativeAIProviderOptions} from '@ai-sdk/google';
+import { google } from '@ai-sdk/google';
 import { generateText, Output, UIMessageStreamWriter, UIMessage} from 'ai';
-import z, { url } from 'zod';
+import z from 'zod';
 import { PropertySyncClient } from '../propertysync/client';
 
 export const nameSearchAgent = async (input: any, writer: UIMessageStreamWriter<UIMessage>, client: PropertySyncClient, documentGroupId: string, companyId: string, orderId?: string) => {
@@ -83,7 +83,7 @@ export const nameSearchAgent = async (input: any, writer: UIMessageStreamWriter<
           };
     
           const nameSearchResponse = await client.searchDocuments(documentGroupId, nameSearch);
-          let nameSearchResults = await client.retrieveResults(documentGroupId, nameSearchResponse.id);
+          const nameSearchResults = await client.retrieveResults(documentGroupId, nameSearchResponse.id);
           
           if(orderId){
             await client.addSearchToOrder(documentGroupId, companyId, orderId, { title: query.name, searchID: nameSearchResponse.id})      

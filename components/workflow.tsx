@@ -1,11 +1,10 @@
-import { createContext, memo, useContext, type ComponentProps } from "react";
+import { memo, type ComponentProps } from "react";
 import { cn } from "@/lib/utils";
 import { TypewriterText } from "./typewrter";
 import { Card } from "@/components/ui/card"
 import {
     CheckIcon,
     DotIcon,
-    LoaderIcon,
     Loader2Icon,
     TriangleAlertIcon,
     type LucideIcon,
@@ -110,3 +109,4 @@ export type WorkflowProps = ComponentProps<"div"> & {
     }
   );
   
+  Workflow.displayName = 'Workflow';

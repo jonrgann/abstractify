@@ -12,7 +12,7 @@ export const subdivisionAgent = async (input: string, list: string[]) =>{
 
     const filteredMatches = findPrefixMatches(filteredInput, list).map((match) => match.item);
 
-    let subdivisionList: string[] = findBestMatches(filteredInput, filteredMatches).map((match) => match.text);
+    const subdivisionList: string[] = findBestMatches(filteredInput, filteredMatches).map((match) => match.text);
     // let subdivisionList: string[] = searchSubdivisions(input);
     // let validatedSubdivision: string | null = null;
 
@@ -116,7 +116,7 @@ function findMatchIgnoringSpaces(inputString: string, stringArray: string[]) {
     const normalizedInput = inputString.replace(/\s+/g, ' ').trim().toLowerCase();
     const inputWords = normalizedInput.split(' ');
     
-    let matches: string[] = [];
+    const matches: string[] = [];
     
     for (const arrayString of stringArray) {
       if (!arrayString) continue;

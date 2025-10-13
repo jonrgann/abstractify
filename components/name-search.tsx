@@ -1,5 +1,4 @@
 import React from 'react';
-import { Loader2 } from 'lucide-react';
 
 // Shadcn UI components
 import {
@@ -12,34 +11,23 @@ import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
-  InputGroupText,
 } from "@/components/ui/input-group"
-import { Spinner } from "@/components/ui/spinner"
 
 import {
   Field,
-  FieldDescription,
   FieldGroup,
   FieldLabel,
-  FieldLegend,
   FieldSet,
 } from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
 
 import {
     Table,
     TableBody,
-    TableCaption,
     TableCell,
-    TableHead,
-    TableHeader,
     TableRow,
   } from "@/components/ui/table"
 
-import { Separator } from './ui/separator';
-
-
-import { motion, AnimatePresence } from 'motion/react'
+import { motion } from 'motion/react'
 
 // PropertySearch Props Interface
 interface NameSearchProps {

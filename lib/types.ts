@@ -403,18 +403,18 @@ export const SubdivisionLegalSchema = z
 
 export type SubdivisionLegalType = z.infer<typeof SubdivisionLegalSchema>; 
 
-  interface SubdivisionLegal{
-    lot: [{ rangeMin: string, rangeMax: string }];
-    block: [{ rangeMin: string, rangeMax: string }];
-    addition: string | null
-  }
+  // interface SubdivisionLegal{
+  //   lot: [{ rangeMin: string, rangeMax: string }];
+  //   block: [{ rangeMin: string, rangeMax: string }];
+  //   addition: string | null
+  // }
 
-  interface AcreageLegal{
-    quarters: string | null;
-    section: string | null;
-    township: string | null;
-    range: string | null;
-  }
+  // interface AcreageLegal{
+  //   quarters: string | null;
+  //   section: string | null;
+  //   township: string | null;
+  //   range: string | null;
+  // }
 
   export interface SearchResultDocument {
     documentId: string;

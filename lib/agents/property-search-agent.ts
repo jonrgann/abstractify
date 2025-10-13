@@ -48,7 +48,7 @@ export const propertySearchAgent = async (orderInfo: string, writer: UIMessageSt
       const output = JSON.parse(result.text);
 
       const queries = await Promise.all(
-        output.queries.map(async (query: any) => {
+        output.queries.map(async (query: { lot: string, block: string, addition: string}) => {
           return {
             ...query,
             addition: await subdivisionAgent(query.addition, subdivisions)
@@ -69,7 +69,7 @@ export const propertySearchAgent = async (orderInfo: string, writer: UIMessageSt
 
 
       const searchResponse = await client.searchDocuments(documentGroupId, searchQuery);
-      let searchResults = await client.retrieveResults(documentGroupId, searchResponse.id);
+      const searchResults = await client.retrieveResults(documentGroupId, searchResponse.id);
       const documentResults = searchResults.filter((r)=>r.documentType != 'ORDER').map((result)=>{
         return {
           documentNumber: result.documentNumber,

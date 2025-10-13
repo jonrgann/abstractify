@@ -3,7 +3,9 @@ import puppeteer from "puppeteer"
 
 export async function POST(request: NextRequest) {
   try {
-    const { data, options = {} } = await request.json()
+
+    const { data = {} } = await request.json()
+    // const { data, options = {} } = await request.json()
 
     const html = `<!DOCTYPE html>
 <html lang="en">
@@ -256,27 +258,27 @@ export async function POST(request: NextRequest) {
     })
 
     // Generate PDF with options
-    const pdfBuffer = await page.pdf({
-      format: options.format || "A4",
-      printBackground: options.printBackground !== false,
-      margin: options.margin || {
-        top: "20px",
-        right: "20px",
-        bottom: "20px",
-        left: "20px",
-      },
-      ...options,
-    })
+    // const pdfBuffer = await page.pdf({
+    //   format: options.format || "A4",
+    //   printBackground: options.printBackground !== false,
+    //   margin: options.margin || {
+    //     top: "20px",
+    //     right: "20px",
+    //     bottom: "20px",
+    //     left: "20px",
+    //   },
+    //   ...options,
+    // })
 
     await browser.close()
 
-    return new NextResponse(pdfBuffer, {
-      status: 200,
-      headers: {
-        "Content-Type": "application/pdf",
-        "Content-Disposition": 'attachment; filename="converted.pdf"',
-      },
-    })
+    // return new NextResponse(pdfBuffer, {
+    //     status: 200,
+    //     headers: {
+    //       "Content-Type": "application/pdf",
+    //       "Content-Disposition": 'attachment; filename="converted.pdf"',
+    //     },
+    //   })
   } catch (error) {
     console.error("HTML to PDF conversion error:", error)
     return NextResponse.json({ error: "Failed to convert HTML to PDF" }, { status: 500 })

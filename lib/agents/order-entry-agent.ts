@@ -1,5 +1,5 @@
 import { google } from '@ai-sdk/google';
-import { generateText, Output, UIMessageStreamWriter, UIMessage, streamObject, FilePart} from 'ai';
+import { UIMessageStreamWriter, UIMessage, streamObject, FilePart} from 'ai';
 import z from 'zod';
 
 export const orderEntryAgent = async (filePart: FilePart, writer: UIMessageStreamWriter<UIMessage>) => {
@@ -67,11 +67,7 @@ export const orderEntryAgent = async (filePart: FilePart, writer: UIMessageStrea
       });
     }
 
-    const stream = result.fullStream
-
-    result.fullStream
-
-    return (await result.object);
+  return (await result.object);
 
   }catch(error){
     throw error

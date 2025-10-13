@@ -15,7 +15,6 @@ import {
   ClockIcon,
   WrenchIcon,
   XCircleIcon,
-  BarChart3Icon,
 } from 'lucide-react';
 import type { ComponentProps, ReactNode } from 'react';
 import { CodeBlock } from './code-block';
