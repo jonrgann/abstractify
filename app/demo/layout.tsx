@@ -17,9 +17,6 @@ export default function ProtectedLayout({
             <div className="items-center">
               <Link href={"/"} className="text-lg font-semibold leading-tight">Abstractify</Link>
               <p className="text-muted-foreground leading-tight">Automated Title Research</p>
-              {/* <div className="flex items-center gap-2">
-                <DeployButton />
-              </div> */}
             </div>
             {!hasEnvVars ? <EnvVarWarning /> : <AuthButton />}
           </div>
@@ -32,7 +29,7 @@ export default function ProtectedLayout({
           <p>
             Powered by{" "}
             <a
-              href="https://supabase.com/?utm_source=create-next-app&utm_medium=template&utm_term=nextjs"
+              href="/"
               target="_blank"
               className="font-bold hover:underline"
               rel="noreferrer"
