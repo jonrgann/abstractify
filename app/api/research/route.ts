@@ -147,8 +147,8 @@ export async function POST(req: Request) {
 
       const searchResponse = await client.searchDocuments(documentGroupId, searchQuery);
       const searchResults = await client.retrieveResults(documentGroupId, searchResponse.id);
-      // const createOrderResponse = await client.createOrder(documentGroupId, companyId, { title: `AI-${orderInfo.orderNumber}`, searchID: searchResponse.id})
-      // propertySyncOrderId = createOrderResponse.id;
+      const createOrderResponse = await client.createOrder(documentGroupId, companyId, { title: `AI-${orderInfo.orderNumber}`, searchID: searchResponse.id})
+      propertySyncOrderId = createOrderResponse.id;
       const documentResults = searchResults.filter((r)=>r.documentType != 'ORDER').map((result)=>{
         return {
           documentId:result.documentId,
