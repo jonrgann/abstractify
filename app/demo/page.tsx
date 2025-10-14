@@ -217,20 +217,6 @@ const generatePDF = async (data: any) => {
           return(
             <Order key={index} orderInfo={part.data.output} status={part.data.status}/>
           )
-          // return (
-          //   <Workflow key={index} {...part.data}>
-          //   {part.data.output && (
-          //     <div className="flex-col flex text-muted-foreground">
-          //         <TypewriterText text={`Order Number: ${part.data.output.orderNumber}`} delay={0}/>
-          //         <TypewriterText text={`Property Address: ${part.data.output.propertyAddress}`} delay={200 * 1}/>
-          //         <TypewriterText text={`Sellers: ${part.data.output.sellers}`} delay={200 * 2}/>
-          //         <TypewriterText text={`Borrowers: ${part.data.output.borrowers}`} delay={200 * 3}/>
-          //         <TypewriterText text={`Legal Description: ${part.data.output.legalDescription}`} delay={200 * 4}/>
-          //         <TypewriterText text={`County: ${part.data.output.county}`} delay={200 * 5}/>
-          //     </div>
-          //   )}
-          //   </Workflow>
-          // );
 
           case 'data-workflowConnectPropertysync':
             return (
@@ -287,7 +273,8 @@ const generatePDF = async (data: any) => {
                 {part.data.output && (
                   <div className="flex-col flex text-muted-foreground">
                     <TypewriterText text={`Name: ${part.data.output.name}`} delay={0}/>
-                    <TypewriterText text={`Date acquired: ${part.data.output.dateAcquired}`} delay={200 * 1}/>
+                    <TypewriterText text={`Date Acquired: ${part.data.output.dateAcquired}`} delay={200 * 1}/>
+                    <TypewriterText text={`Document Number: ${part.data.output.documentNumber}`} delay={300 * 1}/>
                   </div>
                 )}
                 </Workflow>
@@ -310,7 +297,7 @@ const generatePDF = async (data: any) => {
                                 )}
                                 {isGenerating ? "Downloading..." : "Download Report"}
                               </Button>
-                            <a href={part.data.output.orderUrl} target="_blank"><Button variant={'outline'}><EyeIcon/>View in Propertysync</Button></a>
+                            <a href={'https://portal.propertysync.com/orders/'} target="_blank"><Button variant={'outline'}><EyeIcon/>View in Propertysync</Button></a>
                             </div>
                       </div>
                     )}

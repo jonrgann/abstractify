@@ -37,6 +37,7 @@ export type MyUIMessage = UIMessage<
     workflowSummarize: WorkflowType,
     workflowVesting: WorkflowType,
     workflowResearchComplete: WorkflowType,
+    workflowDocuments: WorkflowType,
     searchProperty: {
       input: string;
       output?: any;
@@ -450,6 +451,16 @@ export type SubdivisionLegalType = z.infer<typeof SubdivisionLegalSchema>;
     firstAndLastName: string;
     falloutDate: string | null;
     documentNotes: string;
+  }
+
+  export interface Document {
+    documentId: string;
+    documentNumber: string;
+    filedDate: string;
+    documentType: string;
+    grantor: string;
+    grantee: string;
+    legal: string;
   }
   
   export type SearchResults = SearchResultDocument[];

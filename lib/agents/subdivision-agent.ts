@@ -236,7 +236,7 @@ function findBestMatches(input: string, candidates: string[], maxResults: number
     const sortedResults = results
     .sort((a, b) => b.score - a.score)
     .slice(0, maxResults);
-    console.log(sortedResults)
+
     return sortedResults;
 }
   

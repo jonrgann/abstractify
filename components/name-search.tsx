@@ -56,7 +56,7 @@ const NameSearch: React.FC<NameSearchProps> = ({
                 <Field>
                   <FieldLabel htmlFor="name">Name Search</FieldLabel>
                   <InputGroup data-disabled>
-                    <InputGroupInput id="name" placeholder={ status === 'active' ? 'Thinking...' : 'None'} disabled value={query.name ?? ''} />
+                    <InputGroupInput id="name" placeholder={(status === 'active' && !query.name) ? '' : 'None'} disabled value={query.name ?? ''} />
                     {(status === 'active' && !query.name) && (
                       <InputGroupAddon>
                         <LoaderIcon className="animate-spin w-4 h-4" />
@@ -67,8 +67,8 @@ const NameSearch: React.FC<NameSearchProps> = ({
                 <Field className='w-[150px]'>
                   <FieldLabel htmlFor="startDate">Start Date</FieldLabel>
                   <InputGroup data-disabled>
-                    <InputGroupInput id="startDate" placeholder={ status === 'active' ? '' : 'None'} disabled value={query.startDate ?? ''} />
-                    {(status === 'active' && !query.startDate) && (
+                    <InputGroupInput id="startDate" placeholder={(status === 'active' && !query.name) ? '' : 'None'} disabled value={query.startDate ?? ''} />
+                    {(status === 'active' && !query.name) && (
                       <InputGroupAddon>
                         <LoaderIcon className="animate-spin w-4 h-4" />
                       </InputGroupAddon>
@@ -78,8 +78,8 @@ const NameSearch: React.FC<NameSearchProps> = ({
                 <Field className='w-[150px]'>
                   <FieldLabel htmlFor="endDate">End Date</FieldLabel>
                   <InputGroup data-disabled>
-                    <InputGroupInput id="endDate" placeholder={ status === 'active' ? '' : 'None'} disabled value={query.endDate ?? ''} />
-                    {(status === 'active' && !query.endDate) && (
+                    <InputGroupInput id="endDate" placeholder={(status === 'active' && !query.name) ? '' : 'None'} disabled value={query.endDate ?? ''} />
+                    {(status === 'active' && !query.name) && (
                       <InputGroupAddon>
                         <LoaderIcon className="animate-spin w-4 h-4" />
                       </InputGroupAddon>

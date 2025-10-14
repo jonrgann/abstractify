@@ -82,8 +82,11 @@ export const nameSearchAgent = async (input: any, writer: UIMessageStreamWriter<
             } 
           };
     
+          console.log(`Searching Documents... ${query.name}`);
           const nameSearchResponse = await client.searchDocuments(documentGroupId, nameSearch);
+          console.log(`Retrieving results... ${query.name}`);
           const nameSearchResults = await client.retrieveResults(documentGroupId, nameSearchResponse.id);
+          console.log(`Results received... ${query.name}`);
           
           if(orderId){
             await client.addSearchToOrder(documentGroupId, companyId, orderId, { title: query.name, searchID: nameSearchResponse.id})      

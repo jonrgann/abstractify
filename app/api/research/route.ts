@@ -7,6 +7,7 @@ import { PropertySyncClient } from '@/lib/propertysync/client';
 import { subdivisionAgent } from '@/lib/agents/subdivision-agent';
 import { createClient } from '@/lib/supabase/server';
 import { nameSearchAgent } from '@/lib/agents/name-search-agent';
+import { getMostRecentDeed } from '@/lib/documents/utils';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -124,7 +125,8 @@ export async function POST(req: Request) {
   let propertySyncOrderId;
       // Process all name queries
     for (const query of queries) {
-      const workflowId = `workflow-${crypto.randomUUID()}`;
+
+      const workflowId = crypto.randomUUID();
 
         writer.write({
           type: 'data-workflowSearch',
@@ -265,41 +267,28 @@ export async function POST(req: Request) {
 
     /* ---------- To Do: GET VESTING INFO -----------*/
 
-    writer.write({
-      type: 'data-workflowVesting',
-      id: 'workflow-vesting-1',
-      data: { status:'active', label:`Getting current owner...` }, 
-  }); 
+    const mostRecentDeed = getMostRecentDeed(propertySearchDocuments);
+    let vestingInfo =  { name: 'UNKNOWN', dateAcquired: 'N/A', documentNumber:'N/A'}
 
-      const summaryPrompt = summaries.map((summary) => `<document>${summary}</document>`).join('\n');
-      
-          const vestingAgent = await generateText({
-          model: google('gemini-2.5-flash'),
-          system: `You are an expert title research assistant.  
-          Your task is review the summarized documents and determine the vesting information by extracting the current owner name exactly as it appears on the document and date they acquired title.`,
-          experimental_output:Output.object({
-          schema: z.object({
-              name: z.string(),
-              dateAcquired: z.string().array(),
-          })
-        }),
-          prompt: summaryPrompt
+    if(mostRecentDeed){
+      const newAcquiredDate = new Date(mostRecentDeed?.filedDate);  
+      const dateAcquired = newAcquiredDate.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
       });
-
-      const vestingInfo = JSON.parse(vestingAgent.text)
+      vestingInfo =  { name: mostRecentDeed.grantee, dateAcquired, documentNumber: mostRecentDeed.documentNumber}
+    }
 
       writer.write({
         type: 'data-workflowVesting',
         id: 'workflow-vesting-1',
-        data: { status:'complete', label:`Vesting Info:`, output: { name: vestingInfo.name, dateAcquired: vestingInfo.dateAcquired} }, 
+        data: { status:'complete', label:`Owner Info:`, output: vestingInfo }, 
     }); 
-
 
     /* --------------- GENERATE REPORT DATA -------------- */
 
- 
       const allDocuments = [...propertySearchDocuments, ...nameSearchDocuments];
-
       const openMortgages = allDocuments.filter((doc) => ['MORTGAGE'].includes(doc.documentType.toUpperCase()));
       const exceptions = allDocuments.filter((doc) => ['PLAT','PROTECTIVE COVENANTS'].includes(doc.documentType.toUpperCase()));
       const judgments = allDocuments.filter((doc) => ['JUDGMENT','FEDERAL TAX LIEN','STATE TAX LIEN'].includes(doc.documentType.toUpperCase()));
@@ -308,10 +297,7 @@ export async function POST(req: Request) {
         orderInfo, 
         effectiveDate, 
         searchDate, 
-        vesting: { 
-          name: vestingInfo.name, 
-          dateAcquired:vestingInfo.dateAcquired
-        }, 
+        vesting: vestingInfo, 
         searchResults: propertySearchDocuments, 
         openMortgages, 
         exceptions, 
@@ -340,11 +326,10 @@ export async function POST(req: Request) {
 
       }
     }
-    
     },
     originalMessages:[],
     onFinish: async ({ messages }) => {
-      console.log('Stream finished with messages:', messages);
+      // console.log('Stream finished with messages:', JSON.stringify(messages, null, 2));
 
       // Save Messages to Database
       const supabase = await createClient();
