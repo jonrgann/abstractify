@@ -65,18 +65,22 @@ export const nameSearchAgent = async (input: any, writer: UIMessageStreamWriter<
             },
         });
     
+
+        const wildCardSearch = nameToWildcard(query.name)
         // Create Name Search
         const nameSearch = {
             queryParams: {
               excludeRelatedDocuments: 1,
               giOnly: 1,
+              soundexSearch: 1,
+              proximitySearch: 1,
               recordingInfo: {
                 dateFrom: query.startDate,
                 dateTo: query.endDate
               },
               parties: [
                 {
-                  partyName: query.name,
+                  partyName: wildCardSearch,
                 }
               ]
             } 
@@ -89,7 +93,7 @@ export const nameSearchAgent = async (input: any, writer: UIMessageStreamWriter<
           console.log(`Results received... ${query.name}`);
           
           if(orderId){
-            await client.addSearchToOrder(documentGroupId, companyId, orderId, { title: query.name, searchID: nameSearchResponse.id})      
+            await client.addSearchToOrder(documentGroupId, companyId, orderId, { title: wildCardSearch, searchID: nameSearchResponse.id})      
           }
 
           const nameDocumentResults = nameSearchResults.filter((r) => r.documentType != 'ORDER').map((result) => {
@@ -112,7 +116,7 @@ export const nameSearchAgent = async (input: any, writer: UIMessageStreamWriter<
                 status: 'complete', // Change status to reflect ongoing work
                 label: `Generating name search`,
                 output: {
-                    query: query,
+                    query: { ...query, name: wildCardSearch},
                     results: nameDocumentResults
                 }
             },
@@ -122,5 +126,73 @@ export const nameSearchAgent = async (input: any, writer: UIMessageStreamWriter<
 
     return { chainofTitle: output.chainofTitle, searchResults: searchResults, documents: documents};
 
+}
+
+function nameToWildcard(name: string): string {
+  // Common suffixes to remove
+  const suffixes = [
+    'LLC',
+    'Inc',
+    'Corp',
+    'Corporation',
+    'Ltd',
+    'Limited',
+    'Company',
+    'Co',
+    'LLP',
+    'LP',
+    'PC',
+    'PLLC',
+    'PA'
+  ];
+  
+  // Common words to filter out
+  const stopWords = [
+    'the',
+    'a',
+    'an',
+    'and',
+    'or',
+    'of'
+  ];
+  
+  // Remove punctuation and normalize
+  let normalized = name
+    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, ' ')
+    .trim()
+    .toLowerCase();
+  
+  // Split into words
+  let words = normalized.split(/\s+/).filter(word => word.length > 0);
+  
+  // Remove suffixes
+  words = words.filter(word => 
+    !suffixes.some(suffix => suffix.toLowerCase() === word)
+  );
+  
+  // Remove stop words
+  words = words.filter(word => 
+    !stopWords.includes(word)
+  );
+  
+  // Take first two significant words
+  const significantWords = words.slice(0, 2);
+  
+  // Keep first word(s) complete, truncate only the last word
+  if (significantWords.length > 0) {
+    const lastIndex = significantWords.length - 1;
+    const lastWord = significantWords[lastIndex];
+    const truncateLength = Math.min(lastWord.length, lastWord.length >= 5 ? 5 : 4);
+    significantWords[lastIndex] = lastWord.substring(0, truncateLength);
+  }
+  
+  // Join with space and add wildcard
+  const result = significantWords.join(' ') + '%';
+  
+  // Capitalize first letter of each word for readability
+  return result
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
 }
 

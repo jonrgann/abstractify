@@ -136,6 +136,7 @@ export async function POST(req: Request) {
 
       const searchQuery = {
         queryParams: {
+          excludeOrders: 1,
           excludeRelatedDocuments: 1,
           subdivisions: queries,
           recordingInfo: {

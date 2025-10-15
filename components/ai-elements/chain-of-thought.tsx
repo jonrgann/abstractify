@@ -13,6 +13,7 @@ import {
   BrainIcon,
   ChevronDownIcon,
   DotIcon,
+  LoaderIcon,
   Loader2Icon,
   CheckIcon,
   TriangleAlertIcon,
@@ -135,7 +136,7 @@ export const ChainOfThoughtStep = memo(
 
     switch (status) {
       case "active":
-        DisplayIcon = Loader2Icon;
+        DisplayIcon = LoaderIcon;
         break;
       case "pending":
         DisplayIcon = DotIcon;
