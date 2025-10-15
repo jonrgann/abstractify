@@ -54,9 +54,9 @@ const NameSearch: React.FC<NameSearchProps> = ({
             <FieldGroup>
               <div className="grid grid-cols-[1fr_auto_auto] gap-4">
                 <Field>
-                  <FieldLabel htmlFor="name">Name Search</FieldLabel>
+                  <FieldLabel htmlFor="name">Name Search: ${query.name}</FieldLabel>
                   <InputGroup data-disabled>
-                    <InputGroupInput id="name" placeholder={(status === 'active' && !query.name) ? '' : 'None'} disabled value={query.name ?? ''} />
+                    <InputGroupInput id="name" placeholder={(status === 'active' && !query.name) ? 'Generating search query...' : 'None'} disabled value={query.name ?? ''} />
                     {(status === 'active' && !query.name) && (
                       <InputGroupAddon>
                         <LoaderIcon className="animate-spin w-4 h-4" />
