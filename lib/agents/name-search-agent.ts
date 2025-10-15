@@ -157,7 +157,7 @@ function nameToWildcard(name: string): string {
   ];
   
   // Remove punctuation and normalize
-  let normalized = name
+  const normalized = name
     .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, ' ')
     .trim()
     .toLowerCase();
