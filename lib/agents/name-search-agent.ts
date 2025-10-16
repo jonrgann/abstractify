@@ -51,6 +51,7 @@ export const nameSearchAgent = async (input: any, writer: UIMessageStreamWriter<
         // Generate a unique ID for each specific query processing event.
         // This allows you to track individual query progress if needed,
         // while still associating them with the overall workflowInstanceId.
+        await new Promise(resolve => setTimeout(resolve, index * 100)); 
         const workflowId = index === 0 ? initialWorkflowId : `workflow-${crypto.randomUUID()}`;
     
         writer.write({
