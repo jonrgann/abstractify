@@ -195,7 +195,7 @@ export async function POST(req: Request) {
       async function processBatch(items: any, batchSize = 10) {
         const results = [];
         for (let i = 0; i < items.length; i += batchSize) {
-
+          await new Promise(resolve => setTimeout(resolve, i * 200)); 
           const batch = items.slice(i, i + batchSize);
           const batchResults = await Promise.all(
             batch.map(async (doc: any) => {
