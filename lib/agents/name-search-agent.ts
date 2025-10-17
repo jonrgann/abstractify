@@ -67,7 +67,7 @@ export const nameSearchAgent = async (input: any, writer: UIMessageStreamWriter<
         });
     
 
-        const wildCardSearch = nameToWildcard(query.name)
+        const wildCardSearch = query.name;//nameToWildcard(query.name)
         // Create Name Search
         const nameSearch = {
             queryParams: {

@@ -272,9 +272,9 @@ const generatePDF = async (data: any) => {
                 <Workflow key={index} {...part.data}>
                 {part.data.output && (
                   <div className="flex-col flex text-muted-foreground">
-                    <TypewriterText text={`Name: ${part.data.output.name}`} delay={0}/>
-                    <TypewriterText text={`Date Acquired: ${part.data.output.dateAcquired}`} delay={200 * 1}/>
-                    <TypewriterText text={`Document Number: ${part.data.output.documentNumber}`} delay={300 * 1}/>
+                    <TypewriterText text={part.data.output.names} delay={0}/>
+                    {/* <TypewriterText text={`Date Acquired: ${part.data.output.dateAcquired}`} delay={200 * 1}/>
+                    <TypewriterText text={`Document Number: ${part.data.output.documentNumber}`} delay={300 * 1}/> */}
                   </div>
                 )}
                 </Workflow>

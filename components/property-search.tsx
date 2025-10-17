@@ -143,7 +143,7 @@ const PropertySearch: React.FC<PropertySearchProps> = ({
                     <TableCell className="w-[100px]">{doc.filedDate}</TableCell>
                     <TableCell className="max-w-[150px] truncate">{doc.documentType}</TableCell>
                     <TableCell className="max-w-[150px] truncate">{doc.grantor}</TableCell>
-                    <TableCell className="max-w-[150px] truncate">{doc.grantor}</TableCell>
+                    <TableCell className="max-w-[150px] truncate">{doc.grantee}</TableCell>
                   </motion.tr>
                 );
               })
