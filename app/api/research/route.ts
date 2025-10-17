@@ -139,10 +139,10 @@ export async function POST(req: Request) {
           excludeOrders: 1,
           excludeRelatedDocuments: 1,
           subdivisions: queries,
-          recordingInfo: {
+          recordingInfos: [{
             dateFrom: null,
             dateTo: null
-          }
+          }]
         } 
       };
 
@@ -337,10 +337,10 @@ export async function POST(req: Request) {
             giOnly: 1,
             soundexSearch: 1,
             proximitySearch: 1,
-            recordingInfo: {
+            recordingInfos: [{
               dateFrom: query.startDate == 'UNKNOWN' ? null : query.startDate,
               dateTo: query.endDate == 'UNKNOWN' ? null : query.endDate,
-            },
+            }],
             parties: [
               {
                 partyName: query.name,
