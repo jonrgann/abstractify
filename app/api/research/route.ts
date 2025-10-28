@@ -25,8 +25,7 @@ export async function POST(req: Request) {
 
         /* -------------- READ PDF DOCUMENT -------------- */ 
        const orderInfo = await orderEntryAgent(filePart, writer);
-
-
+       
        /* -------------- Connect to PropertySync -------------- */ 
 
        writer.write({

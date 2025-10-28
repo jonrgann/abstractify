@@ -5,6 +5,27 @@ import { ThemeSwitcher } from "@/components/theme-switcher";
 import { hasEnvVars } from "@/lib/utils";
 import Link from "next/link";
 
+import {
+  Card,
+  CardContent
+} from '@/components/ui/card';
+
+import { LoaderIcon } from "lucide-react"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group"
+
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldSet,
+} from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
+
 export default function Home() {
   return (
     <main className="min-h-screen flex flex-col items-center">
@@ -21,6 +42,28 @@ export default function Home() {
         <div className="flex-1 flex flex-col gap-20 max-w-5xl p-5">
           <Hero />
           <main className="flex-1 flex flex-col gap-6 px-4">
+<Card>
+  <CardContent>
+  <FieldSet>
+        <FieldGroup>
+        <div className="grid grid-cols-2 gap-4">
+          <Field>
+            <FieldLabel htmlFor="username">Email</FieldLabel>
+            <Input id="username" type="text" placeholder="Max Leiter" />
+            <FieldDescription>
+              Add your PropertySync credentials.
+            </FieldDescription>
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="password">Password</FieldLabel>
+            <Input id="password" type="password" placeholder="********" />
+          </Field>
+          </div>
+        </FieldGroup>
+      </FieldSet>
+  </CardContent>
+</Card>
+
           </main>
         </div>
 
