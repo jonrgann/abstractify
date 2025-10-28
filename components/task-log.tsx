@@ -52,7 +52,7 @@ export function TaskLog({ logs, className, maxHeight = "400px", autoScroll = tru
     <div className={cn("bg-black border border-gray-800 rounded-lg overflow-hidden", className)}>
       <div ref={scrollRef} className="p-4 overflow-y-auto font-mono text-sm leading-relaxed" style={{ maxHeight }}>
         {logs.map((log) => (
-          <div key={log.id} className={cn("whitespace-pre-wrap break-words", getTypeColor(log.type))}>
+          <div key={log.id} className={cn("whitespace-pre-wrap wrap-break-word", getTypeColor(log.type))}>
             <span className="text-gray-400">[{formatTimestamp(log.timestamp)}]</span> {log.message}
           </div>
         ))}

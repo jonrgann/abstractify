@@ -180,7 +180,7 @@ const generatePDF = async (data: any) => {
     </motion.div>
   )}
     </AnimatePresence>
-    <div className="min-w-[32rem] w-[64rem] mt-10">
+    <div className="min-w-lg w-5xl mt-10">
     <Hero />
     <div className="space-y-4">
 

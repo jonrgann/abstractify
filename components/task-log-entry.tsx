@@ -32,7 +32,7 @@ export function TaskLogEntry({ log, className, delay = 0 }: TaskLogEntryProps) {
   }
 
   return (
-    <div className={cn("whitespace-pre-wrap break-words ", getTypeColor(log.type), className)}>
+    <div className={cn("whitespace-pre-wrap wrap-break-word ", getTypeColor(log.type), className)}>
       <TypewriterText text={log.message} delay={delay}/>
     </div>
   )
