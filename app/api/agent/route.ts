@@ -183,8 +183,8 @@ import {
 
             const searchResponse = await client.searchDocuments(documentGroupId, searchQuery);
             const searchResults = await client.retrieveResults(documentGroupId, searchResponse.id);
-            // const createOrderResponse = await client.createOrder(documentGroupId, companyId, { title: `AI-${orderInfo.orderNumber}`, searchID: searchResponse.id})
-            // propertySyncOrderId = createOrderResponse.id;
+            const createOrderResponse = await client.createOrder(documentGroupId, companyId, { title: `AI-${orderInfo.orderNumber}`, searchID: searchResponse.id})
+            propertySyncOrderId = createOrderResponse.id;
             const documentResults = searchResults.filter((r)=>r.documentType != 'ORDER').map((result)=>{
               return {
                 documentId:result.documentId,
@@ -263,7 +263,9 @@ import {
                 }
             },
           })
-      
+
+          const wildCardSearch = nameToWildcard(query.name)
+
             const nameSearchQuery = {
               queryParams: {
                 excludeRelatedDocuments: 1,
@@ -277,13 +279,16 @@ import {
                 parties: [
                   {
                     partyName: query.name,
-                  }
+                  },
                 ]
               } 
             };
       
             const searchResponse = await client.searchDocuments(documentGroupId, nameSearchQuery);
             const searchResults = await client.retrieveResults(documentGroupId, searchResponse.id);
+            if(propertySyncOrderId){
+              await client.addSearchToOrder(documentGroupId,companyId, propertySyncOrderId, { title: query.name, searchID: searchResponse.id})
+            }
             // const createOrderResponse = await client.createOrder(documentGroupId, companyId, { title: `AI-${orderInfo.orderNumber}`, searchID: searchResponse.id})
             // propertySyncOrderId = createOrderResponse.id;
             const documentResults = searchResults.filter((r)=>r.documentType != 'ORDER').map((result)=>{
@@ -361,4 +366,72 @@ import {
   );
   
     return createUIMessageStreamResponse({ stream });
+  }
+
+  function nameToWildcard(name: string): string {
+    // Common suffixes to remove
+    const suffixes = [
+      'LLC',
+      'Inc',
+      'Corp',
+      'Corporation',
+      'Ltd',
+      'Limited',
+      'Company',
+      'Co',
+      'LLP',
+      'LP',
+      'PC',
+      'PLLC',
+      'PA'
+    ];
+    
+    // Common words to filter out
+    const stopWords = [
+      'the',
+      'a',
+      'an',
+      'and',
+      'or',
+      'of'
+    ];
+    
+    // Remove punctuation and normalize
+    const normalized = name
+      .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, ' ')
+      .trim()
+      .toLowerCase();
+    
+    // Split into words
+    let words = normalized.split(/\s+/).filter(word => word.length > 0);
+    
+    // Remove suffixes
+    words = words.filter(word => 
+      !suffixes.some(suffix => suffix.toLowerCase() === word)
+    );
+    
+    // Remove stop words
+    words = words.filter(word => 
+      !stopWords.includes(word)
+    );
+    
+    // Take first two significant words
+    const significantWords = words.slice(0, 2);
+    
+    // Keep first word(s) complete, truncate only the last word
+    if (significantWords.length > 0) {
+      const lastIndex = significantWords.length - 1;
+      const lastWord = significantWords[lastIndex];
+      const truncateLength = Math.min(lastWord.length, lastWord.length >= 5 ? 5 : 4);
+      significantWords[lastIndex] = lastWord.substring(0, truncateLength);
+    }
+    
+    // Join with space and add wildcard
+    const result = significantWords.join(' ') + '%';
+    
+    // Capitalize first letter of each word for readability
+    return result
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
   }
