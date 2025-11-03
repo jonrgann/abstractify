@@ -170,7 +170,7 @@ export async function POST(request: NextRequest) {
     </table>
     </div>
     <div class="section">
-        <div class="section-title">Open Mortgages</div>
+        <div class="section-title">Mortgages</div>
     <table>
         <tbody> 
             ${data.openMortgages && data.openMortgages.length > 0

@@ -266,23 +266,23 @@ import {
 
           const wildCardSearch = nameToWildcard(query.name)
 
-            const nameSearchQuery = {
-              queryParams: {
-                excludeRelatedDocuments: 1,
-                giOnly: 1,
-                soundexSearch: 1,
-                proximitySearch: 1,
-                recordingInfos: [{
-                  dateFrom: query.startDate == 'UNKNOWN' ? null : query.startDate,
-                  dateTo: query.endDate == 'UNKNOWN' ? null : query.endDate,
-                }],
-                parties: [
-                  {
-                    partyName: query.name,
-                  },
-                ]
-              } 
-            };
+          const nameSearchQuery = {
+            queryParams: {
+              excludeRelatedDocuments: 1,
+              giOnly: 1,
+              soundexSearch: 1,
+              proximitySearch: 1,
+              recordingInfos: [{
+                dateFrom: query.startDate == 'UNKNOWN' ? null : query.startDate,
+                dateTo: query.endDate == 'UNKNOWN' ? null : query.endDate,
+              }],
+              parties: [
+                {
+                  partyName: query.name,
+                },
+              ]
+            } 
+          };
       
             const searchResponse = await client.searchDocuments(documentGroupId, nameSearchQuery);
             const searchResults = await client.retrieveResults(documentGroupId, searchResponse.id);
