@@ -144,11 +144,7 @@ export async function POST(request: NextRequest) {
         <div class="section-title">Current Owner</div>
         <div class="row">
             <div class="label">Name</div>
-            <div class="value">${data.vesting.name}</div>
-        </div>
-        <div class="row">
-            <div class="label">Date Acquired</div>
-            <div class="value">${data.vesting.dateAcquired}</div>
+            <div class="value">${data.vesting.names}</div>
         </div>
     </div>
     

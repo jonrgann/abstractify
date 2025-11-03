@@ -64,7 +64,7 @@ export default function Page() {
 
   const { messages, sendMessage } = useChat<MyUIMessage>({
     transport: new DefaultChatTransport({ 
-      api: '/api/research' // Your API route
+      api: '/api/agent' // Your API route
     }),
   });
 
@@ -194,7 +194,7 @@ const generatePDF = async (data: any) => {
     >
     <Card className="gap-0">
       <CardHeader>
-        <CardTitle icon={<SparklesIcon className="w-5 h-5 text-muted-foreground/80"/>}>
+        <CardTitle>
         <TypewriterText text='Drag and drop a title order to get started.' delay={1000} speed={20}/>
         </CardTitle>
       </CardHeader>
@@ -204,10 +204,6 @@ const generatePDF = async (data: any) => {
     </AnimatePresence>
 
 
-
-    
-
- 
 {
   messages.map(message =>
     message.parts.map((part, index) => {
@@ -250,7 +246,7 @@ const generatePDF = async (data: any) => {
                   <div key={index}>
                   { part.data.output && (
                     <div className="flex-col flex text-muted-foreground space-y-4">
-                         <NameSearch status={part.data.status} query={part.data.output.query} results={part.data.output.results}/> 
+                         <NameSearch status={part.data.status} query={part.data.output.query} /> 
                     </div>
                   )}
                   </div>
@@ -316,7 +312,7 @@ const generatePDF = async (data: any) => {
                   >
                   <Card className="gap-0">
                     <CardHeader>
-                      <CardTitle icon={<TriangleAlertIcon className="w-5 h-5 text-muted-foreground/80"/>}>
+                      <CardTitle >
                       <TypewriterText text={part.data.message} delay={500}/>
                       </CardTitle>
                       <CardContent>

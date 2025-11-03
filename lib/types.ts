@@ -38,6 +38,10 @@ export type MyUIMessage = UIMessage<
     workflowVesting: WorkflowType,
     workflowResearchComplete: WorkflowType,
     workflowDocuments: WorkflowType,
+    workflowTest: { status: string, output?: any}
+    workflowStep1: { status: string, output?: any}
+    workflowStep2: { status: string, output?: any}
+    workflowStep3: { status: string, output?: any}
     searchProperty: {
       input: string;
       output?: any;

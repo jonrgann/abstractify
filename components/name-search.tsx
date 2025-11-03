@@ -15,19 +15,18 @@ import {
 
 import {
   Field,
+  FieldDescription,
   FieldGroup,
   FieldLabel,
+  FieldLegend,
+  FieldSeparator,
   FieldSet,
 } from "@/components/ui/field"
 
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableRow,
-  } from "@/components/ui/table"
+import { Input } from "@/components/ui/input"
 
-import { motion } from 'motion/react'
+import { Shimmer } from './ai-elements/shimmer';
+import { motion, AnimatePresence } from 'motion/react'
 
 // PropertySearch Props Interface
 interface NameSearchProps {
@@ -37,98 +36,59 @@ interface NameSearchProps {
     endDate?: string
  }
   status: 'active'| 'pending' | 'complete' | 'failed';
-  results?: any
 }
 
 const NameSearch: React.FC<NameSearchProps> = ({
     query,
     status = 'active',
-    results
   }) => {
     return (
-        <Card className={status === 'active' ? 'animate-pulse' : ''}>
-        <CardContent className="space-y-4">
-        <FieldSet>
-            {/* <FieldLegend>{status === 'active' ? 'Generating Name Search...' : 'Name Search'}</FieldLegend>
-            <FieldDescription>{status === 'active' ? 'Reviewing documents...' : 'Generated search query from order'}</FieldDescription> */}
-            <FieldGroup>
-              <div className="grid grid-cols-[1fr_auto_auto] gap-4">
-                <Field>
-                  <FieldLabel htmlFor="name">Name Search: {query.name}</FieldLabel>
-                  <InputGroup data-disabled>
-                    <InputGroupInput id="name" placeholder={(status === 'active' && !query.name) ? 'Generating search query...' : 'None'} disabled value={query.name ?? ''} />
-                    {(status === 'active' && !query.name) && (
-                      <InputGroupAddon>
-                        <LoaderIcon className="animate-spin w-4 h-4" />
-                      </InputGroupAddon>
-                    )}
-                  </InputGroup>
-                </Field>
-                <Field className='w-[150px]'>
-                  <FieldLabel htmlFor="startDate">Start Date</FieldLabel>
-                  <InputGroup data-disabled>
-                    <InputGroupInput id="startDate" placeholder={(status === 'active' && !query.name) ? '' : 'None'} disabled value={query.startDate ?? ''} />
-                    {(status === 'active' && !query.name) && (
-                      <InputGroupAddon>
-                        <LoaderIcon className="animate-spin w-4 h-4" />
-                      </InputGroupAddon>
-                    )}
-                  </InputGroup>
-                </Field>
-                <Field className='w-[150px]'>
-                  <FieldLabel htmlFor="endDate">End Date</FieldLabel>
-                  <InputGroup data-disabled>
-                    <InputGroupInput id="endDate" placeholder={(status === 'active' && !query.name) ? '' : 'None'} disabled value={query.endDate ?? ''} />
-                    {(status === 'active' && !query.name) && (
-                      <InputGroupAddon>
-                        <LoaderIcon className="animate-spin w-4 h-4" />
-                      </InputGroupAddon>
-                    )}
-                  </InputGroup>
-                </Field>
-              </div>
-            </FieldGroup>
-          </FieldSet>
-          {results && (
-                    <div className="flex-col flex text-muted-foreground mt-4">
-                        <Table className="overflow-hidden mt-1">
-                        <TableBody>
-                            {results.length === 0 ? (
-                              <TableRow>
-                                <TableCell colSpan={5} className="text-muted-foreground text-base">
-                                  No documents found
-                                </TableCell>
-                              </TableRow>
-                            ) : (
-                            results.map((doc:any, rowIndex:number) => {
-                                return (
-                                  <motion.tr
-                                    key={rowIndex}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{
-                                      duration: 0.4,
-                                      delay: rowIndex * 0.1,
-                                      ease: "easeOut"
-                                    }}
-                                    className="hover:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors text-base"
-                                  >
-                                    <TableCell className="w-[100px] font-medium">{doc.documentNumber}</TableCell>
-                                    <TableCell className="w-[100px]">{doc.filedDate}</TableCell>
-                                    <TableCell className="max-w-[150px] truncate">{doc.documentType}</TableCell>
-                                    <TableCell className="max-w-[150px] truncate">{doc.grantor}</TableCell>
-                                    <TableCell className="max-w-[150px]  truncate">{doc.grantor}</TableCell>
-                                  </motion.tr>
-                                );
-                              })
-                            )}
-                          </TableBody>
-                        </Table>
-                    </div>
-                  )}
-        </CardContent>
-      </Card>
+      <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+    >
+      <FieldSeparator>
+      {status === 'active' ? <Shimmer>Generating Searches...</Shimmer>: `Name Search`}
+      </FieldSeparator>
+      <AnimatePresence>
+  {status === 'complete' && (
+    <motion.div 
+      className="w-full mt-8"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <form>
+    <FieldSet>
+      {/* <FieldLegend>{status === 'active' ? 'Generating Property Search...' : 'Property Search'}</FieldLegend>
+      <FieldDescription>{status === 'active' ? 'Reviewing legal descriptions...' : 'Generated search query from order'}</FieldDescription> */}
+<FieldGroup>
+  <div className="grid grid-cols-[1fr_auto_auto] gap-4">
+    <Field>
+      <FieldLabel htmlFor="lot">Name</FieldLabel>
+        <Input id="name" placeholder='None' defaultValue={query.name ?? ''} />
+    
+    </Field>
+    <Field className='w-[150px]'>
+      <FieldLabel htmlFor="block">Start Date</FieldLabel>
+        <Input id="startDate" placeholder='None' defaultValue={query.startDate ?? ''} />
+    </Field>
+    <Field className='w-[150px]'>
+      <FieldLabel htmlFor="addition">End Date</FieldLabel>
+        <Input id="endDate" placeholder='None' defaultValue={query.endDate ?? ''} />
+   
+    </Field>
+  </div>
+</FieldGroup>
+    </FieldSet>
+    </form>
+    </motion.div>
+  )}
+</AnimatePresence>
+  </motion.div>
     );
   };
-  
+
   export default NameSearch;

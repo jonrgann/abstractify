@@ -3,18 +3,19 @@
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Shimmer } from "./ai-elements/shimmer";
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldSeparator,
+} from "@/components/ui/field"
 
 export function SignUpForm({
   className,
@@ -57,14 +58,12 @@ export function SignUpForm({
   };
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl">Sign up</CardTitle>
-          <CardDescription>Create a new account</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSignUp}>
+          <form onSubmit={handleSignUp}  className="p-6 md:p-8 mt-10">
+                <FieldGroup>
+      <div className="flex flex-col items-center gap-2 text-center">
+        <h1 className="text-2xl font-bold">Create an account</h1>
+        <Shimmer duration={3}>Title research in seconds.</Shimmer>
+      </div>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
@@ -112,9 +111,7 @@ export function SignUpForm({
                 Login
               </Link>
             </div>
+            </FieldGroup>
           </form>
-        </CardContent>
-      </Card>
-    </div>
   );
 }

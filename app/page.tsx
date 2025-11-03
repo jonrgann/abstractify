@@ -1,72 +1,60 @@
-import { EnvVarWarning } from "@/components/env-var-warning";
+
 import { AuthButton } from "@/components/auth-button";
-import { Hero } from "@/components/hero";
+import { useState } from "react"
 import { ThemeSwitcher } from "@/components/theme-switcher";
-import { hasEnvVars } from "@/lib/utils";
 import Link from "next/link";
 
-import {
-  Card,
-  CardContent
-} from '@/components/ui/card';
+import { Card, CardContent } from "@/components/ui/card"
+import { LoginForm } from "@/components/login-form"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { MaskedScrollArea } from "@/components/masked-scroll";
+import { Input } from "@/components/ui/input";
+import { createClient } from "@/lib/supabase/server"
 
-import { LoaderIcon } from "lucide-react"
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "@/components/ui/input-group"
+export default async function Home() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-  FieldSet,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-
-export default function Home() {
   return (
     <main className="min-h-screen flex flex-col items-center">
-      <div className="flex-1 w-full flex flex-col gap-20 items-center">
+      <div className="flex-1 w-full flex flex-col gap-12 items-center">
         <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16">
           <div className="w-full max-w-5xl flex justify-between items-center p-3 px-5 text-sm">
           <div className="items-center">
               <Link href={"/"} className="text-lg font-semibold leading-tight">Abstractify</Link>
               <p className="text-muted-foreground leading-tight">Automated Title Research</p>
             </div>
-            {!hasEnvVars ? <EnvVarWarning /> : <AuthButton />}
+            <AuthButton />
           </div>
         </nav>
-        <div className="flex-1 flex flex-col gap-20 max-w-5xl p-5">
-          <Hero />
-          <main className="flex-1 flex flex-col gap-6 px-4">
-<Card>
-  <CardContent>
-  <FieldSet>
-        <FieldGroup>
-        <div className="grid grid-cols-2 gap-4">
-          <Field>
-            <FieldLabel htmlFor="username">Email</FieldLabel>
-            <Input id="username" type="text" placeholder="Max Leiter" />
-            <FieldDescription>
-              Add your PropertySync credentials.
-            </FieldDescription>
-          </Field>
-          <Field>
-            <FieldLabel htmlFor="password">Password</FieldLabel>
-            <Input id="password" type="password" placeholder="********" />
-          </Field>
+          <main className="flex-1 flex flex-col gap-2 px-4 max-w-5xl w-full">
+          <div className="flex flex-col gap-6 w-full h-[640px]">
+            <Card className="overflow-hidden p-0 w-full h-full">
+              <CardContent className="grid p-0 md:grid-cols-[360px_1fr] h-full">
+                {!user ? (
+                  <LoginForm />
+                ) : (
+                  <div className="p-4">
+                  </div>
+                )}
+                <div className="bg-muted relative hidden md:block ">
+                  {/* <img
+                    src="/placeholder.svg"
+                    alt="Image"
+                    className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+                  /> */}
+                  <ScrollArea className="h-[640px] w-full rounded-md px-6 ">
+                    <div className="mt-4">
+
+                    </div>
+                </ScrollArea>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        </FieldGroup>
-      </FieldSet>
-  </CardContent>
-</Card>
-
           </main>
-        </div>
-
         <footer className="w-full flex items-center justify-center border-t mx-auto text-center text-xs gap-8 py-16">
           <p>
             Powered by{" "}
