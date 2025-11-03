@@ -114,8 +114,6 @@ import {
         writer.merge(result2.toUIMessageStream({ sendStart: false }));
 
 
-
-
         // Step 3. Connect to PropertySync
 
         const client = new PropertySyncClient();
