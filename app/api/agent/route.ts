@@ -283,8 +283,8 @@ import {
               soundexSearch: 1,
               proximitySearch: 1,
               recordingInfos: [{
-                dateFrom: query.startDate == 'UNKNOWN' ? null : query.startDate,
-                dateTo: query.endDate == 'UNKNOWN' ? null : query.endDate,
+                dateFrom: query.startDate == '' ? null : query.startDate,
+                dateTo: query.endDate == '' ? null : query.endDate,
               }],
               parties: [
                 {

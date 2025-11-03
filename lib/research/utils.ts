@@ -243,9 +243,9 @@ export function determineNamesInTitleFromChain(documents: Document[]): string[] 
           if (!titlePeriods.has(grantorName)) {
             titlePeriods.set(grantorName, {
               name: grantorName,
-              startDate: 'UNKNOWN', // or could use earliest doc date
+              startDate: '', // or could use earliest doc date
               endDate: doc.filedDate,
-              acquiredBy: 'UNKNOWN',
+              acquiredBy: '',
               conveyedBy: doc.documentNumber
             });
           } else if (currentOwners.has(grantorName)) {
