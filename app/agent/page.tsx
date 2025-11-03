@@ -9,16 +9,11 @@ import { Button } from '@/components/ui/button';
 import { Loader2Icon, TriangleAlertIcon,  ChartBarBigIcon, EyeIcon, SparklesIcon, BadgeCheckIcon} from 'lucide-react';
 import { uploadPdfToSupabase } from '@/lib/supabase/upload';
 import { motion, AnimatePresence } from 'motion/react'
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { CodeBlock } from '@/components/ai-elements/code-block';
-import { Workflow } from '@/components/workflow';
 import PropertySearch from '@/components/property-search'
 import SearchResults from '@/components/search-results';
 import NameSearch from '@/components/name-search';
 import Order from '@/components/order';
-import { SearchIcon, DotIcon, Paperclip} from 'lucide-react';
 import { Shimmer } from '@/components/ai-elements/shimmer';
-import { LoginForm } from '@/components/ps-login-form';
 
 
 import {
