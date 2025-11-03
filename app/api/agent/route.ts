@@ -65,6 +65,16 @@ import {
         // workflow programming is normal programming with this approach.
 
         const orderInfo = JSON.parse(await result1.text);
+
+        if(orderInfo.county.toUpperCase() != "BENTON"){
+          writer.write({
+            type: 'data-workflowError',
+            id: 'workflowError-1',
+            data: { status: 'complete', output: 'I can only work on properties in Benton county at this time.  Please refresh the page and try again.'}
+          }); 
+          // Exits Stream.
+          return;
+        }
   
         // example: continue stream with forced tool call from previous step
 

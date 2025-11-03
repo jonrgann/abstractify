@@ -311,6 +311,15 @@ const generatePDF = async (data: any) => {
                           
                              </div>
                             );
+                            case 'data-workflowError':
+                              return (
+                                <div key={index}>
+                                  <FieldSeparator>Error</FieldSeparator>
+                                  <div className="mt-8">
+                                  <span className="text-rose-400">{part.data.output}</span>
+                                  </div>
+                                </div>
+                              )
                     default:
                       return null;
                   }
