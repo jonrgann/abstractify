@@ -191,7 +191,7 @@ const TitleReportDocument: React.FC<{ data: TitleReportData }> = ({ data }) => (
       </View>
 
       {/* Documents */}
-      <View style={styles.section}>
+      <View style={styles.section} >
         <Text style={styles.sectionTitle}>RECORDINGS</Text>
         {data.searchResults.map((document, index) => (
           <View style={styles.tableRow} key={index}>
@@ -215,7 +215,7 @@ const TitleReportDocument: React.FC<{ data: TitleReportData }> = ({ data }) => (
       </View>
 
 
-        <View style={styles.section}>
+        <View style={styles.section} wrap={false}>
         <Text style={styles.sectionTitle}>OPEN MORTGAGES</Text>
         {data.openMortgages.map((document, index) => (
           <View style={styles.tableRow} key={index}>
@@ -238,8 +238,8 @@ const TitleReportDocument: React.FC<{ data: TitleReportData }> = ({ data }) => (
         ))}
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Exceptions</Text>
+      <View style={styles.section} wrap={false}>
+        <Text style={styles.sectionTitle}>EXCEPTIONS</Text>
         {data.exceptions.map((document, index) => (
           <View style={styles.tableRow} key={index}>
           <View style={{ width: 80, overflow: 'hidden' }}>
