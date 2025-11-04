@@ -172,12 +172,12 @@ const TitleReportDocument: React.FC<{ data: TitleReportData }> = ({ data }) => (
           <Text style={styles.value}>{data.property.propertyAddress}</Text>
         </View>
         <View style={styles.row}>
-          <Text style={styles.label}>County:</Text>
-          <Text style={styles.value}>{data.property.county}</Text>
-        </View>
-        <View style={styles.row}>
           <Text style={styles.label}>Legal Description:</Text>
           <Text style={styles.value}>{data.property.legalDescription}</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>County:</Text>
+          <Text style={styles.value}>{data.property.county}</Text>
         </View>
       </View>
 
