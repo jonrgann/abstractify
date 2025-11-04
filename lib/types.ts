@@ -290,7 +290,8 @@ export interface PropertySyncError {
   export interface DocumentDetails {
     id: string;
     image: any;
-    json: any; // The structure varies significantly, using 'any' is practical here
+    json: any; 
+    relatedDocuments?: any;// The structure varies significantly, using 'any' is practical here
     // You might want to define more specific types if you know the structure
     // for your specific document group.
   }

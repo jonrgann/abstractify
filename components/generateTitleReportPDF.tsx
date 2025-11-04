@@ -36,7 +36,8 @@ interface TitleReportData {
   property: PropertyInfo;
   currentOwner: Owner;
   searchResults: SearchResult[];
-  exceptions?: string[];
+  openMortgages: SearchResult[];
+  exceptions: SearchResult[];
 }
 
 // Create styles for the PDF
@@ -191,8 +192,55 @@ const TitleReportDocument: React.FC<{ data: TitleReportData }> = ({ data }) => (
 
       {/* Documents */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>RECORDS</Text>
+        <Text style={styles.sectionTitle}>RECORDINGS</Text>
         {data.searchResults.map((document, index) => (
+          <View style={styles.tableRow} key={index}>
+          <View style={{ width: 80, overflow: 'hidden' }}>
+            <Text>{document.documentNumber}</Text>
+          </View>
+          <View style={{ width: 80, overflow: 'hidden' }}>
+            <Text>{document.filedDate}</Text>
+          </View>
+          <View style={{ width: 100, overflow: 'hidden' }}>
+            <Text>{document.documentType}</Text>
+          </View>
+          <View style={{ width: 120, overflow: 'hidden', paddingLeft: 5 }}>
+            <Text style={{ flexWrap: 'nowrap', textOverflow: 'ellipsis', }}>{document.grantee.substring(0, 30)}</Text>
+          </View>
+          <View style={{ width: 120, overflow: 'hidden', paddingLeft: 5 }}>
+            <Text style={{ flexWrap: 'nowrap', textOverflow: 'ellipsis', }}>{document.grantee.substring(0, 30)}</Text>
+          </View>
+        </View>
+        ))}
+      </View>
+
+
+        <View style={styles.section}>
+        <Text style={styles.sectionTitle}>OPEN MORTGAGES</Text>
+        {data.openMortgages.map((document, index) => (
+          <View style={styles.tableRow} key={index}>
+          <View style={{ width: 80, overflow: 'hidden' }}>
+            <Text>{document.documentNumber}</Text>
+          </View>
+          <View style={{ width: 80, overflow: 'hidden' }}>
+            <Text>{document.filedDate}</Text>
+          </View>
+          <View style={{ width: 100, overflow: 'hidden' }}>
+            <Text>{document.documentType}</Text>
+          </View>
+          <View style={{ width: 120, overflow: 'hidden', paddingLeft: 5 }}>
+            <Text style={{ flexWrap: 'nowrap', textOverflow: 'ellipsis', }}>{document.grantee.substring(0, 30)}</Text>
+          </View>
+          <View style={{ width: 120, overflow: 'hidden', paddingLeft: 5 }}>
+            <Text style={{ flexWrap: 'nowrap', textOverflow: 'ellipsis', }}>{document.grantee.substring(0, 30)}</Text>
+          </View>
+        </View>
+        ))}
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Exceptions</Text>
+        {data.exceptions.map((document, index) => (
           <View style={styles.tableRow} key={index}>
           <View style={{ width: 80, overflow: 'hidden' }}>
             <Text>{document.documentNumber}</Text>

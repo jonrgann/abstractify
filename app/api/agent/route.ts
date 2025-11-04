@@ -7,11 +7,11 @@ import {
     streamText,
     tool,
   } from 'ai';
-  import { z } from 'zod';
+  import { property, z } from 'zod';
 
   import { PropertySyncClient } from '@/lib/propertysync/client';
   import { subdivisionAgent } from '@/lib/agents/subdivision-agent';
-  import { determineNamesInTitle, determineNamesInTitleFromChain, Document, filterByDeeds, getMostRecentDeed, createChainOfTitle, TitlePeriod } from '@/lib/research/utils'; 
+  import { determineNamesInTitle, determineNamesInTitleFromChain, Document, filterByDeeds, getMostRecentDeed, createChainOfTitle, TitlePeriod, filterByDocumentTypes } from '@/lib/research/utils'; 
   export async function POST(req: Request) {
     const { messages } = await req.json();
     
@@ -191,9 +191,10 @@ import {
 
             const searchResponse = await client.searchDocuments(documentGroupId, searchQuery);
             const searchResults = await client.retrieveResults(documentGroupId, searchResponse.id);
-            const createOrderResponse = await client.createOrder(documentGroupId, companyId, { title: `AI-${orderInfo.orderNumber}`, searchID: searchResponse.id})
-            propertySyncOrderId = createOrderResponse.id;
+            // const createOrderResponse = await client.createOrder(documentGroupId, companyId, { title: `AI-${orderInfo.orderNumber}`, searchID: searchResponse.id})
+            // propertySyncOrderId = createOrderResponse.id;
             const documentResults = searchResults.filter((r)=>r.documentType != 'ORDER').map((result)=>{
+
               return {
                 documentId:result.documentId,
                 documentNumber: result.documentNumber ? result.documentNumber : result.bookNumber + result.pageNumber.padStart(6, '0')  ,
@@ -226,7 +227,7 @@ import {
               await new Promise(resolve => setTimeout(resolve, index * 200));
               
               const details = await client.getDocumentDetails(documentGroupId, documentId);
-              
+
               return {
                 documentId: details.id,
                 documentNumber: details.json.instrumentNumber ? details.json.instrumentNumber : details.json.bookNumber + details.json.pageNumber.padStart(6, '0'),
@@ -234,6 +235,7 @@ import {
                 documentType: details.json.instrumentType,
                 grantors: details.json.grantors,
                 grantees: details.json.grantees,
+                related: details.relatedDocuments
               };
             })
           );
@@ -340,9 +342,24 @@ import {
 
 
         const allDocuments = [...propertySearchDocuments, ...nameSearchDocuments];
-        const openMortgages = allDocuments.filter((doc) => ['MORTGAGE'].includes(doc.documentType.toUpperCase()));
-        const exceptions = allDocuments.filter((doc) => ['PLAT','PROTECTIVE COVENANTS'].includes(doc.documentType.toUpperCase()));
-        const judgments = allDocuments.filter((doc) => ['JUDGMENT','FEDERAL TAX LIEN','STATE TAX LIEN'].includes(doc.documentType.toUpperCase()));
+        const mortgages = propertySearchDocuments.filter((doc) => ['MORTGAGE'].includes(doc.documentType.toUpperCase()));
+        const releases = allPropertyDocuments.filter((doc) => ['RELEASE', 'PARTIAL RELEASE'].includes(doc.documentType.toUpperCase()))
+        const releasedDocumentIds: string[] = [];
+        for ( const doc of releases){
+            if(doc.related){
+              for (const relatedDoc of doc.related){
+                releasedDocumentIds.push(relatedDoc.documentId)
+              }
+            }
+        }
+
+        // Create openMortgages by filtering out released mortgages
+        const openMortgages = mortgages.filter((mortgage) => 
+          !releasedDocumentIds.includes(mortgage.documentId)
+        );
+
+        const exceptions = allDocuments.filter((doc) => ['PLAT','PROTECTIVE COVENANTS',"RESTRICTIONS"].includes(doc.documentType.toUpperCase()));
+        // const judgments = allDocuments.filter((doc) => ['JUDGMENT','FEDERAL TAX LIEN','STATE TAX LIEN'].includes(doc.documentType.toUpperCase()));
   
         const report =  { 
           orderNumber: orderInfo.orderNumber, 
@@ -351,6 +368,8 @@ import {
           property: { propertyAddress: orderInfo.propertyAddress, legalDescription: orderInfo.legalDescription, county: orderInfo.county} ,
           currentOwner: { name: vestingInfo.names }, 
           searchResults: propertySearchDocuments, 
+          openMortgages: openMortgages,
+          exceptions: exceptions
         }
     
         writer.write({
