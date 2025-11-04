@@ -62,7 +62,7 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": [
-      "sharp","unrs-resolver", "puppeteer"
+      "sharp"
     ]
   }
 }
