@@ -14,7 +14,7 @@ import SearchResults from '@/components/search-results';
 import NameSearch from '@/components/name-search';
 import Order from '@/components/order';
 import { Shimmer } from '@/components/ai-elements/shimmer';
-
+import { downloadTitleReportPDF } from '@/components/generateTitleReportPDF';
 
 import {
   Card,
@@ -170,40 +170,21 @@ export default function Page() {
     setIsDragging(false);
   };
 
-  const [isGenerating, setIsGenerating] = useState(false)
-const generatePDF = async (data: any) => {
-  setIsGenerating(true)
-  console.log(data)
-  try {
-    const response = await fetch(`/api/generate-pdf`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({data:data}),
-    })
-
-    if (!response.ok) {
-      console.log(response)
-      throw new Error("Failed to generate PDF")
+  const handleDownloadPDF = async (data: any) => {
+    setIsGenerating(true)
+    try {
+      // Download PDF directly
+      await downloadTitleReportPDF(
+        data,
+        `Title-Report-${data.orderNumber}.pdf`
+      );
+      setIsGenerating(false)
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      setIsGenerating(false)
     }
-
-    const blob = await response.blob()
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = `Title-Report-${data.orderInfo.orderNumber}.pdf`
-    document.body.appendChild(a)
-    a.click()
-    window.URL.revokeObjectURL(url)
-    document.body.removeChild(a)
-  } catch (error) {
-    console.error("Error generating PDF:", error)
-    alert("Failed to generate PDF")
-  } finally {
-    setIsGenerating(false)
-  }
-}
+  };
+  const [isGenerating, setIsGenerating] = useState(false);
 
   return (
 
@@ -296,7 +277,7 @@ const generatePDF = async (data: any) => {
                                 <FieldSeparator>Research Complete</FieldSeparator>
                                     <div className="mt-8 grid grid-cols-[1fr_1fr] gap-4">
                                       <Button
-                                          onClick={() => generatePDF(part.data.output)}
+                                          onClick={() => handleDownloadPDF(part.data.output)}
                                           disabled={isGenerating} 
                                         >
                                           {isGenerating ? (
@@ -328,7 +309,7 @@ const generatePDF = async (data: any) => {
             }
 
           
-              <div ref={messagesEndRef} />
+          <div ref={messagesEndRef} />
           </div>
            </div>   
   );

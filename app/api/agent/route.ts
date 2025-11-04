@@ -345,15 +345,12 @@ import {
         const judgments = allDocuments.filter((doc) => ['JUDGMENT','FEDERAL TAX LIEN','STATE TAX LIEN'].includes(doc.documentType.toUpperCase()));
   
         const report =  { 
-          orderInfo, 
+          orderNumber: orderInfo.orderNumber, 
           effectiveDate, 
-          searchDate, 
-          vesting: vestingInfo, 
+          searchDate,
+          property: { propertyAddress: orderInfo.propertyAddress, legalDescription: orderInfo.legalDescription, county: orderInfo.county} ,
+          currentOwner: { name: vestingInfo.names }, 
           searchResults: propertySearchDocuments, 
-          openMortgages, 
-          exceptions, 
-          judgments, 
-          orderUrl: `https://portal.propertysync.com/documents/?orderId=${propertySyncOrderId}` 
         }
     
         writer.write({
