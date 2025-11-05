@@ -888,7 +888,7 @@ const TitleReport: React.FC<{ data: TitleReportData }> = ({ data }) => (
       {/* Footer */}
       <View style={styles2.footer} fixed>
         <Text>This is a preliminary title report and does not constitute a commitment to issue title insurance.</Text>
-        <Text style={{ marginTop: 5 }} render={({ pageNumber, totalPages}) => ( Page ${pageNumber} of ${totalPages}`)}/>
+        <Text style={{ marginTop: 5 }} render={({ pageNumber, totalPages}) => ( `Page ${pageNumber} of ${totalPages}`)}/>
       </View>
       </Page>
     </Document>
