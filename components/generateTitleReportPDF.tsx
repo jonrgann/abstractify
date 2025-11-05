@@ -685,7 +685,7 @@ const TitleReport: React.FC<{ data: TitleReportData }> = ({ data }) => (
         </View>
         <View style={{ marginTop: 10 }}>
         <View style={styles2.row}>
-          <Text style={styles2.label}>Owner's Name(s):</Text>
+        <Text style={styles2.label}>{"Owner's Name(s):"}</Text>
           <Text style={styles2.value}>{data.currentOwner.name}</Text>
         </View>
         {/* <View style={styles2.row}>
