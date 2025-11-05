@@ -202,12 +202,13 @@ import {
                 documentType: result.documentType,
                 grantor: result.bestGrantor,
                 grantee: result.bestGrantee,
-                legal: result.legalHeader.replace(/\s+/g, ' ').trim()
+                legal: result.legalHeader.replace(/\s+/g, ' ').trim(),
+                amount: result.details.consideration
               };
             });
 
 
-            console.log(searchResponse)
+           console.log(searchResponse)
             writer.write({
               type: 'data-workflowSearch',
               id: workflowId,
@@ -299,8 +300,6 @@ import {
             if(propertySyncOrderId){
               await client.addSearchToOrder(documentGroupId,companyId, propertySyncOrderId, { title: query.name, searchID: searchResponse.id})
             }
-            // const createOrderResponse = await client.createOrder(documentGroupId, companyId, { title: `AI-${orderInfo.orderNumber}`, searchID: searchResponse.id})
-            // propertySyncOrderId = createOrderResponse.id;
             const documentResults = searchResults.filter((r)=>r.documentType != 'ORDER').map((result)=>{
               return {
                 documentId:result.documentId,
@@ -358,8 +357,9 @@ import {
           !releasedDocumentIds.includes(mortgage.documentId)
         );
 
+        const deeds = allDocuments.filter((doc) => ['DEED','WARRANTY DEED',"SPECIAL WD","TRUSTEES DEED", "TAX DEED", "REDEMPTION DEED","QUITCLAIM DEED", "MASTER DEED", "DEED IN LIEU OF FORECLOSURE", "CORRECTION DEED", "COMMISSIONERS DEED", "BENEFICIARY DEED"].includes(doc.documentType.toUpperCase()));
         const exceptions = allDocuments.filter((doc) => ['PLAT','PROTECTIVE COVENANTS',"RESTRICTIONS"].includes(doc.documentType.toUpperCase()));
-        // const judgments = allDocuments.filter((doc) => ['JUDGMENT','FEDERAL TAX LIEN','STATE TAX LIEN'].includes(doc.documentType.toUpperCase()));
+        const judgments = allDocuments.filter((doc) => ['JUDGMENT','FEDERAL TAX LIEN','STATE TAX LIEN'].includes(doc.documentType.toUpperCase()));
   
         const report =  { 
           orderNumber: orderInfo.orderNumber, 
@@ -367,9 +367,11 @@ import {
           searchDate,
           property: { propertyAddress: orderInfo.propertyAddress, legalDescription: orderInfo.legalDescription, county: orderInfo.county} ,
           currentOwner: { name: vestingInfo.names }, 
+          deedChain: deeds,
           searchResults: propertySearchDocuments, 
           openMortgages: openMortgages,
-          exceptions: exceptions
+          exceptions: exceptions,
+          judgments: judgments
         }
     
         writer.write({

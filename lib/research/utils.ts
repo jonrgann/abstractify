@@ -5,7 +5,8 @@ export interface Document {
     documentType: string;
     grantors: NameObject[];
     grantees: NameObject[];
-    related?: any
+    related?: any;
+    amount?: string
   }
   
   

@@ -6,7 +6,7 @@ import { type DragEvent, useState, useEffect, useRef } from "react";
 import { MyUIMessage } from '@/lib/types';
 import { TypewriterText } from '@/components/typewrter';
 import { Button } from '@/components/ui/button';
-import { Loader2Icon, TriangleAlertIcon,  ChartBarBigIcon, EyeIcon, SparklesIcon, BadgeCheckIcon} from 'lucide-react';
+import { Loader2Icon, TriangleAlertIcon,  ChartBarBigIcon, EyeIcon, SparklesIcon, SettingsIcon} from 'lucide-react';
 import { uploadPdfToSupabase } from '@/lib/supabase/upload';
 import { motion, AnimatePresence } from 'motion/react'
 import PropertySearch from '@/components/property-search'
@@ -14,7 +14,7 @@ import SearchResults from '@/components/search-results';
 import NameSearch from '@/components/name-search';
 import Order from '@/components/order';
 import { Shimmer } from '@/components/ai-elements/shimmer';
-import { downloadTitleReportPDF } from '@/components/generateTitleReportPDF';
+import { downloadTitleReportPDF, exampleData } from '@/components/generateTitleReportPDF';
 
 import {
   Card,
@@ -206,6 +206,7 @@ export default function Page() {
     </motion.div>
   )}
     </AnimatePresence>
+
             <div className="space-y-8 w-lg mt-4">
               <FieldSeparator>
               {messages.length === 0 ? <Shimmer>Waiting on order...</Shimmer>: `Order Received`}
@@ -230,7 +231,6 @@ export default function Page() {
               </Button>
               </ItemActions>
             </Item>
-
             {
               messages.map(message =>
                 message.parts.map((part, index) => {
