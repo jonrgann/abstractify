@@ -3,14 +3,14 @@ export interface Document {
     documentNumber: string;
     filedDate: string;
     documentType: string;
-    grantors: NameObject[];
-    grantees: NameObject[];
+    grantors: string[];
+    grantees: string[];
     related?: any;
     amount?: string
   }
   
   
-  interface NameObject {
+  export interface NameObject {
     nameLast: string | null;
     nameType: string | null;
     nameFirst: string | null;
@@ -174,19 +174,27 @@ export interface Document {
   
     // Track current owners using a Set for efficient lookups
     const currentOwners = new Set<string>();
+
+    // Seed initial owners from first deed's grantors
+    if (sortedDocs.length > 0) {
+      for (const grantor of sortedDocs[0].grantors) {
+          const name =grantor;
+          if (name) currentOwners.add(name);
+      }
+    }
   
     // Process each document in chronological order
     for (const doc of sortedDocs) {
         // Add grantees (they're receiving title)
         for (const grantee of doc.grantees) {
-            const granteeName = formatFullName(grantee);
+            const granteeName = grantee// formatFullName(grantee);
             if (granteeName) {
                 currentOwners.add(granteeName);
             }
         }
         // Remove grantors (they're conveying their interest away)
         for (const grantor of doc.grantors) {
-            const grantorName = formatFullName(grantor);
+            const grantorName = grantor; //formatFullName(grantor);
             if (grantorName) {
                 console.log(`removing grantor: ${grantorName}`)
                 currentOwners.delete(grantorName);
@@ -205,14 +213,12 @@ export interface Document {
  * @param documents - Array of deed documents to process
  * @returns Array of formatted names currently in title
  */
-export function determineNamesInTitleFromChain(documents: Document[]): string[] {
+export function determineNamesInTitleFromChain(documents: Document[]): TitlePeriod[] {
   const chainOfTitle = createChainOfTitle(documents);
   
   // Filter for names that still hold title (endDate is null)
   return chainOfTitle
-    .filter(period => period.endDate === null)
-    .map(period => period.name)
-    .sort();
+    .filter(period => period.endDate === null).sort();
 }
   
   /**
@@ -239,7 +245,7 @@ export function determineNamesInTitleFromChain(documents: Document[]): string[] 
     for (const doc of sortedDocs) {
       // First, remove grantors (they're conveying their interest away)
       for (const grantor of doc.grantors) {
-        const grantorName = formatFullName(grantor);
+        const grantorName = grantor; //formatFullName(grantor);
         if (grantorName) {
           // If grantor is not in our records, they must have held title before our earliest document
           if (!titlePeriods.has(grantorName)) {
@@ -265,7 +271,7 @@ export function determineNamesInTitleFromChain(documents: Document[]): string[] 
   
       // Then, add grantees (they're receiving title)
       for (const grantee of doc.grantees) {
-        const granteeName = formatFullName(grantee);
+        const granteeName = grantee;// formatFullName(grantee);
         if (granteeName) {
           currentOwners.add(granteeName);
           
@@ -404,4 +410,16 @@ export function determineNamesInTitleFromChain(documents: Document[]): string[] 
     
     return gaps;
   }
+
+  export function getLatestDeed(documents: Document[]){
+    const deeds = filterByDeeds(documents);
+    // Sort deeds by filedDate in descending order (latest first)
+      const sortedDeeds = deeds.sort((a, b) => {
+        const dateA = new Date(a.filedDate).getTime();
+        const dateB = new Date(b.filedDate).getTime();
+        return dateB - dateA; // descending order
+      });
   
+    return sortedDeeds[0];
+  }
+

@@ -16,16 +16,6 @@ import Order from '@/components/order';
 import { Shimmer } from '@/components/ai-elements/shimmer';
 import { downloadTitleReportPDF, exampleData } from '@/components/generateTitleReportPDF';
 
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-
 
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -47,6 +37,8 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 
+import { CopyButton } from '@/components/ui/shadcn-io/copy-button';
+
 import {
   Item,
   ItemActions,
@@ -54,6 +46,14 @@ import {
   ItemDescription,
   ItemTitle,
 } from "@/components/ui/item"
+
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupText,
+  InputGroupTextarea,
+} from "@/components/ui/input-group"
 
 async function convertFilesToDataURLs(
   files: FileList,
@@ -254,21 +254,27 @@ export default function Page() {
                         case 'data-workflowVesting':
                           return(
                             <div key={index} className="space-y-4">
-                                <FieldSeparator>Vesting Info</FieldSeparator>
+                              
+                                <FieldSeparator>{part.data.status === 'active' ? <Shimmer>Generating Vesting Info...</Shimmer>: `Vesting Info`}</FieldSeparator>
+                                {part.data.output && (
                                 <FieldSet className="mt-8">
-                                  <FieldGroup>
-                                    <Field>
-                                    <FieldLabel htmlFor="current-owner">
-                                      Current Owner
-                                    </FieldLabel>
-                                      <Textarea
-                                        id="current-owner"
-                                        className="resize-none"
-                                        defaultValue={part.data.output.names}
-                                      />
-                                    </Field>
-                                  </FieldGroup>
-                                </FieldSet>
+                                <FieldGroup>
+                                  <Field>
+                                  <div className="grid grid-cols-[1fr_auto] gap-4">
+                                  <FieldLabel htmlFor="current-owner">
+                                    Current Owner
+                                  </FieldLabel>
+                                  <CopyButton content={ part.data.output.name} variant="outline" size="sm" />
+                                  </div>
+                                    <Textarea
+                                      id="current-owner"
+                                      className="resize-none"
+                                      defaultValue={part.data.output.name}
+                                    />
+                                  </Field>
+                                </FieldGroup>
+                              </FieldSet>
+                                )}
                             </div>
                           )
                           case 'data-workflowResearchComplete':

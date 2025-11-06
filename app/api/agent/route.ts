@@ -5,13 +5,12 @@ import {
     createUIMessageStreamResponse,
     Output,
     streamText,
-    tool,
   } from 'ai';
-  import { property, z } from 'zod';
+  import { z } from 'zod';
 
   import { PropertySyncClient } from '@/lib/propertysync/client';
   import { subdivisionAgent } from '@/lib/agents/subdivision-agent';
-  import { determineNamesInTitle, determineNamesInTitleFromChain, Document, filterByDeeds, getMostRecentDeed, createChainOfTitle, TitlePeriod, filterByDocumentTypes } from '@/lib/research/utils'; 
+  import { determineNamesInTitle, determineNamesInTitleFromChain, Document, filterByDeeds, getMostRecentDeed, createChainOfTitle, TitlePeriod, filterByDocumentTypes, NameObject, formatFullName, getLatestDeed } from '@/lib/research/utils'; 
   export async function POST(req: Request) {
     const { messages } = await req.json();
     
@@ -30,14 +29,6 @@ import {
         Your task is review a document and extract the title order information so that it can be imported into the title plant system.
         - Extract the order number, seller names, buyer (borrower) names, and legal descriptions.`,
         messages: convertToModelMessages(messages),
-        providerOptions: {
-          google: {
-            thinkingConfig:
-              {
-                includeThoughts: true
-              },
-          },
-        },
         output: Output.object({
             schema: z.object({
                 orderNumber: z.string(),
@@ -197,11 +188,14 @@ import {
 
               return {
                 documentId:result.documentId,
-                documentNumber: result.documentNumber ? result.documentNumber : result.bookNumber + result.pageNumber.padStart(6, '0')  ,
+                documentNumber: result.documentNumber || 
+                (result.bookNumber != null && result.pageNumber != null 
+                  ? result.bookNumber + result.pageNumber.padStart(6, '0')
+                  : 'UNKNOWN'),
                 filedDate: result.filedDate,
                 documentType: result.documentType,
-                grantor: result.bestGrantor,
-                grantee: result.bestGrantee,
+                grantors: [result.bestGrantor],
+                grantees: [result.bestGrantee],
                 legal: result.legalHeader.replace(/\s+/g, ' ').trim(),
                 amount: result.details.consideration
               };
@@ -231,12 +225,16 @@ import {
 
               return {
                 documentId: details.id,
-                documentNumber: details.json.instrumentNumber ? details.json.instrumentNumber : details.json.bookNumber + details.json.pageNumber.padStart(6, '0'),
+                documentNumber: details.json.documentNumber || 
+                (details.json.bookNumber != null && details.json.pageNumber != null 
+                  ? details.json.bookNumber + details.json.pageNumber.padStart(6, '0')
+                  : 'UNKNOWN'),
                 filedDate: new Date(details.json.filedDate).toISOString().split('T')[0],
                 documentType: details.json.instrumentType,
-                grantors: details.json.grantors,
-                grantees: details.json.grantees,
-                related: details.relatedDocuments
+                grantors:  details.json.grantors.map((grantor: NameObject) => formatFullName(grantor)),
+                grantees: details.json.grantees.map((grantee: NameObject) => formatFullName(grantee)),
+                related: details.relatedDocuments,
+                amount: details.json.consideration
               };
             })
           );
@@ -244,7 +242,10 @@ import {
           // Step 4. Name Searches
 
           const nameSearchDocuments: any[] = [];
-          const currentowners = determineNamesInTitle(allPropertyDocuments);
+          const currentowners = determineNamesInTitleFromChain(allPropertyDocuments);
+
+          console.log(allPropertyDocuments)
+          console.log('current owners', currentowners)
           const chainOfTitle = createChainOfTitle(allPropertyDocuments);
     
           console.log(chainOfTitle)
@@ -303,11 +304,14 @@ import {
             const documentResults = searchResults.filter((r)=>r.documentType != 'ORDER').map((result)=>{
               return {
                 documentId:result.documentId,
-                documentNumber: result.documentNumber ? result.documentNumber : result.bookNumber + result.pageNumber.padStart(6, '0')  ,
+                documentNumber: result.documentNumber || 
+                (result.bookNumber != null && result.pageNumber != null 
+                  ? result.bookNumber + result.pageNumber.padStart(6, '0')
+                  : 'UNKNOWN'),
                 filedDate: new Date(result.filedDate).toISOString().split('T')[0],
                 documentType: result.documentType,
-                grantor: result.bestGrantor,
-                grantee: result.bestGrantee,
+                grantors: [result.bestGrantor],
+                grantees: [result.bestGrantee],
                 legal: result.legalHeader.replace(/\s+/g, ' ').trim()
               };
             });
@@ -331,14 +335,92 @@ import {
 
           // Get Vesting Info
 
-          const vestingInfo =  { names: currentowners.join(", ")}
-
           writer.write({
             type: 'data-workflowVesting',
             id: 'workflowVesting-1',
-            data: { status:'complete', output: vestingInfo }, 
+            data: { status: 'active'}
         }); 
 
+          const lastDeed = getLatestDeed(allPropertyDocuments)
+          const lastDeedDetails = await client.getDocumentDetails(documentGroupId, lastDeed.documentId);
+          const lastDeedImage = lastDeedDetails.image.s3Path;
+
+          const vestingResult = streamText({
+            // different system prompt, different model, no tools:
+            model: google('gemini-2.5-flash'),
+            system: `You are an expert title research assistant.  
+            Your task is to review the attached Deed, analyze the vesting info and extract the grantee names exactly as they appear on the document. 
+            Examples of Proper Extraction:
+            Individual Names:
+  
+            John Smith and Jane Smith, a married couple
+            John Smith and Jane Smith, husband and wife
+            John Smith, a single man
+            Jane Doe, an unmarried woman
+            Robert Johnson, a widower
+  
+            Business Entities:
+  
+            Home Brew Construction, LLC, a limited liability company of Missouri
+            ABC Corporation, a Delaware corporation
+            Smith & Jones Partnership, a general partnership
+            Main Street Properties, Inc., a California corporation
+  
+            Trusts:
+  
+            John Smith, Trustee of the Smith Family Trust dated January 15, 2020
+            Mary Johnson, as Trustee of the Johnson Revocable Living Trust
+  
+            Multiple Parties:
+  
+            John Smith, a single man, and Mary Jones, a single woman, as joint tenants with right of survivorship
+            ABC Company, LLC, a Texas limited liability company, as to an undivided 50% interest, and XYZ Corporation, a Nevada corporation, as to an undivided 50% interest
+  
+            Key Points:
+  
+            Include all punctuation (commas, periods, etc.)
+            Preserve capitalization exactly as shown
+            Include marital status or entity type descriptors
+            Include state of formation for business entities
+            Copy ownership percentages if specified
+            Include capacity designations (trustee, personal representative, etc.)
+            Do not abbreviate unless the deed itself uses abbreviations`,
+            messages: [
+              {
+                role: 'user',
+                content: [
+                  {
+                    type: 'text',
+                    text: "<deed>"
+                  },
+                  {
+                    type:'image',
+                    image:lastDeedImage
+                  },
+                  {
+                    type: 'text',
+                    text: "</deed>"
+                  }
+                ]
+              }
+            ],
+            output: Output.object({
+              schema: z.object({
+                  grantee: z.string(),
+                })
+          }),
+          onFinish: async ({ text }) => {
+              const data = JSON.parse(text);
+              writer.write({
+                  type: 'data-workflowVesting',
+                  id: 'workflowVesting-1',
+                  data: { output: { name: data.grantee } , status: 'complete'}
+              }); 
+          },
+          });
+
+        const vestingName = JSON.parse(await vestingResult.text);
+        const vestingInfo = { name: vestingName.grantee, recordingDate: lastDeed.filedDate, recordingNumber: lastDeed.documentNumber }
 
         const allDocuments = [...propertySearchDocuments, ...nameSearchDocuments];
         const mortgages = propertySearchDocuments.filter((doc) => ['MORTGAGE'].includes(doc.documentType.toUpperCase()));
@@ -360,13 +442,13 @@ import {
         const deeds = allDocuments.filter((doc) => ['DEED','WARRANTY DEED',"SPECIAL WD","TRUSTEES DEED", "TAX DEED", "REDEMPTION DEED","QUITCLAIM DEED", "MASTER DEED", "DEED IN LIEU OF FORECLOSURE", "CORRECTION DEED", "COMMISSIONERS DEED", "BENEFICIARY DEED"].includes(doc.documentType.toUpperCase()));
         const exceptions = allDocuments.filter((doc) => ['PLAT','PROTECTIVE COVENANTS',"RESTRICTIONS"].includes(doc.documentType.toUpperCase()));
         const judgments = allDocuments.filter((doc) => ['JUDGMENT','FEDERAL TAX LIEN','STATE TAX LIEN'].includes(doc.documentType.toUpperCase()));
-  
+
         const report =  { 
           orderNumber: orderInfo.orderNumber, 
           effectiveDate, 
           searchDate,
           property: { propertyAddress: orderInfo.propertyAddress, legalDescription: orderInfo.legalDescription, county: orderInfo.county} ,
-          currentOwner: { name: vestingInfo.names }, 
+          currentOwner: vestingInfo, 
           deedChain: deeds,
           searchResults: propertySearchDocuments, 
           openMortgages: openMortgages,
@@ -386,7 +468,7 @@ import {
 
       },
       onFinish: async ({ messages }) => {
-        console.log('Stream finished with messages:', JSON.stringify(messages, null, 2));
+        // console.log('Stream finished with messages:', JSON.stringify(messages, null, 2));
       },
     },
   );
