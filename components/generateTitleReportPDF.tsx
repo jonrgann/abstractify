@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
     padding: 30,
     fontSize: 10,
     fontFamily: 'Helvetica',
-    paddingBottom: 50,
+    paddingBottom: 70,
   },
   header: {
     textAlign: 'center',
