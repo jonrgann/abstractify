@@ -298,7 +298,7 @@ const TitleReport: React.FC<{ data: TitleReportData }> = ({ data }) => (
 
         {data.deedChain.length == 0 && (
           <Text style={styles.instrumentHeader}>
-           No deeds were found.           
+           NONE FOUND         
           </Text>
         )}
 

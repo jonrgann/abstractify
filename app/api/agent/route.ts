@@ -249,6 +249,11 @@ import {
           console.log('current owners', currentowners)
           const chainOfTitle = createChainOfTitle(allPropertyDocuments);
     
+          // Add Buyer names to chain of title.
+          for ( const buyer of orderInfo.borrowers){
+            chainOfTitle.push({ name: buyer.toUpperCase(), startDate: '', endDate: null, acquiredBy: '', conveyedBy: null})
+          }
+
           console.log(chainOfTitle)
     
           for (const query of chainOfTitle) {
