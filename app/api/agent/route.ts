@@ -10,7 +10,7 @@ import {
 
   import { PropertySyncClient } from '@/lib/propertysync/client';
   import { subdivisionAgent } from '@/lib/agents/subdivision-agent';
-  import { determineNamesInTitle, determineNamesInTitleFromChain, Document, filterByDeeds, getMostRecentDeed, createChainOfTitle, TitlePeriod, filterByDocumentTypes, NameObject, formatFullName, getLatestDeed } from '@/lib/research/utils'; 
+  import { determineNamesInTitle, determineNamesInTitleFromChain, Document, filterByDeeds, getMostRecentDeed, createChainOfTitle, TitlePeriod, filterByDocumentTypes, NameObject, formatFullName, getLatestDeed, getDeedsLast24Months } from '@/lib/research/utils'; 
   export async function POST(req: Request) {
     const { messages } = await req.json();
     
@@ -229,6 +229,7 @@ import {
                 (details.json.bookNumber != null && details.json.pageNumber != null 
                   ? details.json.bookNumber + details.json.pageNumber.padStart(6, '0')
                   : 'UNKNOWN'),
+                image: details.image ? details.image.s3Path : null,
                 filedDate: new Date(details.json.filedDate).toISOString().split('T')[0],
                 documentType: details.json.instrumentType,
                 grantors:  details.json.grantors.map((grantor: NameObject) => formatFullName(grantor)),
@@ -439,7 +440,87 @@ import {
           !releasedDocumentIds.includes(mortgage.documentId)
         );
 
-        const deeds = allDocuments.filter((doc) => ['DEED','WARRANTY DEED',"SPECIAL WD","TRUSTEES DEED", "TAX DEED", "REDEMPTION DEED","QUITCLAIM DEED", "MASTER DEED", "DEED IN LIEU OF FORECLOSURE", "CORRECTION DEED", "COMMISSIONERS DEED", "BENEFICIARY DEED"].includes(doc.documentType.toUpperCase()));
+        const deeds24Months = getDeedsLast24Months(allPropertyDocuments);
+        const chain24Month: Document[] = await Promise.all(
+          deeds24Months.map(async (deed) => {
+              if (deed.image) {
+                const vestingResult = streamText({
+                  // different system prompt, different model, no tools:
+                  model: google('gemini-2.5-flash'),
+                  system: `You are an expert title research assistant.  
+                  Your task is to review the attached Deed, analyze the vesting info and extract the grantor and grantee names exactly as they appear on the document. 
+                  Examples of Proper Extraction:
+                  Individual Names:
+        
+                  John Smith and Jane Smith, a married couple
+                  John Smith and Jane Smith, husband and wife
+                  John Smith, a single man
+                  Jane Doe, an unmarried woman
+                  Robert Johnson, a widower
+        
+                  Business Entities:
+        
+                  Home Brew Construction, LLC, a limited liability company of Missouri
+                  ABC Corporation, a Delaware corporation
+                  Smith & Jones Partnership, a general partnership
+                  Main Street Properties, Inc., a California corporation
+        
+                  Trusts:
+        
+                  John Smith, Trustee of the Smith Family Trust dated January 15, 2020
+                  Mary Johnson, as Trustee of the Johnson Revocable Living Trust
+        
+                  Multiple Parties:
+        
+                  John Smith, a single man, and Mary Jones, a single woman, as joint tenants with right of survivorship
+                  ABC Company, LLC, a Texas limited liability company, as to an undivided 50% interest, and XYZ Corporation, a Nevada corporation, as to an undivided 50% interest
+        
+                  Key Points:
+        
+                  Include all punctuation (commas, periods, etc.)
+                  Preserve capitalization exactly as shown
+                  Include marital status or entity type descriptors
+                  Include state of formation for business entities
+                  Copy ownership percentages if specified
+                  Include capacity designations (trustee, personal representative, etc.)
+                  Do not abbreviate unless the deed itself uses abbreviations`,
+                  messages: [
+                    {
+                      role: 'user',
+                      content: [
+                        {
+                          type: 'text',
+                          text: "<deed>"
+                        },
+                        {
+                          type:'image',
+                          image:deed.image
+                        },
+                        {
+                          type: 'text',
+                          text: "</deed>"
+                        }
+                      ]
+                    }
+                  ],
+                  output: Output.object({
+                    schema: z.object({
+                        grantor: z.string(),
+                        grantee: z.string(),
+                      })
+                }),
+                });
+                  const vestingText = await vestingResult.text;
+                  const vesting = JSON.parse(vestingText);
+                  return { ...deed, grantors: [vesting.grantor], grantees: [vesting.grantee] };
+              }
+              return deed;
+          })
+      );
+
+      console.log('24 month chain', chain24Month);
+
+
         const exceptions = allDocuments.filter((doc) => ['PLAT','PROTECTIVE COVENANTS',"RESTRICTIONS"].includes(doc.documentType.toUpperCase()));
         const judgments = allDocuments.filter((doc) => ['JUDGMENT','FEDERAL TAX LIEN','STATE TAX LIEN'].includes(doc.documentType.toUpperCase()));
 
@@ -449,7 +530,7 @@ import {
           searchDate,
           property: { propertyAddress: orderInfo.propertyAddress, legalDescription: orderInfo.legalDescription, county: orderInfo.county} ,
           currentOwner: vestingInfo, 
-          deedChain: deeds,
+          deedChain: chain24Month,
           searchResults: propertySearchDocuments, 
           openMortgages: openMortgages,
           exceptions: exceptions,

@@ -1,7 +1,8 @@
 export interface Document {
     documentId: string;
     documentNumber: string;
-    filedDate: string;
+    image?: string | null;
+    filedDate: string; // YYYY-MM-DD
     documentType: string;
     grantors: string[];
     grantees: string[];
@@ -407,3 +408,37 @@ export function determineNamesInTitleFromChain(documents: Document[]): TitlePeri
     return sortedDeeds[0];
   }
 
+/**
+ * Filters a list of documents to get only deed documents filed within the last 24 months.
+ *
+ * @param documents An array of Document objects to filter.
+ * @returns An array of Document objects that are deeds and were filed within the last 24 months.
+ */
+export function getDeedsLast24Months(documents: Document[]): Document[] {
+  // 1. First, filter the documents to include only deed types
+  const onlyDeeds = filterByDeeds(documents);
+
+  // 2. Calculate the date 24 months ago from today
+  const now = new Date();
+  // Set the time components to 00:00:00:000 for consistent day-level comparison.
+  // This ensures that 'today' refers to the very beginning of the current day.
+  now.setHours(0, 0, 0, 0);
+
+  const twentyFourMonthsAgo = new Date(now); // Start with today's date
+  twentyFourMonthsAgo.setMonth(twentyFourMonthsAgo.getMonth() - 24);
+  // twentyFourMonthsAgo is already at 00:00:00:000 because it was cloned from 'now' which was normalized.
+
+  // 3. Filter the deed documents by their filedDate
+  const deedsInLast24Months = onlyDeeds.filter((doc) => {
+    const filedDate = new Date(doc.filedDate);
+    // Normalize the document's filedDate to the start of its day for consistent comparison.
+    filedDate.setHours(0, 0, 0, 0);
+
+    // Check if the filedDate is within the desired range:
+    // It must be greater than or equal to 24 months ago,
+    // AND less than or equal to today.
+    return filedDate >= twentyFourMonthsAgo && filedDate <= now;
+  });
+
+  return deedsInLast24Months.length > 0 ? deedsInLast24Months : [getLatestDeed(documents)]
+}

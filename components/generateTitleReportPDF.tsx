@@ -293,7 +293,7 @@ const TitleReport: React.FC<{ data: TitleReportData }> = ({ data }) => (
         </View>
         {/* Deed Chain */}
         <View style={styles.sectionHeader}>
-          <Text>DEED CHAIN</Text>
+          <Text>CHAIN OF TITLE</Text>
         </View>
 
         {data.deedChain.length == 0 && (
