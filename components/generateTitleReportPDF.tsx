@@ -308,16 +308,6 @@ const TitleReport: React.FC<{ data: TitleReportData }> = ({ data }) => (
             {deed.documentType}
             </Text>
             <View style={styles.row}>
-              <Text style={styles.label}>Recording Date:</Text>
-              <Text style={styles.value}>{formatDate(deed.filedDate)}</Text>
-            </View>
-
-            <View style={styles.row}>
-              <Text style={styles.label}>Recording Number:</Text>
-              <Text style={styles.value}>{deed.documentNumber}</Text>
-            </View>
-
-            <View style={styles.row}>
               <Text style={styles.label}>Grantor(s):</Text>
               <Text style={styles.value}>{deed.grantors.join(", ")}</Text>
             </View>
@@ -325,6 +315,15 @@ const TitleReport: React.FC<{ data: TitleReportData }> = ({ data }) => (
             <View style={styles.row}>
               <Text style={styles.label}>Grantee(s):</Text>
               <Text style={styles.value}>{deed.grantees.join(", ")}</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>Recording Date:</Text>
+              <Text style={styles.value}>{formatDate(deed.filedDate)}</Text>
+            </View>
+
+            <View style={styles.row}>
+              <Text style={styles.label}>Recording Number:</Text>
+              <Text style={styles.value}>{deed.documentNumber}</Text>
             </View>
 
             {/* {deed.notes && (
@@ -353,17 +352,6 @@ const TitleReport: React.FC<{ data: TitleReportData }> = ({ data }) => (
             <Text style={styles.instrumentHeader}>
               {mortgage.documentType}
             </Text>
-
-            <View style={styles.row}>
-              <Text style={styles.label}>Recording Date:</Text>
-              <Text style={styles.value}>{formatDate(mortgage.filedDate)}</Text>
-            </View>
-
-            <View style={styles.row}>
-              <Text style={styles.label}>Recording Number:</Text>
-              <Text style={styles.value}>{mortgage.documentNumber}</Text>
-            </View>
-
             <View style={styles.row}>
               <Text style={styles.label}>Mortgagor(s):</Text>
               <Text style={styles.value}>{mortgage.grantors.join(", ")}</Text>
@@ -372,6 +360,15 @@ const TitleReport: React.FC<{ data: TitleReportData }> = ({ data }) => (
             <View style={styles.row}>
               <Text style={styles.label}>Mortgagee(s):</Text>
               <Text style={styles.value}>{mortgage.grantees.join(", ")}</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>Recording Date:</Text>
+              <Text style={styles.value}>{formatDate(mortgage.filedDate)}</Text>
+            </View>
+
+            <View style={styles.row}>
+              <Text style={styles.label}>Recording Number:</Text>
+              <Text style={styles.value}>{mortgage.documentNumber}</Text>
             </View>
 
            {mortgage.amount && (
@@ -404,17 +401,6 @@ const TitleReport: React.FC<{ data: TitleReportData }> = ({ data }) => (
               <Text style={styles.instrumentHeader}>
                 {document.documentType}
               </Text>
-
-              <View style={styles.row}>
-                <Text style={styles.label}>Recording Date:</Text>
-                <Text style={styles.value}>{formatDate(document.filedDate)}</Text>
-              </View>
-
-              <View style={styles.row}>
-                <Text style={styles.label}>Recording Number:</Text>
-                <Text style={styles.value}>{document.documentNumber}</Text>
-              </View>
-
               <View style={styles.row}>
                 <Text style={styles.label}>Grantor(s):</Text>
                 <Text style={styles.value}>{document.grantors.join(", ")}</Text>
@@ -423,6 +409,15 @@ const TitleReport: React.FC<{ data: TitleReportData }> = ({ data }) => (
               <View style={styles.row}>
                 <Text style={styles.label}>Grantee(s):</Text>
                 <Text style={styles.value}>{document.grantees.join(", ")}</Text>
+              </View>
+              <View style={styles.row}>
+                <Text style={styles.label}>Recording Date:</Text>
+                <Text style={styles.value}>{formatDate(document.filedDate)}</Text>
+              </View>
+
+              <View style={styles.row}>
+                <Text style={styles.label}>Recording Number:</Text>
+                <Text style={styles.value}>{document.documentNumber}</Text>
               </View>
 
             </View>
@@ -447,6 +442,15 @@ const TitleReport: React.FC<{ data: TitleReportData }> = ({ data }) => (
               <Text style={styles.instrumentHeader}>
                 {document.documentType}
               </Text>
+              <View style={styles.row}>
+                <Text style={styles.label}>Grantor(s):</Text>
+                <Text style={styles.value}>{document.grantors.join(", ")}</Text>
+              </View>
+
+              <View style={styles.row}>
+                <Text style={styles.label}>Grantee(s):</Text>
+                <Text style={styles.value}>{document.grantees.join(", ")}</Text>
+              </View>
 
               <View style={styles.row}>
                 <Text style={styles.label}>Recording Date:</Text>
@@ -456,16 +460,6 @@ const TitleReport: React.FC<{ data: TitleReportData }> = ({ data }) => (
               <View style={styles.row}>
                 <Text style={styles.label}>Recording Number:</Text>
                 <Text style={styles.value}>{document.documentNumber}</Text>
-              </View>
-
-              <View style={styles.row}>
-                <Text style={styles.label}>Grantor(s):</Text>
-                <Text style={styles.value}>{document.grantors.join(", ")}</Text>
-              </View>
-
-              <View style={styles.row}>
-                <Text style={styles.label}>Grantee(s):</Text>
-                <Text style={styles.value}>{document.grantees.join(", ")}</Text>
               </View>
 
               {document.amount && (
