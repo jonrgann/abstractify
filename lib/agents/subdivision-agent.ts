@@ -4,19 +4,20 @@ import z from 'zod';
 
 export const subdivisionAgent = async (input: string, list: string[]) =>{
 
-    const filteredInput = input.toLowerCase().replace(/phase/g, '')
-    .replace(/subdivision/g, '')
-    .replace(/addition/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
+  const filteredInput = input.toLowerCase()
+  .replace(/phase/g, '')
+  .replace(/subdivision/g, '')
+  .replace(/addition/g, '')
+  .replace(/\s+/g, ' ')
+  .trim()
+  .split(' ')
+  .filter(word => word.length >= 3 && !/^\d+$/.test(word))
+  .join(' ');
+  
 
-    const filteredMatches = findPrefixMatches(filteredInput, list).map((match) => match.item);
+  const subdivisionList = fuzzyMatchSubdivisions(filteredInput, list);
 
-    const subdivisionList: string[] = findBestMatches(filteredInput, filteredMatches).map((match) => match.text);
-    // let subdivisionList: string[] = searchSubdivisions(input);
-    // let validatedSubdivision: string | null = null;
-
-    const result = await generateText({
+  const result = await generateText({
       model: google('gemini-2.5-flash'),
       system: `You are an AI autocomplete selection tool for selecting the best autocomplete suggestion from a list of options. 
       You will receive a legal description that contains a subdivision or addition name and must locate the best match from the available options that passes validation.
@@ -62,181 +63,255 @@ export const subdivisionAgent = async (input: string, list: string[]) =>{
   return normalizedBestMatch;
 }
 
+function fuzzyMatchSubdivisions(input: string, subdivisions: string[]): string[] {
+  const inputWords = input.toUpperCase().trim().split(/\s+/);
+  
+  return subdivisions.filter(subdivision => {
+    const subdivisionWords = subdivision.toUpperCase().split(/\s+/);
+    
+    // Check if at least one word from input matches at least one word from subdivision
+    // within 1 Levenshtein distance
+    return inputWords.some(inputWord => 
+      subdivisionWords.some(subdivisionWord => 
+        levenshteinDistance(inputWord, subdivisionWord) <= 1
+      )
+    );
+  });
+}
 
-interface PrefixMatchResult {
-    item: string;
-    matchedPrefixes: string[];
-}
-  
-function findPrefixMatches(textInput: string, subdivisionList: string[]): PrefixMatchResult[] {
-    // Extract words from input text and get first 3 characters of each
-    const words = textInput.trim().split(/\s+/);
-    const inputPrefixes = words
-        .map(word => word.replace(/[^a-zA-Z0-9]/g, '')) // Remove special characters
-        .filter(word => word.length > 0) // Filter out empty strings
-        .map(word => word.substring(0, 3).toUpperCase()); // Get first 3 chars, uppercase
-  
-    if (inputPrefixes.length === 0) {
-        return [];
+function levenshteinDistance(str1: string, str2: string): number {
+  const len1 = str1.length;
+  const len2 = str2.length;
+  const matrix: number[][] = [];
+
+  // Initialize matrix
+  for (let i = 0; i <= len1; i++) {
+    matrix[i] = [i];
+  }
+  for (let j = 0; j <= len2; j++) {
+    matrix[0][j] = j;
+  }
+
+  // Fill matrix
+  for (let i = 1; i <= len1; i++) {
+    for (let j = 1; j <= len2; j++) {
+      const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
+      matrix[i][j] = Math.min(
+        matrix[i - 1][j] + 1,      // deletion
+        matrix[i][j - 1] + 1,      // insertion
+        matrix[i - 1][j - 1] + cost // substitution
+      );
     }
-  
-    const matches: PrefixMatchResult[] = [];
-  
-    // Check each item in the subdivision list
-    subdivisionList.forEach(item => {
-        // Extract words from the subdivision item
-        const itemWords = item.split(/\s+/);
-        const itemPrefixes = itemWords
-            .map(word => word.replace(/[^a-zA-Z0-9]/g, '')) // Remove special characters
-            .filter(word => word.length > 0) // Filter out empty strings
-            .map(word => word.substring(0, 3).toUpperCase()); // Get first 3 chars, uppercase
-  
-        // Find which input prefixes match any of the item prefixes
-        const matchedPrefixes = inputPrefixes.filter(inputPrefix => 
-            itemPrefixes.includes(inputPrefix)
-        );
-  
-        // If any matches found, add to results
-        if (matchedPrefixes.length > 0) {
-            matches.push({
-                item,
-                matchedPrefixes: [...new Set(matchedPrefixes)] // Remove duplicates
-            });
-        }
-    });
-  
-    return matches;
-}
+  }
+
+  return matrix[len1][len2];}
 
 function findMatchIgnoringSpaces(inputString: string, stringArray: string[]) {
-    if (!inputString || !stringArray || !Array.isArray(stringArray)) {
-      return null;
+  if (!inputString || !stringArray || !Array.isArray(stringArray)) {
+    return null;
+  }
+  
+  const normalizedInput = inputString.replace(/\s+/g, ' ').trim().toLowerCase();
+  const inputWords = normalizedInput.split(' ');
+  
+  const matches: string[] = [];
+  
+  for (const arrayString of stringArray) {
+    if (!arrayString) continue;
+    
+    const normalizedArrayString = arrayString.replace(/\s+/g, ' ').trim().toLowerCase();
+    
+    const allWordsFound = inputWords.every(word => 
+      normalizedArrayString.includes(word)
+    );
+    
+    if (allWordsFound) {
+      matches.push(arrayString);
     }
-    
-    const normalizedInput = inputString.replace(/\s+/g, ' ').trim().toLowerCase();
-    const inputWords = normalizedInput.split(' ');
-    
-    const matches: string[] = [];
-    
-    for (const arrayString of stringArray) {
-      if (!arrayString) continue;
-      
-      const normalizedArrayString = arrayString.replace(/\s+/g, ' ').trim().toLowerCase();
-      
-      const allWordsFound = inputWords.every(word => 
-        normalizedArrayString.includes(word)
-      );
-      
-      if (allWordsFound) {
-        matches.push(arrayString);
-      }
-    }
-    
-    // Return the shortest match (most specific)
-    return matches.length > 0 
-      ? matches.reduce((shortest, current) => 
-          current.length < shortest.length ? current : shortest
-        )
-      : null;
+  }
+  
+  // Return the shortest match (most specific)
+  return matches.length > 0 
+    ? matches.reduce((shortest, current) => 
+        current.length < shortest.length ? current : shortest
+      )
+    : null;
 }
 
-interface MatchResult {
-    text: string;
-    score: number;
-    matchedTokens: string[];
-}
+// interface PrefixMatchResult {
+//     item: string;
+//     matchedPrefixes: string[];
+// }
   
-function findBestMatches(input: string, candidates: string[], maxResults: number = 100): MatchResult[] {
-    // Normalize text by removing common prefixes/suffixes and converting to lowercase
-    function normalizeText(text: string): string {
-      return text
-        .toLowerCase()
-        .replace(/\b(first|second|third|fourth|fifth|revision|of|the|to|city|add|addition|sub|subdivision)\b/g, '')
-        .replace(/\s+/g, ' ')
-        .trim();
-    }
+// function findPrefixMatches(textInput: string, subdivisionList: string[]): PrefixMatchResult[] {
+//     // Extract words from input text and get first 3 characters of each
+//     const words = textInput.trim().split(/\s+/);
+//     const inputPrefixes = words
+//         .map(word => word.replace(/[^a-zA-Z0-9]/g, '')) // Remove special characters
+//         .filter(word => word.length > 0) // Filter out empty strings
+//         .map(word => word.substring(0, 3).toUpperCase()); // Get first 3 chars, uppercase
   
-    // Extract meaningful tokens from text
-    function extractTokens(text: string): string[] {
-      return normalizeText(text)
-        .split(/\s+/)
-        .filter(token => token.length > 1) // Filter out single characters
-        .filter(token => !/^\d+$/.test(token)) // Filter out standalone numbers
-        .filter(token => !/^[a-z]$/.test(token)); // Filter out single letters
-    }
+//     if (inputPrefixes.length === 0) {
+//         return [];
+//     }
   
-    // Calculate similarity score between two sets of tokens
-    function calculateScore(inputTokens: string[], candidateTokens: string[], originalCandidate: string): number {
-      let score = 0;
-      const matchedTokens: string[] = [];
-      
-      // Exact token matches
-      for (const inputToken of inputTokens) {
-        for (const candidateToken of candidateTokens) {
-          if (inputToken === candidateToken) {
-            score += 10; // High score for exact matches
-            matchedTokens.push(inputToken);
-          } else if (candidateToken.includes(inputToken) || inputToken.includes(candidateToken)) {
-            score += 5; // Partial match
-            matchedTokens.push(inputToken);
-          }
-        }
-      }
-      
-      // Bonus for sequence preservation
-      let sequenceBonus = 0;
-      for (let i = 0; i < inputTokens.length - 1; i++) {
-        const token1 = inputTokens[i];
-        const token2 = inputTokens[i + 1];
-        
-        const candidateText = normalizeText(originalCandidate);
-        const token1Index = candidateText.indexOf(token1);
-        const token2Index = candidateText.indexOf(token2);
-        
-        if (token1Index !== -1 && token2Index !== -1 && token1Index < token2Index) {
-          sequenceBonus += 2;
-        }
-      }
-      
-      score += sequenceBonus;
-      
-      // Penalty for significant length difference
-      const lengthDiff = Math.abs(inputTokens.length - candidateTokens.length);
-      score -= lengthDiff * 0.5;
-      
-      return score;
-    }
+//     const matches: PrefixMatchResult[] = [];
   
-    const inputTokens = extractTokens(input);
-    const results: MatchResult[] = [];
+//     // Check each item in the subdivision list
+//     subdivisionList.forEach(item => {
+//         // Extract words from the subdivision item
+//         const itemWords = item.split(/\s+/);
+//         const itemPrefixes = itemWords
+//             .map(word => word.replace(/[^a-zA-Z0-9]/g, '')) // Remove special characters
+//             .filter(word => word.length > 0) // Filter out empty strings
+//             .map(word => word.substring(0, 3).toUpperCase()); // Get first 3 chars, uppercase
   
-    for (const candidate of candidates) {
-      const candidateTokens = extractTokens(candidate);
-      const score = calculateScore(inputTokens, candidateTokens, candidate);
-      
-      if (score > 0) {
-        // Find which input tokens were matched
-        const matchedTokens = inputTokens.filter(inputToken =>
-          candidateTokens.some(candidateToken =>
-            candidateToken === inputToken || 
-            candidateToken.includes(inputToken) || 
-            inputToken.includes(candidateToken)
-          )
-        );
-        
-        results.push({
-          text: candidate.trim(),
-          score,
-          matchedTokens
-        });
-      }
-    }
+//         // Find which input prefixes match any of the item prefixes
+//         const matchedPrefixes = inputPrefixes.filter(inputPrefix => 
+//             itemPrefixes.includes(inputPrefix)
+//         );
   
-    // Sort by score (descending) and return top results
-    const sortedResults = results
-    .sort((a, b) => b.score - a.score)
-    .slice(0, maxResults);
+//         // If any matches found, add to results
+//         if (matchedPrefixes.length > 0) {
+//             matches.push({
+//                 item,
+//                 matchedPrefixes: [...new Set(matchedPrefixes)] // Remove duplicates
+//             });
+//         }
+//     });
+  
+//     return matches;
+// }
 
-    return sortedResults;
-}
+// function findMatchIgnoringSpaces(inputString: string, stringArray: string[]) {
+//     if (!inputString || !stringArray || !Array.isArray(stringArray)) {
+//       return null;
+//     }
+    
+//     const normalizedInput = inputString.replace(/\s+/g, ' ').trim().toLowerCase();
+//     const inputWords = normalizedInput.split(' ');
+    
+//     const matches: string[] = [];
+    
+//     for (const arrayString of stringArray) {
+//       if (!arrayString) continue;
+      
+//       const normalizedArrayString = arrayString.replace(/\s+/g, ' ').trim().toLowerCase();
+      
+//       const allWordsFound = inputWords.every(word => 
+//         normalizedArrayString.includes(word)
+//       );
+      
+//       if (allWordsFound) {
+//         matches.push(arrayString);
+//       }
+//     }
+    
+//     // Return the shortest match (most specific)
+//     return matches.length > 0 
+//       ? matches.reduce((shortest, current) => 
+//           current.length < shortest.length ? current : shortest
+//         )
+//       : null;
+// }
+
+// interface MatchResult {
+//     text: string;
+//     score: number;
+//     matchedTokens: string[];
+// }
+  
+// function findBestMatches(input: string, candidates: string[], maxResults: number = 100): MatchResult[] {
+//     // Normalize text by removing common prefixes/suffixes and converting to lowercase
+//     function normalizeText(text: string): string {
+//       return text
+//         .toLowerCase()
+//         .replace(/\b(first|second|third|fourth|fifth|revision|of|the|to|city|add|addition|sub|subdivision)\b/g, '')
+//         .replace(/\s+/g, ' ')
+//         .trim();
+//     }
+  
+//     // Extract meaningful tokens from text
+//     function extractTokens(text: string): string[] {
+//       return normalizeText(text)
+//         .split(/\s+/)
+//         .filter(token => token.length > 1) // Filter out single characters
+//         .filter(token => !/^\d+$/.test(token)) // Filter out standalone numbers
+//         .filter(token => !/^[a-z]$/.test(token)); // Filter out single letters
+//     }
+  
+//     // Calculate similarity score between two sets of tokens
+//     function calculateScore(inputTokens: string[], candidateTokens: string[], originalCandidate: string): number {
+//       let score = 0;
+//       const matchedTokens: string[] = [];
+      
+//       // Exact token matches
+//       for (const inputToken of inputTokens) {
+//         for (const candidateToken of candidateTokens) {
+//           if (inputToken === candidateToken) {
+//             score += 10; // High score for exact matches
+//             matchedTokens.push(inputToken);
+//           } else if (candidateToken.includes(inputToken) || inputToken.includes(candidateToken)) {
+//             score += 5; // Partial match
+//             matchedTokens.push(inputToken);
+//           }
+//         }
+//       }
+      
+//       // Bonus for sequence preservation
+//       let sequenceBonus = 0;
+//       for (let i = 0; i < inputTokens.length - 1; i++) {
+//         const token1 = inputTokens[i];
+//         const token2 = inputTokens[i + 1];
+        
+//         const candidateText = normalizeText(originalCandidate);
+//         const token1Index = candidateText.indexOf(token1);
+//         const token2Index = candidateText.indexOf(token2);
+        
+//         if (token1Index !== -1 && token2Index !== -1 && token1Index < token2Index) {
+//           sequenceBonus += 2;
+//         }
+//       }
+      
+//       score += sequenceBonus;
+      
+//       // Penalty for significant length difference
+//       const lengthDiff = Math.abs(inputTokens.length - candidateTokens.length);
+//       score -= lengthDiff * 0.5;
+      
+//       return score;
+//     }
+  
+//     const inputTokens = extractTokens(input);
+//     const results: MatchResult[] = [];
+  
+//     for (const candidate of candidates) {
+//       const candidateTokens = extractTokens(candidate);
+//       const score = calculateScore(inputTokens, candidateTokens, candidate);
+      
+//       if (score > 0) {
+//         // Find which input tokens were matched
+//         const matchedTokens = inputTokens.filter(inputToken =>
+//           candidateTokens.some(candidateToken =>
+//             candidateToken === inputToken || 
+//             candidateToken.includes(inputToken) || 
+//             inputToken.includes(candidateToken)
+//           )
+//         );
+        
+//         results.push({
+//           text: candidate.trim(),
+//           score,
+//           matchedTokens
+//         });
+//       }
+//     }
+  
+//     // Sort by score (descending) and return top results
+//     const sortedResults = results
+//     .sort((a, b) => b.score - a.score)
+//     .slice(0, maxResults);
+
+//     return sortedResults;
+// }
   
