@@ -2,6 +2,8 @@ import { google } from '@ai-sdk/google';
 import { generateText, Output} from 'ai';
 import z from 'zod';
 
+import { NextResponse } from 'next/server';
+
 import { Document, Packer, Paragraph, TextRun, AlignmentType } from 'docx'
 
 export async function POST(req: Request,) {
@@ -223,18 +225,15 @@ export async function POST(req: Request,) {
   
   // Generate buffer
   const buffer = await Packer.toBuffer(doc);
-
-  const response = new Response(buffer, {
+  const uint8Array = new Uint8Array(buffer);
+  return new NextResponse(uint8Array, {
     status: 200,
     headers: {
       'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       'Content-Disposition': 'attachment; filename=access_easement_agreement.docx',
-      'Content-Length': buffer.length.toString(),
     },
   });
 
-    
-  return response;
 
 }
 
