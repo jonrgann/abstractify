@@ -52,6 +52,6 @@ export async function POST(req: Request) {
     input: ${text}`
   })
     
-  return new Response(generateDocument.text);
+  return Response.json({text: generateDocument.text});
 
   }
