@@ -53,7 +53,9 @@ export const researchAgent = new ToolLoopAgent({
               }),
             }),
             async *execute({ query }, messages) {
-              console.log(query)
+              console.log('----- Message Meta Data -------')
+              console.log(JSON.stringify(messages))
+              
 
                 yield {
                   status: 'Thinking...' as const,

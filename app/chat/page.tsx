@@ -57,10 +57,6 @@ const suggestions = [
   'Can I get the plat for Huntington Hills Lot 19 Block 2',
 ];
 
-const models = [
-    { id: 'gpt-4o', name: 'GPT-4o' },
-    { id: 'claude-opus-4-20250514', name: 'Claude 4 Opus' },
-  ];
 
   const counties = [
     { id: '54766f37-bfad-4922-a607-30963a9c4a60', name: 'Benton' },
@@ -68,7 +64,6 @@ const models = [
 
 const ConversationDemo = () => {
     const [text, setText] = useState<string>('');
-    const [model, setModel] = useState<string>(models[0].id);
     const [county, setCounty] = useState<string>(counties[0].id);
     const [useWebSearch, setUseWebSearch] = useState<boolean>(false);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -88,7 +83,6 @@ const ConversationDemo = () => {
         {
           body: {
             county: county,
-            model: model,
             webSearch: useWebSearch,
           },
         },
