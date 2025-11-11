@@ -4,6 +4,8 @@ import { generateText,} from 'ai';
 export async function POST(req: Request) {
   const { text, instructions } = await req.json();
 
+  if(!text) Response.json({text: 'Not enough information provided.'})
+
   const exampleInput = `
   Customer needs: Access Easement Agreement
   Grantor:  Brian Blackman, a married person
