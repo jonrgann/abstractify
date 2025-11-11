@@ -25,7 +25,7 @@ export async function POST(req: Request) {
     }),
   })
 
-  const output = JSON.parse(generateDocument.text)
+  const output = generateDocument.output;
 
     
   return Response.json({...output});
