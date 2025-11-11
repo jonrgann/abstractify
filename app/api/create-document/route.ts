@@ -11,29 +11,26 @@ export async function POST(req: Request,) {
 
   if(!text) Response.json({text: 'Not enough information provided.'})
 
-  // const generateDocument = await generateText({
-  //   model: google('gemini-2.5-flash'),
-  //   system: `You are an experienced real estate attorney with expertise in drafting precise, legally sound documents for property transactions.  
-  //   Your task is to draft an ACCESS EASEMENT AGREEMENT document from the information provided in the users request.
-  //   - Grantor and Grantee names should include maritial status if provided.` 
-  //   + (instructions ?? ''),
-  //   prompt:`input: ${text}`,
-  //   output: Output.object({
-  //     schema: z.object({
-  //       grantor: z.string(),
-  //       grantee: z.string(),
-  //       burdened_tract_legal_description: z.string().describe("The legal description of the burndened tract."),
-  //       benifited_tract_legal_description: z.string().describe("The legal description of the burndened tract."),
-  //       easement_legal_description: z.string().describe("The legal description of the easement tract."),
-  //       county:z.string().describe("The county name. ex: Craighead")
-  //     }),
-  //   }),
-  // })
+  const generateDocument = await generateText({
+    model: google('gemini-2.5-flash'),
+    system: `You are an experienced real estate attorney with expertise in drafting precise, legally sound documents for property transactions.  
+    Your task is to draft an ACCESS EASEMENT AGREEMENT document from the information provided in the users request.
+    - Grantor and Grantee names should include maritial status if provided.` 
+    + (instructions ?? ''),
+    prompt:`input: ${text}`,
+    output: Output.object({
+      schema: z.object({
+        grantor: z.string(),
+        grantee: z.string(),
+        burdened_tract_legal_description: z.string().describe("The legal description of the burndened tract."),
+        benifited_tract_legal_description: z.string().describe("The legal description of the burndened tract."),
+        easement_legal_description: z.string().describe("The legal description of the easement tract."),
+        county:z.string().describe("The county name. ex: Craighead")
+      }),
+    }),
+  })
 
-  // const output = generateDocument.output;
-
-
-
+  const output = generateDocument.output;
 
   const doc = new Document({
     styles: {
@@ -63,7 +60,7 @@ export async function POST(req: Request,) {
         
         // Opening clause
         new Paragraph({
-          alignment: AlignmentType.CENTER,
+          alignment: AlignmentType.LEFT,
           children: [
             new TextRun({ text: "KNOW BY ALL MEN THESE PRESENTS:", size: 24 })
           ]
@@ -74,13 +71,12 @@ export async function POST(req: Request,) {
         
         // Main paragraph with indentation
         new Paragraph({
-          indent: { left: 720 },
           children: [
-            new TextRun({ text: "THAT ", size: 24 }),
-            new TextRun({ text: "Brian Blackman, a married person", bold: true, size: 24 }),
+            new TextRun({ text: "THAT ", size: 24,  }),
+            new TextRun({ text: output.grantor, bold: true, size: 24 }),
             new TextRun({ text: ",  hereinafter collectively referred to as \"Grantor,\" for and in consideration of the sum of Ten Dollars ($10.00) and other good and valuable consideration to them in hand paid by ", size: 24 }),
-            new TextRun({ text: "Keith Blackman, a married person", bold: true, size: 24 }),
-            new TextRun({ text: ", hereinafter referred to as \"Grantee,\" the receipt and sufficiency of which is hereby acknowledged, does hereby grant, bargain and sell unto the said Grantee, and unto his successors and assigns, an easement for the purpose of ingress and egress, over, under, and across the hereinafter described land in Craighead County County, Arkansas, to-wit", size: 24 })
+            new TextRun({ text: output.grantee, bold: true, size: 24 }),
+            new TextRun({ text: `, hereinafter referred to as \"Grantee,\" the receipt and sufficiency of which is hereby acknowledged, does hereby grant, bargain and sell unto the said Grantee, and unto his successors and assigns, an easement for the purpose of ingress and egress, over, under, and across the hereinafter described land in ${output.county} County County, Arkansas, to-wit`, size: 24 })
           ]
         }),
         
@@ -107,7 +103,7 @@ export async function POST(req: Request,) {
         // Lot description
         new Paragraph({
           children: [
-            new TextRun({ text: "Lot 2, Block 1, Brookland Estates, Craighead County, Arkansas", size: 24 })
+            new TextRun({ text: output.burdened_tract_legal_description, size: 24 })
           ]
         }),
         
@@ -145,7 +141,7 @@ export async function POST(req: Request,) {
         // Benefitted lot description
         new Paragraph({
           children: [
-            new TextRun({ text: "The West Twenty (20) Feet of Lot 2, Block 1, Brookland Estates, Craighead County, Arkansas", size: 24 })
+            new TextRun({ text: output.benifited_tract_legal_description, size: 24 })
           ]
         }),
         
@@ -172,7 +168,7 @@ export async function POST(req: Request,) {
         // Placeholder for easement description
         new Paragraph({
           children: [
-            new TextRun({ text: "{{easement_legal_description}}", size: 24 })
+            new TextRun({ text: output.easement_legal_description, size: 24 })
           ]
         }),
         
