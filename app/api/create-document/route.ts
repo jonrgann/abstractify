@@ -20,7 +20,8 @@ export async function POST(req: Request) {
         grantee: z.string(),
         burdened_tract_legal_description: z.string().describe("The legal description of the burndened tract."),
         benifited_tract_legal_description: z.string().describe("The legal description of the burndened tract."),
-        easement_legal_description: z.string().describe("The legal description of the easement tract.")
+        easement_legal_description: z.string().describe("The legal description of the easement tract."),
+        county:z.string().describe("The county name. ex: Craighead")
       }),
     }),
   })
