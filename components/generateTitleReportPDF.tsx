@@ -206,6 +206,19 @@ const TitleReport: React.FC<{ data: TitleReportData }> = ({ data }) => (
           <Text style={styles.value}>{data.currentOwner.recordingNumber}</Text>
         </View>
         </View>
+
+        {/* 24 Month Chain */}
+        <View style={styles.sectionHeader}>
+          <Text>24 MONTH CHAIN REPORT</Text>
+        </View>
+
+        {data.chain24Month.length == 0 && (
+          <Text style={styles.instrumentHeader}>
+           NONE FOUND         
+          </Text>
+        )}
+
+
         {/* Deed Chain */}
         <View style={styles.sectionHeader}>
           <Text>CHAIN OF TITLE</Text>
@@ -250,16 +263,6 @@ const TitleReport: React.FC<{ data: TitleReportData }> = ({ data }) => (
           </View>
         ))}
 
-        {/* 24 Month Chain */}
-        <View style={styles.sectionHeader}>
-          <Text>24 MONTH CHAIN REPORT</Text>
-        </View>
-
-        {data.chain24Month.length == 0 && (
-          <Text style={styles.instrumentHeader}>
-           NONE FOUND         
-          </Text>
-        )}
 
         {data.chain24Month && data.chain24Month.map((deed, index) => (
             <View key={index} wrap={false}>
