@@ -51,7 +51,7 @@ export async function POST(req: Request,) {
         new Paragraph({
           alignment: AlignmentType.CENTER,
           children: [
-            new TextRun({ text: "ACCESS EASEMENT AGREEMENT", bold: true, size: 24 })
+            new TextRun({ text: "ACCESS &amp; UTILITY EASEMENT AGREEMENT", bold: true, size: 24 })
           ]
         }),
         
@@ -72,11 +72,12 @@ export async function POST(req: Request,) {
         // Main paragraph with indentation
         new Paragraph({
           children: [
-            new TextRun({ text: "THAT ", size: 24,  }),
+            new TextRun({ text: `This ACCESS & UTILITY EASEMENT AGREEMENT ("Agreement") is made this _____ day [MONTH], [YEAR] and between `, size: 24,  }),
             new TextRun({ text: output.grantor, bold: true, size: 24 }),
-            new TextRun({ text: ",  hereinafter collectively referred to as \"Grantor,\" for and in consideration of the sum of Ten Dollars ($10.00) and other good and valuable consideration to them in hand paid by ", size: 24 }),
+            new TextRun({ text: ` ("Grantor");`, size: 24 }),
+            new TextRun({ text: ` and `, size: 24 }),
             new TextRun({ text: output.grantee, bold: true, size: 24 }),
-            new TextRun({ text: `, hereinafter referred to as \"Grantee,\" the receipt and sufficiency of which is hereby acknowledged, does hereby grant, bargain and sell unto the said Grantee, and unto his successors and assigns, an easement for the purpose of ingress and egress, over, under, and across the hereinafter described land in ${output.county} County County, Arkansas, to-wit`, size: 24 })
+            new TextRun({ text: `, ("Grantee)`, size: 24 })
           ]
         }),
         

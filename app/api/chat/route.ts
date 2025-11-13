@@ -10,6 +10,9 @@ export async function POST(req: Request) {
   return createAgentUIStreamResponse({
     agent: researchAgent,
     messages,
+    options: {
+      countyId: county,
+    },
     messageMetadata: ({ part }) => {
         // Send metadata when streaming starts
         if (part.type === 'start') {
@@ -25,7 +28,11 @@ export async function POST(req: Request) {
             totalTokens: part.totalUsage.totalTokens,
           };
         }
-      },
+    },
+    onFinish: ({ messages }) => {
+      console.log('Stream finished with messages:',JSON.stringify(messages,null, 2));
+    },
   });
 
 }
+

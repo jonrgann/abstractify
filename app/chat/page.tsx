@@ -57,15 +57,14 @@ const suggestions = [
   'Can I get the plat for Huntington Hills Lot 19 Block 2',
 ];
 
-
-  const counties = [
+const counties = [
     { id: '54766f37-bfad-4922-a607-30963a9c4a60', name: 'Benton' },
-  ];
+    { id: '4c8cdb5e-1335-4a4a-89b0-523e02386af0', name: 'Washington' },
+];
 
 const ConversationDemo = () => {
     const [text, setText] = useState<string>('');
     const [county, setCounty] = useState<string>(counties[0].id);
-    const [useWebSearch, setUseWebSearch] = useState<boolean>(false);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const { messages, status, error, sendMessage } = useChat<ResearchAgentUIMessage>();
     
@@ -83,7 +82,6 @@ const ConversationDemo = () => {
         {
           body: {
             county: county,
-            webSearch: useWebSearch,
           },
         },
       );
@@ -141,6 +139,9 @@ const ConversationDemo = () => {
                           case 'tool-answer':
                             return (
                               <div  key={`${message.id}-${i}`} className="space-y-4 mb-2">
+                                {part.output?.status != "Search complete." && (
+                                     <Shimmer>{part.output?.status ?? ''}</Shimmer>
+                                )}
                                 <p className="mb-4"><TypewriterText text={part.output?.response ?? ''}/></p>
                                 { part.output?.documents && (
                                     part.output?.documents.map((doc: any, rowIndex: number) => {
