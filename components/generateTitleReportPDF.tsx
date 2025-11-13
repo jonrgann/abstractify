@@ -39,6 +39,7 @@ interface TitleReportData {
   property: PropertyInfo;
   currentOwner: Owner;
   deedChain: SearchResult[];
+  chain24Month: SearchResult[];
   searchResults: SearchResult[];
   openMortgages: SearchResult[];
   exceptions: SearchResult[];
@@ -75,92 +76,6 @@ export async function downloadTitleReportPDF(
   link.click();
   URL.revokeObjectURL(url);
 }
-
-export const exampleData: TitleReportData = {
-  orderNumber: "25-0842",
-  searchDate: "2025-11-05",
-  effectiveDate: "2025-11-04",
-  
-  property: {
-    propertyAddress: "1247 Maple Grove Avenue, Owasso, OK 74055",
-    legalDescription: "Lot 18, Block 3, MEADOWBROOK ESTATES ADDITION, City of Owasso, Osage County, State of Oklahoma, according to the recorded plat thereof.",
-    county: "Osage County"
-  },
-  
-  currentOwner: {
-    name: "Sarah Michelle Johnson and Robert James Johnson, Husband and Wife",
-    recordingDate: "2023-03-15",
-    recordingNumber: "2023-001847",
-  },
-  deedChain: [],
-  searchResults: [
-    {
-      filedDate: "2023-03-15",
-      documentNumber: "2023-001847",
-      documentType: "WARRANTY DEED",
-      grantors: ["Michael David Thompson and Lisa Ann Thompson"],
-      grantees: ["Sarah Michelle Johnson and Robert James Johnson"]
-    },
-    {
-      filedDate: "2023-03-15",
-      documentNumber: "2023-001848",
-      documentType: "DEED OF TRUST",
-      grantors: ["Sarah Michelle Johnson and Robert James Johnson"],
-      grantees: ["First National Bank of Tulsa"]
-    },
-    {
-      filedDate: "2024-06-22",
-      documentNumber: "2024-003421",
-      documentType: "RELEASE OF LIEN",
-      grantors: ["ABC Construction Company"],
-      grantees: ["Sarah Michelle Johnson and Robert James Johnson"]
-    },
-    {
-      filedDate: "2018-09-10",
-      documentNumber: "2018-005692",
-      documentType: "WARRANTY DEED",
-      grantors: ["Meadowbrook Development LLC"],
-      grantees: ["Michael David Thompson and Lisa Ann Thompson"]
-    }
-  ],
-  
-  openMortgages: [
-    {
-      filedDate: "2023-03-15",
-      documentNumber: "2023-001848",
-      documentType: "DEED OF TRUST",
-      grantors: ["Sarah Michelle Johnson and Robert James Johnson"],
-      grantees: ["First National Bank of Tulsa"]
-    }
-  ],
-  
-  exceptions: [
-    {
-      filedDate: "2018-05-20",
-      documentNumber: "2018-002847",
-      documentType: "UTILITY EASEMENTS",
-      grantors: ["Meadowbrook Development LLC"],
-      grantees: ["Oklahoma Gas & Electric Company"]
-    },
-    {
-      filedDate: "2018-05-20",
-      documentNumber: "2018-002848",
-      documentType: "DRAINAGE EASEMENT",
-      grantors: ["Meadowbrook Development LLC"],
-      grantees: ["City of Owasso"]
-    },
-    {
-      filedDate: "2017-12-01",
-      documentNumber: "2017-008934",
-      documentType: "Declaration of Covenants, Conditions and Restrictions",
-      grantors: ["Meadowbrook Development LLC"],
-      grantees: ["Meadowbrook Estates Homeowners Association"]
-    }
-  ],
-  
-  judgments: []
-};
-
 
 const styles = StyleSheet.create({
   page: {
@@ -303,7 +218,51 @@ const TitleReport: React.FC<{ data: TitleReportData }> = ({ data }) => (
         )}
 
         {data.deedChain && data.deedChain.map((deed, index) => (
-          <View key={index} wrap={false}>
+            <View key={index} wrap={false}>
+            <Text style={styles.instrumentHeader}>
+            {deed.documentType}
+            </Text>
+            <View style={styles.row}>
+              <Text style={styles.label}>Grantor(s):</Text>
+              <Text style={styles.value}>{deed.grantors.join(", ")}</Text>
+            </View>
+
+            <View style={styles.row}>
+              <Text style={styles.label}>Grantee(s):</Text>
+              <Text style={styles.value}>{deed.grantees.join(", ")}</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>Recording Date:</Text>
+              <Text style={styles.value}>{formatDate(deed.filedDate)}</Text>
+            </View>
+
+            <View style={styles.row}>
+              <Text style={styles.label}>Recording Number:</Text>
+              <Text style={styles.value}>{deed.documentNumber}</Text>
+            </View>
+
+            {/* {deed.notes && (
+              <View style={styles.row}>
+                <Text style={styles.label}>Notes:</Text>
+                <Text style={styles.notes}>{deed.notes}</Text>
+              </View>
+            )} */}
+          </View>
+        ))}
+
+        {/* 24 Month Chain */}
+        <View style={styles.sectionHeader}>
+          <Text>24 MONTH CHAIN REPORT</Text>
+        </View>
+
+        {data.chain24Month.length == 0 && (
+          <Text style={styles.instrumentHeader}>
+           NONE FOUND         
+          </Text>
+        )}
+
+        {data.chain24Month && data.chain24Month.map((deed, index) => (
+            <View key={index} wrap={false}>
             <Text style={styles.instrumentHeader}>
             {deed.documentType}
             </Text>
@@ -348,7 +307,7 @@ const TitleReport: React.FC<{ data: TitleReportData }> = ({ data }) => (
         )}
 
         {data.openMortgages && data.openMortgages.map((mortgage, index) => (
-          <View key={index} wrap={false}>
+            <View key={index} wrap={false}>
             <Text style={styles.instrumentHeader}>
               {mortgage.documentType}
             </Text>
@@ -385,7 +344,7 @@ const TitleReport: React.FC<{ data: TitleReportData }> = ({ data }) => (
 
 
         {/* Exceptions */}
-        <View wrap={false}>
+        <View >
           <View style={styles.sectionHeader}>
             <Text>EXCEPTIONS</Text>
           </View>
@@ -426,7 +385,7 @@ const TitleReport: React.FC<{ data: TitleReportData }> = ({ data }) => (
         </View>
 
         {/* Judgments */}
-        <View wrap={false}>
+        <View >
           <View style={styles.sectionHeader}>
             <Text>JUDGMENTS</Text>
           </View>

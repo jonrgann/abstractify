@@ -445,6 +445,7 @@ import {
           !releasedDocumentIds.includes(mortgage.documentId)
         );
 
+        const deeds = filterByDeeds(allPropertyDocuments);
         const deeds24Months = getDeedsLast24Months(allPropertyDocuments);
         const chain24Month: Document[] = await Promise.all(
           deeds24Months.map(async (deed) => {
@@ -525,8 +526,7 @@ import {
 
       console.log('24 month chain', chain24Month);
 
-
-        const exceptions = allDocuments.filter((doc) => ['PLAT','PROTECTIVE COVENANTS',"RESTRICTIONS"].includes(doc.documentType.toUpperCase()));
+        const exceptions = allDocuments.filter((doc) => ['PLAT','PROTECTIVE COVENANTS',"RESTRICTIONS","ORDINANCE", "BILL OF ASSURANCES"].includes(doc.documentType.toUpperCase()));
         const judgments = allDocuments.filter((doc) => ['JUDGMENT','FEDERAL TAX LIEN','STATE TAX LIEN'].includes(doc.documentType.toUpperCase()));
 
         const report =  { 
@@ -535,7 +535,8 @@ import {
           searchDate,
           property: { propertyAddress: orderInfo.propertyAddress, legalDescription: orderInfo.legalDescription, county: orderInfo.county} ,
           currentOwner: vestingInfo, 
-          deedChain: chain24Month,
+          deedChain: deeds,
+          chain24Month: chain24Month,
           searchResults: propertySearchDocuments, 
           openMortgages: openMortgages,
           exceptions: exceptions,

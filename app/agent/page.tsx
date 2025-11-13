@@ -14,7 +14,7 @@ import SearchResults from '@/components/search-results';
 import NameSearch from '@/components/name-search';
 import Order from '@/components/order';
 import { Shimmer } from '@/components/ai-elements/shimmer';
-import { downloadTitleReportPDF, exampleData } from '@/components/generateTitleReportPDF';
+import { downloadTitleReportPDF } from '@/components/generateTitleReportPDF';
 
 
 import { Checkbox } from "@/components/ui/checkbox"
