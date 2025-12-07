@@ -19,9 +19,8 @@ import {
   PaperclipIcon,
   XIcon,
 } from "lucide-react";
-import Image from "next/image";
 import type { ComponentProps, HTMLAttributes, ReactElement } from "react";
-import { createContext, memo, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, memo, useContext, useEffect, useState } from "react";
 import { Streamdown } from "streamdown";
 
 export type MessageProps = HTMLAttributes<HTMLDivElement> & {
@@ -31,8 +30,8 @@ export type MessageProps = HTMLAttributes<HTMLDivElement> & {
 export const Message = ({ className, from, ...props }: MessageProps) => (
   <div
     className={cn(
-      "group flex w-full gap-2",
-      from === "user" ? "is-user ml-auto justify-end max-w-[80%]" : "is-assistant max-w-full w-full flex-1 flex-grow",
+      "group flex w-full max-w-[80%] flex-col gap-2",
+      from === "user" ? "is-user ml-auto justify-end" : "is-assistant",
       className
     )}
     {...props}
@@ -50,7 +49,7 @@ export const MessageContent = ({
     className={cn(
       "is-user:dark flex w-fit flex-col gap-2 overflow-hidden text-sm",
       "group-[.is-user]:ml-auto group-[.is-user]:rounded-lg group-[.is-user]:bg-secondary group-[.is-user]:px-4 group-[.is-user]:py-3 group-[.is-user]:text-foreground",
-      "group-[.is-assistant]:w-full group-[.is-assistant]:text-foreground",
+      "group-[.is-assistant]:text-foreground",
       className
     )}
     {...props}
@@ -189,19 +188,14 @@ export const MessageBranchContent = ({
   ...props
 }: MessageBranchContentProps) => {
   const { currentBranch, setBranches, branches } = useMessageBranch();
-
-  // Memoize childrenArray to prevent it from changing on every render
-  const childrenArray = useMemo(
-    () => (Array.isArray(children) ? children : [children]),
-    [children]
-  );
+  const childrenArray = Array.isArray(children) ? children : [children];
 
   // Use useEffect to update branches when they change
   useEffect(() => {
     if (branches.length !== childrenArray.length) {
       setBranches(childrenArray);
     }
-  }, [childrenArray, branches.length, setBranches]);
+  }, [childrenArray, branches, setBranches]);
 
   return childrenArray.map((branch, index) => (
     <div
@@ -355,11 +349,11 @@ export function MessageAttachment({
     >
       {isImage ? (
         <>
-          <Image
+          <img
             alt={filename || "attachment"}
             className="size-full object-cover"
             height={100}
-            src={data.url || ""}
+            src={data.url}
             width={100}
           />
           {onRemove && (

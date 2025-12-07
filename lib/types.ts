@@ -39,6 +39,7 @@ export type MyUIMessage = UIMessage<
     workflowResearchComplete: WorkflowType,
     workflowDocuments: WorkflowType,
     workflowError: WorkflowType,
+    workflowStatus: { message: string }
     workflowTest: { status: string, output?: any}
     workflowStep1: { status: string, output?: any}
     workflowStep2: { status: string, output?: any}

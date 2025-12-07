@@ -7,11 +7,33 @@ export const maxDuration = 30;
 export async function POST(req: Request) {
   const { county, messages }: { county: string, messages: ResearchAgentUIMessage[] } = await req.json();
 
+
+  const PROPERTY_SYNC_USER =process.env.PROPERTYSYNC_USERNAME;
+  const PROPERTY_SYNC_PASS = process.env.PROPERTYSYNC_PASSWORD;
+  const DOCUMENT_GROUP_ID = county
+
+  const loginResponse = await fetch(
+    `https://api.propertysync.com/v1/login`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: PROPERTY_SYNC_USER,
+        password: PROPERTY_SYNC_PASS
+      })
+    }
+  );
+
+  const { token } = await loginResponse.json();
+  
   return createAgentUIStreamResponse({
     agent: researchAgent,
     messages,
     options: {
       countyId: county,
+      token
     },
     messageMetadata: ({ part }) => {
         // Send metadata when streaming starts

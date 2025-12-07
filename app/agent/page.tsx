@@ -16,7 +16,6 @@ import Order from '@/components/order';
 import { Shimmer } from '@/components/ai-elements/shimmer';
 import { downloadTitleReportPDF } from '@/components/generateTitleReportPDF';
 
-
 import { Checkbox } from "@/components/ui/checkbox"
 import {
   Field,
@@ -317,7 +316,7 @@ export default function Page() {
           
           <div ref={messagesEndRef} />
           </div>
-           </div>   
+          </div>   
   );
 }
 
