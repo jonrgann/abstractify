@@ -57,11 +57,11 @@ import {
 
         const orderInfo = JSON.parse(await result1.text);
 
-        if(orderInfo.county.toUpperCase() != "BENTON"){
+        if(orderInfo.county.toUpperCase() != "BENTON" || orderInfo.county.toUpperCase() != "WASHINGTON" ){
           writer.write({
             type: 'data-workflowError',
             id: 'workflowError-1',
-            data: { status: 'complete', output: 'I can only work on properties in Benton county at this time.  Please refresh the page and try again.'}
+            data: { status: 'complete', output: 'I can only work on properties in Benton and Washington county at this time.  Please refresh the page and try again.'}
           }); 
           // Exits Stream.
           return;
@@ -110,9 +110,17 @@ import {
         const client = new PropertySyncClient();
         const PROPERTY_SYNC_USER =process.env.PROPERTYSYNC_USERNAME;
         const PROPERTY_SYNC_PASS = process.env.PROPERTYSYNC_PASSWORD;
-        const documentGroupId = "54766f37-bfad-4922-a607-30963a9c4a60"
         const companyId = "da87ef4e-60a9-4a38-b743-c53c20ed4f18"
         await client.login({email: PROPERTY_SYNC_USER!, password:PROPERTY_SYNC_PASS})
+
+        let documentGroupId = "54766f37-bfad-4922-a607-30963a9c4a60"
+        if(orderInfo.county.toUpperCase() === "BENTON"){
+          documentGroupId = "54766f37-bfad-4922-a607-30963a9c4a60"
+        }
+  
+        if(orderInfo.county.toUpperCase() === "WASHINGTON"){
+          documentGroupId = "4c8cdb5e-1335-4a4a-89b0-523e02386af0"
+        }
   
         const documentGroupDetails = await client.getDocumentGroupDetails(documentGroupId);
         const subdivisions = await client.getAutoCompletes(documentGroupId, { type: "addition"})
@@ -526,7 +534,7 @@ import {
 
       console.log('24 month chain', chain24Month);
 
-        const exceptions = allDocuments.filter((doc) => ['PLAT','PROTECTIVE COVENANTS',"RESTRICTIONS","ORDINANCE", "BILL OF ASSURANCES"].includes(doc.documentType.toUpperCase()));
+        const exceptions = allDocuments.filter((doc) => ['PLAT','PROTECTIVE COVENANTS',"RESTRICTIONS", "ORDINANCE", "BILL OF ASSURANCES","NOTICE"].includes(doc.documentType.toUpperCase()));
         const judgments = allDocuments.filter((doc) => ['JUDGMENT','FEDERAL TAX LIEN','STATE TAX LIEN'].includes(doc.documentType.toUpperCase()));
 
         const report =  { 

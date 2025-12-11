@@ -1,8 +1,10 @@
-import { UIMessage, createAgentUIStreamResponse} from 'ai';
+import { UIMessage, createAgentUIStreamResponse, createUIMessageStreamResponse} from 'ai';
 import { researchAgent, ResearchAgentUIMessage } from '@/lib/agents/researchAgent';
+import { start } from "workflow/api";
+import { chat } from '@/workflows/chat';
 
 // Allow streaming responses up to 30 seconds
-export const maxDuration = 30;
+// export const maxDuration = 30;
 
 export async function POST(req: Request) {
   const { county, messages }: { county: string, messages: ResearchAgentUIMessage[] } = await req.json();
@@ -58,3 +60,18 @@ export async function POST(req: Request) {
 
 }
 
+// export async function POST(req: Request) {
+// 	const { messages }: { messages: ResearchAgentUIMessage[] } = await req.json();
+
+// 	const run = await start(chat, [messages]);
+// 	const workflowStream = run.readable;
+
+// 	return createUIMessageStreamResponse({
+// 		stream: workflowStream,
+// 		headers: {
+// 			// The workflow run ID is stored into `localStorage` on the client side,
+// 			// which influences the `resume` flag in the `useChat` hook.
+// 			"x-workflow-run-id": run.runId,
+// 		},
+// 	});
+// }

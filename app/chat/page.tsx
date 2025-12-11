@@ -6,7 +6,13 @@ import {
   ConversationEmptyState,
   ConversationScrollButton,
 } from '@/components/ai-elements/conversation';
-import { Message, MessageContent } from '@/components/ai-elements/message';
+import {
+  Message,
+  MessageContent,
+  MessageResponse,
+  MessageActions,
+  MessageAction,
+} from '@/components/ai-elements/message';
 import {
     PromptInput,
     PromptInputActionAddAttachments,
@@ -30,17 +36,30 @@ import {
     PromptInputFooter,
     PromptInputTools,
   } from '@/components/ai-elements/prompt-input';
+  import {
+    Reasoning,
+    ReasoningContent,
+    ReasoningTrigger,
+  } from '@/components/ai-elements/reasoning';
+  import {
+    Tool,
+    ToolContent,
+    ToolHeader,
+    ToolInput,
+    ToolOutput,
+  } from "@/components/ai-elements/tool";
 import { useRef, useState } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { Response } from '@/components/ai-elements/response';
 import { Suggestion, Suggestions } from '@/components/ai-elements/suggestion';
 import { getToolName, isToolUIPart } from 'ai';
 import { ResearchAgentUIMessage } from '@/lib/agents/researchAgent';
-import { GlobeIcon, FileText, ChevronRightIcon } from 'lucide-react';
+import { GlobeIcon, FileText, ChevronRightIcon, Workflow } from 'lucide-react';
 import { Shimmer } from '@/components/ai-elements/shimmer';
 import { TypewriterText } from '@/components/typewrter';
 import { motion, AnimatePresence } from 'motion/react'
 import { Separator } from '@/components/ui/separator';
+import { WorkflowChatTransport } from "@workflow/ai";
 import {
   Item,
   ItemActions,
@@ -50,8 +69,19 @@ import {
   ItemTitle,
 } from "@/components/ui/item"
 
+import { Fragment, } from 'react';
+
+import { CopyIcon, RefreshCcwIcon } from 'lucide-react';
+import {
+  Source,
+  Sources,
+  SourcesContent,
+  SourcesTrigger,
+} from '@/components/ai-elements/sources';
+
 import { MessageSquare, ShieldAlertIcon, DownloadIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Loader } from '@/components/ai-elements/loader';
 
 const suggestions = [
   'Can I get the plat for Huntington Hills Lot 19 Block 2',
@@ -66,7 +96,7 @@ const ConversationDemo = () => {
     const [text, setText] = useState<string>('');
     const [county, setCounty] = useState<string>(counties[0].id);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
-    const { messages, status, error, sendMessage } = useChat<ResearchAgentUIMessage>();
+    const { messages, status, error, sendMessage, regenerate } = useChat<ResearchAgentUIMessage>();
     
     const handleSubmit = (message: PromptInputMessage) => {
       const hasText = Boolean(message.text);
@@ -95,7 +125,7 @@ const ConversationDemo = () => {
   return (
     <div className="relative w-full h-[700px] bg-background">
       <div className="flex flex-col h-full w-full">
-        <Conversation>
+        {/* <Conversation>
           <ConversationContent>
             {messages.length === 0 ? (
               <ConversationEmptyState
@@ -197,6 +227,82 @@ const ConversationDemo = () => {
               ))
               
             )}
+          </ConversationContent>
+          <ConversationScrollButton />
+        </Conversation> */}
+
+<Conversation className="h-full">
+          <ConversationContent>
+            {messages.map((message) => (
+              <div key={message.id}>
+                {message.role === 'assistant' && message.parts.filter((part) => part.type === 'source-url').length > 0 && (
+                  <Sources>
+                    <SourcesTrigger
+                      count={
+                        message.parts.filter(
+                          (part) => part.type === 'source-url',
+                        ).length
+                      }
+                    />
+                    {message.parts.filter((part) => part.type === 'source-url').map((part, i) => (
+                      <SourcesContent key={`${message.id}-${i}`}>
+                        <Source
+                          key={`${message.id}-${i}`}
+                          href={part.url}
+                          title={part.url}
+                        />
+                      </SourcesContent>
+                    ))}
+                  </Sources>
+                )}
+                {message.parts.map((part, i) => {
+                  switch (part.type) {
+                    case 'text':
+                      return (
+                        <Message key={`${message.id}-${i}`} from={message.role}>
+                          <MessageContent>
+                            <MessageResponse>
+                              {part.text}
+                            </MessageResponse>
+                          </MessageContent>
+                          {message.role === 'assistant' && i === messages.length - 1 && (
+                            <MessageActions>
+                              <MessageAction
+                                onClick={() => regenerate()}
+                                label="Retry"
+                              >
+                                <RefreshCcwIcon className="size-3" />
+                              </MessageAction>
+                              <MessageAction
+                                onClick={() =>
+                                  navigator.clipboard.writeText(part.text)
+                                }
+                                label="Copy"
+                              >
+                                <CopyIcon className="size-3" />
+                              </MessageAction>
+                            </MessageActions>
+                          )}
+                        </Message>
+                      );
+                    case 'reasoning':
+                      return (
+                        <Reasoning
+                          key={`${message.id}-${i}`}
+                          className="w-full"
+                          isStreaming={status === 'streaming' && i === message.parts.length - 1 && message.id === messages.at(-1)?.id}
+                        >
+                          <ReasoningTrigger />
+                          <ReasoningContent>{part.text}</ReasoningContent>
+                        </Reasoning>
+                      );
+                    default:
+                      return null;
+                  }
+                })}
+              </div>
+            ))}
+            {status === 'submitted' && <Loader />}
           </ConversationContent>
           <ConversationScrollButton />
         </Conversation>

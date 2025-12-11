@@ -1,5 +1,5 @@
 import { UIMessage, ToolLoopAgent,tool, InferUITools, stepCountIs, hasToolCall, generateText} from 'ai';
-import { google } from '@ai-sdk/google';
+import { google, GoogleGenerativeAIProviderOptions } from '@ai-sdk/google';
 import { PropertySyncClient } from '../propertysync/client';
 import { subdivisionAgent } from './subdivision-agent';
 import { z } from 'zod';
@@ -41,7 +41,16 @@ export const researchAgent = new ToolLoopAgent({
     - Then use the answer tool to provide the response and documents to the user.
     - If the user asks about a specific document, read the document first before answering.
     - If the user does not provide a start or end date use null.
-    - Format dats as YYYY-MM-DD`,
+    - Format dats as YYYY-MM-DD
+    - Use markdown when listing document information to the user.`,
+    providerOptions: {
+      google: {
+        thinkingConfig: {
+          thinkingBudget: 8192,
+          includeThoughts: true,
+        },
+      } satisfies GoogleGenerativeAIProviderOptions,
+    },
     callOptionsSchema: z.object({
       countyId: z.string(),
       token: z.string(),
@@ -283,8 +292,7 @@ export const researchAgent = new ToolLoopAgent({
       ...settings,
       experimental_context: options as Context,
     }),
-    stopWhen: hasToolCall('answer'),
-    toolChoice: 'required',
+    stopWhen: stepCountIs(10),
 });
 
 type MyTools = InferUITools<typeof researchAgent.tools>;
