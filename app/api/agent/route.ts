@@ -57,7 +57,7 @@ import {
 
         const orderInfo = JSON.parse(await result1.text);
 
-        if(orderInfo.county.toUpperCase() != "BENTON" || orderInfo.county.toUpperCase() != "WASHINGTON" ){
+        if(orderInfo.county.toUpperCase() != "BENTON" && orderInfo.county.toUpperCase() != "WASHINGTON" ){
           writer.write({
             type: 'data-workflowError',
             id: 'workflowError-1',
