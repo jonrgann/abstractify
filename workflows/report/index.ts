@@ -10,7 +10,16 @@ import { selectSubdivision } from "../steps/select-subdivision";
 import { searchPropertySync } from "../steps/search";
 import { retrieveResults } from "../steps/retrieve-results";
 import { generateHTML } from "../steps/generate-html";
+import { getPlantDetails } from "../steps/get-plant-details";
 import { generateTitleReportEmail } from "./templates/title-report-email";
+import { retrieveDocumentIds } from "../steps/retrieve-document-ids";
+import { getDocumentDetails } from "../steps/get-document-details";
+import { formatFullName, filterByDeeds, getDeedsLast24Months } from "@/lib/research/utils";
+import { determineNamesInTitleFromChain } from "@/lib/research/utils";
+import { getLatestDeed } from "@/lib/research/utils";
+import { getVestingInfo } from "../steps/get-vesting-info";
+import { Document } from "@/lib/research/utils";
+import { generateTitleReportBase64 } from "@/components/generateTitleReportPDF";
 
 export async function generateReport(query: string) {
 	"use workflow";
@@ -18,12 +27,14 @@ export async function generateReport(query: string) {
 	//Send Email:
 	const url = 'https://lbndwiqgqqpzjwkhbdip.supabase.co/storage/v1/object/public/uploads/order-sheet-25-3057.pdf'
 	const documentGroupId = "54766f37-bfad-4922-a607-30963a9c4a60"
-    const companyId = "da87ef4e-60a9-4a38-b743-c53c20ed4f18"
+    const companyId = "da87ef4e-60a9-4a38-b743-c53c20ed4f18" // Need to eventually get this from user.
 
 	// Step 0: Get Bearer Token from PropertySync
 	const { token } = await getPropertySyncBearerToken();
 
+	// Get context from plant.  Subdivisions, effective date etc.
 	const subdivisions = await getSubdivisions(documentGroupId, token);
+	const { effectiveDate, name: plantName } = await getPlantDetails(documentGroupId, token);
 
 	// Step 1: Extract Order Information
 	const orderInfo = await extractOrderInfo(url);
@@ -50,22 +61,84 @@ export async function generateReport(query: string) {
         } 
       })
 
-	// Step 5: Retrieve Results
-	const propertyResults = await retrieveResults(documentGroupId,token, searchResponse.id);
+	// Step 5: Retrieve Document Ids
+	const documentIds = await retrieveDocumentIds(documentGroupId,token, searchResponse.id);
 
-	const documents = propertyResults.map((result:any) => {
-		return{
-			documentType: result.documentType,
-			bookNumber: result.bookNumber,
-			pageNumber: result.pageNumber,
-			grantors: result.bestGrantor,
-			gratnees: result.bestGrantee
-		}
+	// Step 6 Get All Document Details
+	const propertyDocuments = await Promise.all(
+		documentIds.map((id: string) => getDocumentDetails(documentGroupId, token, id))
+	);
+
+	const documents = convertToDocuments(propertyDocuments);
+
+	// Step 7 Get Vesting Info from last deed.
+	const lastDeed = getLatestDeed(documents);
+	const { grantee : vestingName } = await getVestingInfo(lastDeed);
+	const vestingInfo = { 
+		name: vestingName, 
+		recordingNumber: lastDeed.documentNumber, 
+		recordingDate: lastDeed.filedDate
+	}
+
+	// Step 8 Generate Title Report Email.
+	const emailHTML = await generateTitleReportEmail({ 
+		vestingInfo,
+		propertyAddress: orderInfo.propertyAddress, 
+		legalDescription: orderInfo.legalDescription,
+		reportURL: url 
 	})
 
+	// Generate Report PDF
+	const deeds = filterByDeeds(documents);
+	const deeds24Months = getDeedsLast24Months(documents);
+	const exceptions = documents.filter((doc) => ['PLAT','PROTECTIVE COVENANTS',"RESTRICTIONS", "ORDINANCE", "BILL OF ASSURANCES","NOTICE","SURVEY"].includes(doc.documentType.toUpperCase()));
+	const judgments = documents.filter((doc) => ['JUDGMENT','FEDERAL TAX LIEN','STATE TAX LIEN'].includes(doc.documentType.toUpperCase()));
 
-	const emailHTML = await generateTitleReportEmail({propertyAddress: orderInfo.propertyAddress, legalDescription: orderInfo.legalDescription})
+	const date = new Date(); // Gets the current date and time
+	const searchDate = date.toLocaleDateString('en-US', {
+	  year: 'numeric',
+	  month: 'long',
+	  day: 'numeric'
+	});
 
-	await sendEmail('Abstractify <agent@orders.abstractify.app>', 'jonrgann@gmail.com', 'Title Report', emailHTML);
+	const report =  { 
+	  orderNumber: orderInfo.orderNumber ?? '', 
+	  effectiveDate, 
+	  searchDate,
+	  property: { propertyAddress: orderInfo.propertyAddress ?? '', legalDescription: orderInfo.legalDescription ?? '', county: orderInfo.county} ,
+	  currentOwner: vestingInfo, 
+	  deedChain: deeds,
+	  chain24Month: [],
+	  searchResults: documents, 
+	  openMortgages: [],
+	  exceptions: exceptions,
+	  judgments: judgments
+	}
 
+	// const reportPDF = await generateTitleReportBase64(report);
+	// const attachment = { content: reportPDF, fileName:"Title Report"}
+
+	// Step 9 Send Email
+	await sendEmail('Abstractify <agent@orders.abstractify.app>', 'jonrgann@gmail.com', `Title Report | Ref # ${orderInfo.orderNumber} | ${orderInfo.propertyAddress}`, emailHTML);
+
+}
+
+// Helper function that converts PropertySync data to Document Type
+function convertToDocuments(data: any[]): Document[]{
+	// Remove Documents with a type of ORDERS
+	const docs = data.filter((obj) => obj.json.instrumentType != 'ORDER')
+	return docs.map((obj) => {
+		return {
+			documentId: obj.id,
+			image: obj.image.s3Path,
+			filedDate: obj.json.filedDate,
+			documentNumber: obj.json.instrumentNumber ?? '',
+			documentType: obj.json.instrumentType,
+			bookNumber: obj.json.bookNumber,
+			pageNumber: obj.json.pageNumber,
+			grantors: obj.json.grantors.map(formatFullName),
+			grantees: obj.json.grantees.map(formatFullName),
+			amount: obj.json.consideration
+		}
+	})
 }

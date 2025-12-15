@@ -16,6 +16,7 @@ import {
     
     const stream = createUIMessageStream({
       execute: async ({ writer }) => {
+
         // step 1 example: forced tool call
 
         writer.write({
@@ -355,7 +356,7 @@ import {
             data: { status: 'active'}
         }); 
 
-          const lastDeed = getLatestDeed(allPropertyDocuments)
+          const lastDeed = getLatestDeed(allPropertyDocuments);
           const lastDeedDetails = await client.getDocumentDetails(documentGroupId, lastDeed.documentId);
           const lastDeedImage = lastDeedDetails.image.s3Path;
 
@@ -534,7 +535,7 @@ import {
 
       console.log('24 month chain', chain24Month);
 
-        const exceptions = allDocuments.filter((doc) => ['PLAT','PROTECTIVE COVENANTS',"RESTRICTIONS", "ORDINANCE", "BILL OF ASSURANCES","NOTICE"].includes(doc.documentType.toUpperCase()));
+        const exceptions = allDocuments.filter((doc) => ['PLAT','PROTECTIVE COVENANTS',"RESTRICTIONS", "ORDINANCE", "BILL OF ASSURANCES","NOTICE","SURVEY",].includes(doc.documentType.toUpperCase()));
         const judgments = allDocuments.filter((doc) => ['JUDGMENT','FEDERAL TAX LIEN','STATE TAX LIEN'].includes(doc.documentType.toUpperCase()));
 
         const report =  { 

@@ -6,151 +6,84 @@ export async function generateTitleReportEmail(data: any) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Title Report is Ready</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-        }
-        .email-container {
-            max-width: 600px;
-            margin: 0 auto;
-            background-color: #ffffff;
-        }
-        .header {
-            background-color: #004e89;
-            padding: 20px;
-            text-align: right;
-            color: #ffffff;
-        }
-        .header img {
-            float: left;
-            height: 40px;
-        }
-        .header-text {
-            line-height: 1.4;
-            font-size: 14px;
-        }
-        .banner {
-            background-color: #e8f0f5;
-            padding: 40px 20px;
-            text-align: center;
-        }
-        .banner h1 {
-            color: #004e89;
-            margin: 0 0 15px 0;
-            font-size: 28px;
-        }
-        .banner p {
-            color: #333333;
-            margin: 0;
-            font-size: 16px;
-        }
-        .content {
-            padding: 30px 40px;
-            color: #333333;
-            line-height: 1.6;
-        }
-        .section-title {
-            color: #004e89;
-            font-size: 20px;
-            font-weight: bold;
-            margin: 25px 0 15px 0;
-        }
-        .property-details {
-            margin: 15px 0;
-        }
-        .detail-row {
-            margin: 10px 0;
-        }
-        .detail-label {
-            font-weight: bold;
-            display: inline-block;
-            min-width: 160px;
-        }
-        .detail-value {
-            display: inline;
-            color: #555555;
-        }
-        ul {
-            margin: 10px 0;
-            padding-left: 20px;
-        }
-        li {
-            margin: 5px 0;
-        }
-        .footer {
-            background-color: #f8f8f8;
-            padding: 20px;
-            text-align: center;
-            font-size: 12px;
-            color: #666666;
-        }
-    </style>
+    <title>Your Title Report is Ready!</title>
 </head>
-<body>
-    <div class="email-container">
-        <!-- Header -->
-        <div class="header">
-            <div class="header-text">
-                <strong>[Company Name]</strong><br>
-                [Company Phone]
-            </div>
-        </div>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background-color: #ffffff;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+            <td align="center" style="padding: 60px 20px;">
+                <table width="540" cellpadding="0" cellspacing="0" border="0">
+                    
+                    <!-- Header -->
+                    <tr>
+                        <td style="padding-bottom: 20px;">
+                            <h1 style="margin: 0; color: #000000; font-size: 24px; font-weight: 600;">Your Title Report is Ready!</h1>
+                        </td>
+                    </tr>
+                    
+                    <!-- Introduction -->
+                    <tr>
+                        <td style="padding-bottom: 32px;">
+                            <p style="margin: 0; color: #666666; font-size: 15px; line-height: 1.6;">
+                                We've completed research on your property.
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Property Information -->
+                    <tr>
+                        <td style="padding-bottom: 24px;">
+                            <p style="margin: 0 0 4px 0; color: #999999; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Property Address</p>
+                            <p style="margin: 0; color: #000000; font-size: 15px; line-height: 1.5;">
+                               ${data.propertyAddress}
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td style="padding-bottom: 32px;">
+                            <p style="margin: 0 0 4px 0; color: #999999; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Legal Description</p>
+                            <p style="margin: 0; color: #000000; font-size: 15px; line-height: 1.5;">
+                            ${data.legalDescription}
+                            </p>
+                        </td>
+                    </tr>
 
-        <!-- Banner -->
-        <div class="banner">
-            <h1>Your Title Report is Ready!</h1>
-            <p>We've completed research on your property.</p>
-        </div>
-
-        <!-- Content -->
-        <div class="content">
-            <p>Dear [Recipient Name],</p>
-            
-            <p>Please find below a summary of the title report for the property located at:</p>
-
-            <div class="section-title">Property Details</div>
-            <div class="property-details">
-                <div class="detail-row">
-                    <span class="detail-label">Property Address:</span>
-                    <span class="detail-value">${data.propertyAddress}]<br>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Legal Description:</span>
-                    <span class="detail-value">${data.legalDescription}</span>
-                </div>
-            </div>
-
-            <div class="section-title">Current Owner(s)</div>
-            <p>The current record owner(s) of the property appear to be:</p>
-            <ul>
-                <li>[Owner Name 1]</li>
-                <li>[Owner Name 2, if applicable]</li>
-            </ul>
-
-            <div class="section-title">Title Examination Results</div>
-            <p>[Summary of title examination findings, including any liens, encumbrances, or issues discovered]</p>
-
-            <div class="section-title">Next Steps</div>
-            <p>[Information about next steps, such as reviewing the full report, scheduling a closing, or addressing any title issues]</p>
-
-            <p>If you have any questions about this title report, please don't hesitate to contact us at [Company Phone] or reply to this email.</p>
-
-            <p>Best regards,<br>
-            <strong>[Your Name]</strong><br>
-            [Your Title]<br>
-            [Company Name]</p>
-        </div>
-
-        <!-- Footer -->
-        <div class="footer">
-            <p>&copy; 2025 [Company Name]. All rights reserved.</p>
-            <p>[Company Address] | [Company Phone] | [Company Email]</p>
-        </div>
-    </div>
+                    <!-- Current Owner -->
+                    <tr>
+                        <td style="padding-bottom: 16px;">
+                            <p style="margin: 0 0 4px 0; color: #999999; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Current Owner</p>
+                            <p style="margin: 0; color: #000000; font-size: 15px;">${data.vestingInfo.name}</p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Divider -->
+                    <tr>
+                        <td style="padding-bottom: 32px;">
+                            <div style="height: 1px; background-color: #e5e5e5;"></div>
+                        </td>
+                    </tr>
+                                        
+                    <!-- Download Button -->
+                    <tr>
+                        <td style="padding-bottom: 32px;">
+                            <a href="${data.reportURL}" style="display: inline-block; padding: 14px 32px; background-color: #000000; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 500; color-scheme: light">Download Report</a>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer Disclaimer -->
+                    <tr>
+                        <td style="padding-top: 32px; border-top: 1px solid #e5e5e5;">
+                            <p style="margin: 0; color: #999999; font-size: 12px; line-height: 1.6;">
+                                This title report is provided for informational purposes only and does not constitute legal advice. The information is based on public records available at the time of search. This report should be reviewed by a qualified attorney before making any real estate decisions.
+                            </p>
+                        </td>
+                    </tr>
+                    
+                </table>
+            </td>
+        </tr>
+    </table>
 </body>
 </html>`
 

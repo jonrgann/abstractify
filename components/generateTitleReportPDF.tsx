@@ -29,7 +29,7 @@ interface SearchResult {
   documentType: string;
   grantors: string[];
   grantees: string[],
-  amount?: number
+  amount?: string,
 }
 
 interface TitleReportData {
@@ -54,9 +54,22 @@ interface TitleReportData {
 export async function generateTitleReportPDF(
   data: TitleReportData
 ): Promise<Blob> {
+    "use step"
   const doc = <TitleReport data={data} />;
   const blob = await pdf(doc).toBlob();
   return blob;
+}
+
+export async function generateTitleReportBase64(
+  data: TitleReportData
+): Promise<string> {
+  "use step"
+  const doc = <TitleReport data={data} />;
+  const pdfBlob = await pdf(doc).toBlob();
+  const pdfBuffer = await pdfBlob.arrayBuffer();
+  const base64String = Buffer.from(pdfBuffer).toString('base64');
+  console.log(base64String)
+  return base64String;
 }
 
 /**
@@ -68,6 +81,7 @@ export async function downloadTitleReportPDF(
   data: TitleReportData,
   filename: string = 'title-report.pdf'
 ): Promise<void> {
+    "use step"
   const blob = await generateTitleReportPDF(data);
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
@@ -455,11 +469,11 @@ const TitleReport: React.FC<{ data: TitleReportData }> = ({ data }) => (
     return date.toLocaleDateString('en-US', options);
   }
 
-  function formatCurrency(amount: number): string {
+  function formatCurrency(amount: string): string {
     const usdFormatter = new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD'
     });
     
-    return usdFormatter.format(amount);
+    return usdFormatter.format(Number(amount));
   }
