@@ -54,7 +54,7 @@ interface TitleReportData {
 export async function generateTitleReportPDF(
   data: TitleReportData
 ): Promise<Blob> {
-    "use step"
+
   const doc = <TitleReport data={data} />;
   const blob = await pdf(doc).toBlob();
   return blob;
@@ -63,7 +63,6 @@ export async function generateTitleReportPDF(
 export async function generateTitleReportBase64(
   data: TitleReportData
 ): Promise<string> {
-  "use step"
   const doc = <TitleReport data={data} />;
   const pdfBlob = await pdf(doc).toBlob();
   const pdfBuffer = await pdfBlob.arrayBuffer();
@@ -81,7 +80,6 @@ export async function downloadTitleReportPDF(
   data: TitleReportData,
   filename: string = 'title-report.pdf'
 ): Promise<void> {
-    "use step"
   const blob = await generateTitleReportPDF(data);
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
@@ -169,292 +167,299 @@ const styles = StyleSheet.create({
 
 
 const TitleReport: React.FC<{ data: TitleReportData }> = ({ data }) => (
-    <Document>
-      <Page size="LETTER" style={styles.page}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.title}>TITLE REPORT</Text>
-          <Text style={styles.subtitle}>
-            Order Number: {data.orderNumber} |
-            Date Searched: {data.searchDate} | Effective Date: {data.effectiveDate}
-          </Text>
-        </View>
-
-        {/* Property Information */}
-        <View style={styles.sectionHeader}>
-          <Text>PROPERTY INFORMATION</Text>
-        </View>
-
-        <View style={{ marginTop: 10 }}>
-        <View style={styles.row}>
-          <Text style={styles.label}>Street Address:</Text>
-          <Text style={styles.value}>{data.property.propertyAddress}</Text>
-        </View>
-
-        <View style={styles.row}>
-          <Text style={styles.label}>Legal Description:</Text>
-          <Text style={styles.value}>{data.property.legalDescription}</Text>
-        </View>
-
-        <View style={styles.row}>
-          <Text style={styles.label}>County:</Text>
-          <Text style={styles.value}>{data.property.county}</Text>
-        </View>
-        </View>
-
-        {/* Ownership Information */}
-        <View style={styles.sectionHeader}>
-          <Text>OWNERSHIP INFORMATION</Text>
-        </View>
-        <View style={{ marginTop: 10 }}>
-        <View style={styles.row}>
-        <Text style={styles.label}>{"Owner's Name(s):"}</Text>
-          <Text style={styles.value}>{data.currentOwner.name}</Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>Date Acquired:</Text>
-          <Text style={styles.value}>{formatDate(data.currentOwner.recordingDate ?? '')}</Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>Recording Number:</Text>
-          <Text style={styles.value}>{data.currentOwner.recordingNumber}</Text>
-        </View>
-        </View>
-
-        {/* 24 Month Chain */}
-        <View style={styles.sectionHeader}>
-          <Text>24 MONTH CHAIN REPORT</Text>
-        </View>
-
-        {data.chain24Month.length == 0 && (
-          <Text style={styles.instrumentHeader}>
-           NONE FOUND         
-          </Text>
-        )}
-
-{data.chain24Month && data.chain24Month.map((deed, index) => (
-            <View key={index} wrap={false}>
-            <Text style={styles.instrumentHeader}>
-            {deed.documentType}
-            </Text>
-            <View style={styles.row}>
-              <Text style={styles.label}>Grantor(s):</Text>
-              <Text style={styles.value}>{deed.grantors.join(", ")}</Text>
-            </View>
-
-            <View style={styles.row}>
-              <Text style={styles.label}>Grantee(s):</Text>
-              <Text style={styles.value}>{deed.grantees.join(", ")}</Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>Recording Date:</Text>
-              <Text style={styles.value}>{formatDate(deed.filedDate)}</Text>
-            </View>
-
-            <View style={styles.row}>
-              <Text style={styles.label}>Recording Number:</Text>
-              <Text style={styles.value}>{deed.documentNumber}</Text>
-            </View>
-
-            {/* {deed.notes && (
-              <View style={styles.row}>
-                <Text style={styles.label}>Notes:</Text>
-                <Text style={styles.notes}>{deed.notes}</Text>
-              </View>
-            )} */}
-          </View>
-        ))}
-        
-        {/* Deed Chain */}
-        <View style={styles.sectionHeader}>
-          <Text>CHAIN OF TITLE</Text>
-        </View>
-
-        {data.deedChain.length == 0 && (
-          <Text style={styles.instrumentHeader}>
-           NONE FOUND         
-          </Text>
-        )}
-
-        {data.deedChain && data.deedChain.map((deed, index) => (
-            <View key={index} wrap={false}>
-            <Text style={styles.instrumentHeader}>
-            {deed.documentType}
-            </Text>
-            <View style={styles.row}>
-              <Text style={styles.label}>Grantor(s):</Text>
-              <Text style={styles.value}>{deed.grantors.join(", ")}</Text>
-            </View>
-
-            <View style={styles.row}>
-              <Text style={styles.label}>Grantee(s):</Text>
-              <Text style={styles.value}>{deed.grantees.join(", ")}</Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>Recording Date:</Text>
-              <Text style={styles.value}>{formatDate(deed.filedDate)}</Text>
-            </View>
-
-            <View style={styles.row}>
-              <Text style={styles.label}>Recording Number:</Text>
-              <Text style={styles.value}>{deed.documentNumber}</Text>
-            </View>
-
-            {/* {deed.notes && (
-              <View style={styles.row}>
-                <Text style={styles.label}>Notes:</Text>
-                <Text style={styles.notes}>{deed.notes}</Text>
-              </View>
-            )} */}
-          </View>
-        ))}
-
-        {/* Mortgages and Deeds of Trust */}
-        <View wrap={false}>
-        <View style={styles.sectionHeader}>
-          <Text>MORTGAGES AND DEEDS OF TRUST</Text>
-        </View>
-
-        {data.openMortgages.length == 0 && (
-          <Text style={styles.instrumentHeader}>
-           NONE FOUND         
-          </Text>
-        )}
-
-        {data.openMortgages && data.openMortgages.map((mortgage, index) => (
-            <View key={index} wrap={false}>
-            <Text style={styles.instrumentHeader}>
-              {mortgage.documentType}
-            </Text>
-            <View style={styles.row}>
-              <Text style={styles.label}>Mortgagor(s):</Text>
-              <Text style={styles.value}>{mortgage.grantors.join(", ")}</Text>
-            </View>
-
-            <View style={styles.row}>
-              <Text style={styles.label}>Mortgagee(s):</Text>
-              <Text style={styles.value}>{mortgage.grantees.join(", ")}</Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>Recording Date:</Text>
-              <Text style={styles.value}>{formatDate(mortgage.filedDate)}</Text>
-            </View>
-
-            <View style={styles.row}>
-              <Text style={styles.label}>Recording Number:</Text>
-              <Text style={styles.value}>{mortgage.documentNumber}</Text>
-            </View>
-
-           {mortgage.amount && (
-              <View style={styles.row}>
-                <Text style={styles.label}>Amount:</Text>
-                <Text style={styles.value}>{formatCurrency(mortgage.amount)}</Text>
-              </View>
-            )}
-
-          </View>
-       
-        ))}
-        </View>
-
-
-        {/* Exceptions */}
-        <View >
-          <View style={styles.sectionHeader}>
-            <Text>EXCEPTIONS</Text>
-          </View>
-
-          {data.exceptions.length == 0 && (
-            <Text style={styles.instrumentHeader}>
-            NONE FOUND           
-            </Text>
-          )}
-
-          {data.exceptions && data.exceptions.map((document, index) => (
-            <View key={index} wrap={false}>
-              <Text style={styles.instrumentHeader}>
-                {document.documentType}
-              </Text>
-              <View style={styles.row}>
-                <Text style={styles.label}>Grantor(s):</Text>
-                <Text style={styles.value}>{document.grantors.join(", ")}</Text>
-              </View>
-
-              <View style={styles.row}>
-                <Text style={styles.label}>Grantee(s):</Text>
-                <Text style={styles.value}>{document.grantees.join(", ")}</Text>
-              </View>
-              <View style={styles.row}>
-                <Text style={styles.label}>Recording Date:</Text>
-                <Text style={styles.value}>{formatDate(document.filedDate)}</Text>
-              </View>
-
-              <View style={styles.row}>
-                <Text style={styles.label}>Recording Number:</Text>
-                <Text style={styles.value}>{document.documentNumber}</Text>
-              </View>
-
-            </View>
-        
-          ))}
-        </View>
-
-        {/* Judgments */}
-        <View >
-          <View style={styles.sectionHeader}>
-            <Text>JUDGMENTS</Text>
-          </View>
-
-          {data.judgments.length == 0 && (
-            <Text style={styles.instrumentHeader}>
-            NONE FOUND          
-            </Text>
-          )}
-
-          {data.judgments && data.judgments.map((document, index) => (
-            <View key={index} wrap={false}>
-              <Text style={styles.instrumentHeader}>
-                {document.documentType}
-              </Text>
-              <View style={styles.row}>
-                <Text style={styles.label}>Grantor(s):</Text>
-                <Text style={styles.value}>{document.grantors.join(", ")}</Text>
-              </View>
-
-              <View style={styles.row}>
-                <Text style={styles.label}>Grantee(s):</Text>
-                <Text style={styles.value}>{document.grantees.join(", ")}</Text>
-              </View>
-
-              <View style={styles.row}>
-                <Text style={styles.label}>Recording Date:</Text>
-                <Text style={styles.value}>{formatDate(document.filedDate)}</Text>
-              </View>
-
-              <View style={styles.row}>
-                <Text style={styles.label}>Recording Number:</Text>
-                <Text style={styles.value}>{document.documentNumber}</Text>
-              </View>
-
-              {document.amount && (
-              <View style={styles.row}>
-                <Text style={styles.label}>Amount:</Text>
-                <Text style={styles.value}>{formatCurrency(document.amount)}</Text>
-              </View>
-            )}
-
-            </View>
-        
-          ))}
-        </View>
-      {/* Footer */}
-      <View style={styles.footer} fixed>
-        <Text>This is a preliminary title report and does not constitute a commitment to issue title insurance.</Text>
-        <Text style={{ marginTop: 5 }} render={({ pageNumber, totalPages}) => ( `Page ${pageNumber} of ${totalPages}`)}/>
+  <Document>
+    <Page>
+      <View>
+        <Text>Hello World</Text>
       </View>
-      </Page>
-    </Document>
-  );
+    </Page>
+  </Document>
+//     <Document>
+//       <Page size="LETTER" style={styles.page}>
+//         {/* Header */}
+//         <View style={styles.header}>
+//           <Text style={styles.title}>TITLE REPORT</Text>
+//           <Text style={styles.subtitle}>
+//             Order Number: {data.orderNumber} |
+//             Date Searched: {data.searchDate} | Effective Date: {data.effectiveDate}
+//           </Text>
+//         </View>
+
+//         {/* Property Information */}
+//         <View style={styles.sectionHeader}>
+//           <Text>PROPERTY INFORMATION</Text>
+//         </View>
+
+//         <View style={{ marginTop: 10 }}>
+//         <View style={styles.row}>
+//           <Text style={styles.label}>Street Address:</Text>
+//           <Text style={styles.value}>{data.property.propertyAddress}</Text>
+//         </View>
+
+//         <View style={styles.row}>
+//           <Text style={styles.label}>Legal Description:</Text>
+//           <Text style={styles.value}>{data.property.legalDescription}</Text>
+//         </View>
+
+//         <View style={styles.row}>
+//           <Text style={styles.label}>County:</Text>
+//           <Text style={styles.value}>{data.property.county}</Text>
+//         </View>
+//         </View>
+
+//         {/* Ownership Information */}
+//         <View style={styles.sectionHeader}>
+//           <Text>OWNERSHIP INFORMATION</Text>
+//         </View>
+//         <View style={{ marginTop: 10 }}>
+//         <View style={styles.row}>
+//         <Text style={styles.label}>{"Owner's Name(s):"}</Text>
+//           <Text style={styles.value}>{data.currentOwner.name}</Text>
+//         </View>
+//         <View style={styles.row}>
+//           <Text style={styles.label}>Date Acquired:</Text>
+//           <Text style={styles.value}>{formatDate(data.currentOwner.recordingDate ?? '')}</Text>
+//         </View>
+//         <View style={styles.row}>
+//           <Text style={styles.label}>Recording Number:</Text>
+//           <Text style={styles.value}>{data.currentOwner.recordingNumber}</Text>
+//         </View>
+//         </View>
+
+//         {/* 24 Month Chain */}
+//         <View style={styles.sectionHeader}>
+//           <Text>24 MONTH CHAIN REPORT</Text>
+//         </View>
+
+//         {data.chain24Month.length == 0 && (
+//           <Text style={styles.instrumentHeader}>
+//            NONE FOUND         
+//           </Text>
+//         )}
+
+// {data.chain24Month && data.chain24Month.map((deed, index) => (
+//             <View key={index} wrap={false}>
+//             <Text style={styles.instrumentHeader}>
+//             {deed.documentType}
+//             </Text>
+//             <View style={styles.row}>
+//               <Text style={styles.label}>Grantor(s):</Text>
+//               <Text style={styles.value}>{deed.grantors.join(", ")}</Text>
+//             </View>
+
+//             <View style={styles.row}>
+//               <Text style={styles.label}>Grantee(s):</Text>
+//               <Text style={styles.value}>{deed.grantees.join(", ")}</Text>
+//             </View>
+//             <View style={styles.row}>
+//               <Text style={styles.label}>Recording Date:</Text>
+//               <Text style={styles.value}>{formatDate(deed.filedDate)}</Text>
+//             </View>
+
+//             <View style={styles.row}>
+//               <Text style={styles.label}>Recording Number:</Text>
+//               <Text style={styles.value}>{deed.documentNumber}</Text>
+//             </View>
+
+//             {/* {deed.notes && (
+//               <View style={styles.row}>
+//                 <Text style={styles.label}>Notes:</Text>
+//                 <Text style={styles.notes}>{deed.notes}</Text>
+//               </View>
+//             )} */}
+//           </View>
+//         ))}
+        
+//         {/* Deed Chain */}
+//         <View style={styles.sectionHeader}>
+//           <Text>CHAIN OF TITLE</Text>
+//         </View>
+
+//         {data.deedChain.length == 0 && (
+//           <Text style={styles.instrumentHeader}>
+//            NONE FOUND         
+//           </Text>
+//         )}
+
+//         {data.deedChain && data.deedChain.map((deed, index) => (
+//             <View key={index} wrap={false}>
+//             <Text style={styles.instrumentHeader}>
+//             {deed.documentType}
+//             </Text>
+//             <View style={styles.row}>
+//               <Text style={styles.label}>Grantor(s):</Text>
+//               <Text style={styles.value}>{deed.grantors.join(", ")}</Text>
+//             </View>
+
+//             <View style={styles.row}>
+//               <Text style={styles.label}>Grantee(s):</Text>
+//               <Text style={styles.value}>{deed.grantees.join(", ")}</Text>
+//             </View>
+//             <View style={styles.row}>
+//               <Text style={styles.label}>Recording Date:</Text>
+//               <Text style={styles.value}>{formatDate(deed.filedDate)}</Text>
+//             </View>
+
+//             <View style={styles.row}>
+//               <Text style={styles.label}>Recording Number:</Text>
+//               <Text style={styles.value}>{deed.documentNumber}</Text>
+//             </View>
+
+//             {/* {deed.notes && (
+//               <View style={styles.row}>
+//                 <Text style={styles.label}>Notes:</Text>
+//                 <Text style={styles.notes}>{deed.notes}</Text>
+//               </View>
+//             )} */}
+//           </View>
+//         ))}
+
+//         {/* Mortgages and Deeds of Trust */}
+//         <View wrap={false}>
+//         <View style={styles.sectionHeader}>
+//           <Text>MORTGAGES AND DEEDS OF TRUST</Text>
+//         </View>
+
+//         {data.openMortgages.length == 0 && (
+//           <Text style={styles.instrumentHeader}>
+//            NONE FOUND         
+//           </Text>
+//         )}
+
+//         {data.openMortgages && data.openMortgages.map((mortgage, index) => (
+//             <View key={index} wrap={false}>
+//             <Text style={styles.instrumentHeader}>
+//               {mortgage.documentType}
+//             </Text>
+//             <View style={styles.row}>
+//               <Text style={styles.label}>Mortgagor(s):</Text>
+//               <Text style={styles.value}>{mortgage.grantors.join(", ")}</Text>
+//             </View>
+
+//             <View style={styles.row}>
+//               <Text style={styles.label}>Mortgagee(s):</Text>
+//               <Text style={styles.value}>{mortgage.grantees.join(", ")}</Text>
+//             </View>
+//             <View style={styles.row}>
+//               <Text style={styles.label}>Recording Date:</Text>
+//               <Text style={styles.value}>{formatDate(mortgage.filedDate)}</Text>
+//             </View>
+
+//             <View style={styles.row}>
+//               <Text style={styles.label}>Recording Number:</Text>
+//               <Text style={styles.value}>{mortgage.documentNumber}</Text>
+//             </View>
+
+//            {mortgage.amount && (
+//               <View style={styles.row}>
+//                 <Text style={styles.label}>Amount:</Text>
+//                 <Text style={styles.value}>{formatCurrency(mortgage.amount)}</Text>
+//               </View>
+//             )}
+
+//           </View>
+       
+//         ))}
+//         </View>
+
+
+//         {/* Exceptions */}
+//         <View >
+//           <View style={styles.sectionHeader}>
+//             <Text>EXCEPTIONS</Text>
+//           </View>
+
+//           {data.exceptions.length == 0 && (
+//             <Text style={styles.instrumentHeader}>
+//             NONE FOUND           
+//             </Text>
+//           )}
+
+//           {data.exceptions && data.exceptions.map((document, index) => (
+//             <View key={index} wrap={false}>
+//               <Text style={styles.instrumentHeader}>
+//                 {document.documentType}
+//               </Text>
+//               <View style={styles.row}>
+//                 <Text style={styles.label}>Grantor(s):</Text>
+//                 <Text style={styles.value}>{document.grantors.join(", ")}</Text>
+//               </View>
+
+//               <View style={styles.row}>
+//                 <Text style={styles.label}>Grantee(s):</Text>
+//                 <Text style={styles.value}>{document.grantees.join(", ")}</Text>
+//               </View>
+//               <View style={styles.row}>
+//                 <Text style={styles.label}>Recording Date:</Text>
+//                 <Text style={styles.value}>{formatDate(document.filedDate)}</Text>
+//               </View>
+
+//               <View style={styles.row}>
+//                 <Text style={styles.label}>Recording Number:</Text>
+//                 <Text style={styles.value}>{document.documentNumber}</Text>
+//               </View>
+
+//             </View>
+        
+//           ))}
+//         </View>
+
+//         {/* Judgments */}
+//         <View >
+//           <View style={styles.sectionHeader}>
+//             <Text>JUDGMENTS</Text>
+//           </View>
+
+//           {data.judgments.length == 0 && (
+//             <Text style={styles.instrumentHeader}>
+//             NONE FOUND          
+//             </Text>
+//           )}
+
+//           {data.judgments && data.judgments.map((document, index) => (
+//             <View key={index} wrap={false}>
+//               <Text style={styles.instrumentHeader}>
+//                 {document.documentType}
+//               </Text>
+//               <View style={styles.row}>
+//                 <Text style={styles.label}>Grantor(s):</Text>
+//                 <Text style={styles.value}>{document.grantors.join(", ")}</Text>
+//               </View>
+
+//               <View style={styles.row}>
+//                 <Text style={styles.label}>Grantee(s):</Text>
+//                 <Text style={styles.value}>{document.grantees.join(", ")}</Text>
+//               </View>
+
+//               <View style={styles.row}>
+//                 <Text style={styles.label}>Recording Date:</Text>
+//                 <Text style={styles.value}>{formatDate(document.filedDate)}</Text>
+//               </View>
+
+//               <View style={styles.row}>
+//                 <Text style={styles.label}>Recording Number:</Text>
+//                 <Text style={styles.value}>{document.documentNumber}</Text>
+//               </View>
+
+//               {document.amount && (
+//               <View style={styles.row}>
+//                 <Text style={styles.label}>Amount:</Text>
+//                 <Text style={styles.value}>{formatCurrency(document.amount)}</Text>
+//               </View>
+//             )}
+
+//             </View>
+        
+//           ))}
+//         </View>
+//       {/* Footer */}
+//       <View style={styles.footer} fixed>
+//         <Text>This is a preliminary title report and does not constitute a commitment to issue title insurance.</Text>
+//         <Text style={{ marginTop: 5 }} render={({ pageNumber, totalPages}) => ( `Page ${pageNumber} of ${totalPages}`)}/>
+//       </View>
+//       </Page>
+//     </Document>
+);
 
 
   function formatDate(dateString: string): string {

@@ -19,13 +19,13 @@ import { determineNamesInTitleFromChain } from "@/lib/research/utils";
 import { getLatestDeed } from "@/lib/research/utils";
 import { getVestingInfo } from "../steps/get-vesting-info";
 import { Document } from "@/lib/research/utils";
-import { generateTitleReportBase64 } from "@/components/generateTitleReportPDF";
+import { generatePDF } from "../steps/generate-pdf";
+import { uploadToSupabase } from "../steps/upload-file";
+import { generateTitleReportHTML } from "./templates/title-report";
 
-export async function generateReport(query: string) {
+export async function generateReport(url: string) {
 	"use workflow";
 
-	//Send Email:
-	const url = 'https://lbndwiqgqqpzjwkhbdip.supabase.co/storage/v1/object/public/uploads/order-sheet-25-3057.pdf'
 	const documentGroupId = "54766f37-bfad-4922-a607-30963a9c4a60"
     const companyId = "da87ef4e-60a9-4a38-b743-c53c20ed4f18" // Need to eventually get this from user.
 
@@ -80,19 +80,32 @@ export async function generateReport(query: string) {
 		recordingDate: lastDeed.filedDate
 	}
 
-	// Step 8 Generate Title Report Email.
-	const emailHTML = await generateTitleReportEmail({ 
-		vestingInfo,
-		propertyAddress: orderInfo.propertyAddress, 
-		legalDescription: orderInfo.legalDescription,
-		reportURL: url 
-	})
 
 	// Generate Report PDF
 	const deeds = filterByDeeds(documents);
 	const deeds24Months = getDeedsLast24Months(documents);
+	const mortgages = documents.filter((doc) => ['MORTGAGE'].includes(doc.documentType.toUpperCase()));
 	const exceptions = documents.filter((doc) => ['PLAT','PROTECTIVE COVENANTS',"RESTRICTIONS", "ORDINANCE", "BILL OF ASSURANCES","NOTICE","SURVEY"].includes(doc.documentType.toUpperCase()));
 	const judgments = documents.filter((doc) => ['JUDGMENT','FEDERAL TAX LIEN','STATE TAX LIEN'].includes(doc.documentType.toUpperCase()));
+
+
+	const releases = documents.filter((doc) => ['RELEASE', 'PARTIAL RELEASE'].includes(doc.documentType.toUpperCase()))
+	const releasedDocumentIds: string[] = [];
+	for ( const doc of releases){
+		if(doc.related){
+		  for (const relatedDoc of doc.related){
+			releasedDocumentIds.push(relatedDoc.documentId)
+		  }
+		}
+	}
+
+	// Create openMortgages by filtering out released mortgages
+	const openMortgages = mortgages.filter((mortgage) => 
+		!releasedDocumentIds.includes(mortgage.documentId)
+	);
+	  
+
+	// 24 Month Chain
 
 	const date = new Date(); // Gets the current date and time
 	const searchDate = date.toLocaleDateString('en-US', {
@@ -108,18 +121,27 @@ export async function generateReport(query: string) {
 	  property: { propertyAddress: orderInfo.propertyAddress ?? '', legalDescription: orderInfo.legalDescription ?? '', county: orderInfo.county} ,
 	  currentOwner: vestingInfo, 
 	  deedChain: deeds,
-	  chain24Month: [],
+	  chain24Month: deeds24Months,
 	  searchResults: documents, 
-	  openMortgages: [],
+	  openMortgages: openMortgages,
 	  exceptions: exceptions,
 	  judgments: judgments
 	}
 
-	// const reportPDF = await generateTitleReportBase64(report);
-	// const attachment = { content: reportPDF, fileName:"Title Report"}
+	// Create PDF
+	const html = await generateTitleReportHTML(report)
+	const reportPDF = await generatePDF(html); // Returns the url 
+
+		// Step 8 Generate Title Report Email.
+	const emailHTML = await generateTitleReportEmail({ 
+		vestingInfo,
+		propertyAddress: orderInfo.propertyAddress, 
+		legalDescription: orderInfo.legalDescription,
+		reportURL: reportPDF 
+	})
 
 	// Step 9 Send Email
-	await sendEmail('Abstractify <agent@orders.abstractify.app>', 'jonrgann@gmail.com', `Title Report | Ref # ${orderInfo.orderNumber} | ${orderInfo.propertyAddress}`, emailHTML);
+	await sendEmail('Abstractify <agent@orders.abstractify.app>', 'jonrgann@gmail.com', `Title Report | Ref # ${orderInfo.orderNumber} | ${orderInfo.propertyAddress}`, emailHTML,);
 
 }
 
@@ -136,8 +158,8 @@ function convertToDocuments(data: any[]): Document[]{
 			documentType: obj.json.instrumentType,
 			bookNumber: obj.json.bookNumber,
 			pageNumber: obj.json.pageNumber,
-			grantors: obj.json.grantors.map(formatFullName),
-			grantees: obj.json.grantees.map(formatFullName),
+			grantors: obj.json.grantors.map(formatFullName).join(", "),
+			grantees: obj.json.grantees.map(formatFullName).join(", "),
 			amount: obj.json.consideration
 		}
 	})

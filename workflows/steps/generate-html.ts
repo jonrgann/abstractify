@@ -1,6 +1,7 @@
 import {generateText, Output} from 'ai';
 import { google } from '@ai-sdk/google';
 import { z } from 'zod';
+
 export async function generateHTML(data: string) {
     "use step"
 
