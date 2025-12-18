@@ -141,14 +141,14 @@ export async function generateReport(url: string, email: string) {
 	for ( const doc of releases){
 		if(doc.related){
 		  for (const relatedDoc of doc.related){
-			releasedDocumentIds.push(relatedDoc.documentNumber)
+			releasedDocumentIds.push(relatedDoc.documentId)
 		  }
 		}
 	}
 
 	// Create openMortgages by filtering out released mortgages
 	const openMortgages = mortgages.filter((mortgage) => 
-		!releasedDocumentIds.includes(mortgage.documentNumber)
+		!releasedDocumentIds.includes(mortgage.documentId)
 	);
 	  
 	const date = new Date(); // Gets the current date and time
@@ -214,7 +214,7 @@ function convertToDocuments(data: any[]): Document[]{
 			grantors: obj.json.grantors.map(formatFullName),
 			grantees: obj.json.grantees.map(formatFullName),
 			amount: obj.json.consideration,
-			related: obj.json.related
+			related: obj.relatedDocuments
 		}
 	})
 }
