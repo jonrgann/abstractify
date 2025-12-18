@@ -2,18 +2,18 @@ import { FatalError, RetryableError } from 'workflow';
 import { uploadToSupabase } from './upload-file';
 
 export async function generatePDF(
-    html: string,
+    data: any,
    ) {
      "use step"; 
 
      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/create-pdf`,
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/create-pdf`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({html}) 
+          body: JSON.stringify({data}) 
         }
       );
 

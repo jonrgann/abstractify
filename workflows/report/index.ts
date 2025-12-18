@@ -19,11 +19,11 @@ import { determineNamesInTitleFromChain } from "@/lib/research/utils";
 import { getLatestDeed } from "@/lib/research/utils";
 import { getVestingInfo } from "../steps/get-vesting-info";
 import { Document } from "@/lib/research/utils";
-import { generatePDF } from "../steps/generate-pdf";
 import { uploadToSupabase } from "../steps/upload-file";
-import { generateTitleReportHTML } from "./templates/title-report";
+import { getTitleReportBlob } from "./templates/title-report";
+import { generatePDF } from "../steps/generate-pdf";
 
-export async function generateReport(url: string) {
+export async function generateReport(url: string, email: string) {
 	"use workflow";
 
 	const documentGroupId = "54766f37-bfad-4922-a607-30963a9c4a60"
@@ -129,19 +129,18 @@ export async function generateReport(url: string) {
 	}
 
 	// Create PDF
-	const html = await generateTitleReportHTML(report)
-	const reportPDF = await generatePDF(html); // Returns the url 
+	const reportURL =  await generatePDF(report);
 
 		// Step 8 Generate Title Report Email.
 	const emailHTML = await generateTitleReportEmail({ 
 		vestingInfo,
 		propertyAddress: orderInfo.propertyAddress, 
 		legalDescription: orderInfo.legalDescription,
-		reportURL: reportPDF 
+		reportURL: reportURL 
 	})
 
 	// Step 9 Send Email
-	await sendEmail('Abstractify <agent@orders.abstractify.app>', 'jonrgann@gmail.com', `Title Report | Ref # ${orderInfo.orderNumber} | ${orderInfo.propertyAddress}`, emailHTML,);
+	await sendEmail('Abstractify <agent@orders.abstractify.app>', email, `Title Report | Ref # ${orderInfo.orderNumber} | ${orderInfo.propertyAddress}`, emailHTML,);
 
 }
 
@@ -158,8 +157,8 @@ function convertToDocuments(data: any[]): Document[]{
 			documentType: obj.json.instrumentType,
 			bookNumber: obj.json.bookNumber,
 			pageNumber: obj.json.pageNumber,
-			grantors: obj.json.grantors.map(formatFullName).join(", "),
-			grantees: obj.json.grantees.map(formatFullName).join(", "),
+			grantors: obj.json.grantors.map(formatFullName),
+			grantees: obj.json.grantees.map(formatFullName),
 			amount: obj.json.consideration
 		}
 	})

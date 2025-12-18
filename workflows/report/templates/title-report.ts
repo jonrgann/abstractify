@@ -1,191 +1,260 @@
-export async function generateTitleReportHTML(data: any) {
+import jsPDF from "jspdf";
 
-    return `<!DOCTYPE html>
-<html lang="en">
-<body style="margin: 40; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background-color: #ffffff;">
-    <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        
-        <!-- Header Section -->
-        <tr>
-            <td style="padding-bottom: 32px; border-bottom: 2px solid #000000;">
-                <h1 style="margin: 0 0 16px 0; color: #000000; font-size: 28px; font-weight: 700;">Title Report</h1>
-                <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 13px;">
-                    <tr>
-                        <td style="color: #666666; padding: 4px 0;">File Number:</td>
-                        <td style="color: #000000; padding: 4px 0; font-weight: 500;">${data.orderNumber}</td>
-                    </tr>
-                    <tr>
-                        <td style="color: #666666; padding: 4px 0;">Search Date:</td>
-                        <td style="color: #000000; padding: 4px 0; font-weight: 500;">${data.searchDate}</td>
-                    </tr>
-                    <tr>
-                        <td style="color: #666666; padding: 4px 0;">Effective Date:</td>
-                        <td style="color: #000000; padding: 4px 0; font-weight: 500;">${data.effectiveDate}</td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-        
-        <!-- Spacing -->
-        <tr>
-            <td style="padding-bottom: 24px;"></td>
-        </tr>
-                      
-        <!-- Property Information -->
-        <tr>
-            <td style="padding-bottom: 24px;">
-                <p style="margin: 0 0 4px 0; color: #999999; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Property Address</p>
-                <p style="margin: 0; color: #000000; font-size: 15px; line-height: 1.5;">
-                   ${data.property.propertyAddress}
-                </p>
-            </td>
-        </tr>
-        
-        <tr>
-            <td style="padding-bottom: 32px;">
-                <p style="margin: 0 0 4px 0; color: #999999; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Legal Description</p>
-                <p style="margin: 0; color: #000000; font-size: 15px; line-height: 1.5;">
-                ${data.property.legalDescription}
-                </p>
-            </td>
-        </tr>
+interface PropertyInfo {
+  propertyAddress: string;
+  legalDescription: string;
+  county: string;
+}
 
-        <!-- Current Owner -->
-        <tr>
-            <td style="padding-bottom: 16px;">
-                <p style="margin: 0 0 4px 0; color: #999999; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Current Owner</p>
-                <p style="margin: 0; color: #000000; font-size: 15px;">${data.currentOwner.name}</p>
-            </td>
-        </tr>
-        
-        <!-- Divider -->
-        <tr>
-            <td style="padding-bottom: 32px;">
-                <div style="height: 1px; background-color: #e5e5e5;"></div>
-            </td>
-        </tr>
+interface Owner {
+  name: string;
+  recordingNumber?: string;
+  recordingDate?: string;
+}
 
-        <!-- 24 Month Chain -->
-        <tr>
-            <td style="padding-bottom: 24px;">
-                <p style="margin: 0 0 16px 0; color: #000000; font-size: 16px; font-weight: 600;">24 Month Chain</p>
-                ${data.chain24Month && data.chain24Month.length > 0 ? data.chain24Month.map((deed: any) => `
-                    <div style="margin-bottom: 20px; padding: 16px; background-color: #f9f9f9; border-left: 3px solid #000000;">
-                        <p style="margin: 0 0 8px 0; color: #000000; font-size: 14px; font-weight: 500;">${deed.documentType}</p>
-                        <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 13px; line-height: 1.6;">
-                            <tr>
-                                <td style="color: #666666; padding: 2px 0;">Recording Number:</td>
-                                <td style="color: #000000; padding: 2px 0;">${deed.documentNumber}</td>
-                            </tr>
-                            <tr>
-                                <td style="color: #666666; padding: 2px 0;">Recording Date:</td>
-                                <td style="color: #000000; padding: 2px 0;">${deed.filedDate}</td>
-                            </tr>
-                            <tr>
-                                <td style="color: #666666; padding: 2px 0; vertical-align: top;">Grantors:</td>
-                                <td style="color: #000000; padding: 2px 0;">${deed.grantors}</td>
-                            </tr>
-                            <tr>
-                                <td style="color: #666666; padding: 2px 0; vertical-align: top;">Grantees:</td>
-                                <td style="color: #000000; padding: 2px 0;">${deed.grantees}</td>
-                            </tr>
-                        </table>
-                    </div>
-                `).join('') : '<p style="margin: 0; color: #666666; font-size: 14px; font-style: italic;">No deeds recorded in the last 24 months</p>'}
-            </td>
-        </tr>
+interface SearchResult {
+  filedDate: string;
+  documentNumber: string;
+  documentType: string;
+  grantors: string[];
+  grantees: string[];
+  amount?: string;
+}
 
-        <!-- Divider -->
-        <tr>
-            <td style="padding-bottom: 32px;">
-                <div style="height: 1px; background-color: #e5e5e5;"></div>
-            </td>
-        </tr>
+interface TitleReportData {
+  orderNumber: string;
+  searchDate: string;
+  effectiveDate: string;
+  property: PropertyInfo;
+  currentOwner: Owner;
+  deedChain: SearchResult[];
+  chain24Month: SearchResult[];
+  searchResults: SearchResult[];
+  openMortgages: SearchResult[];
+  exceptions: SearchResult[];
+  judgments: SearchResult[];
+}
 
-        <!-- Deed Chain -->
-        <tr>
-            <td style="padding-bottom: 24px;">
-                <p style="margin: 0 0 16px 0; color: #000000; font-size: 16px; font-weight: 600;">Deed Chain</p>
-                ${data.deedChain && data.deedChain.length > 0 ? data.deedChain.map((deed: any) => `
-                    <div style="margin-bottom: 20px; padding: 16px; background-color: #f9f9f9; border-left: 3px solid #000000;">
-                        <p style="margin: 0 0 8px 0; color: #000000; font-size: 14px; font-weight: 500;">${deed.documentType}</p>
-                        <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 13px; line-height: 1.6;">
-                            <tr>
-                                <td style="color: #666666; padding: 2px 0;">Recording Number:</td>
-                                <td style="color: #000000; padding: 2px 0;">${deed.documentNumber}</td>
-                            </tr>
-                            <tr>
-                                <td style="color: #666666; padding: 2px 0;">Recording Date:</td>
-                                <td style="color: #000000; padding: 2px 0;">${deed.filedDate}</td>
-                            </tr>
-                            <tr>
-                                <td style="color: #666666; padding: 2px 0; vertical-align: top;">Grantors:</td>
-                                <td style="color: #000000; padding: 2px 0;">${deed.grantors}</td>
-                            </tr>
-                            <tr>
-                                <td style="color: #666666; padding: 2px 0; vertical-align: top;">Grantees:</td>
-                                <td style="color: #000000; padding: 2px 0;">${deed.grantees}</td>
-                            </tr>
-                        </table>
-                    </div>
-                `).join('') : '<p style="margin: 0; color: #666666; font-size: 14px; font-style: italic;">No deed records available</p>'}
-            </td>
-        </tr>
+export function generateTitleReportPDF(data: TitleReportData): jsPDF {
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'letter'
+  });
 
-        <!-- Divider -->
-        <tr>
-            <td style="padding-bottom: 32px;">
-                <div style="height: 1px; background-color: #e5e5e5;"></div>
-            </td>
-        </tr>
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const margin = 20;
+  let yPosition = margin;
 
-        <!-- Mortgages -->
-        <tr>
-            <td style="padding-bottom: 24px;">
-                <p style="margin: 0 0 16px 0; color: #000000; font-size: 16px; font-weight: 600;">Mortgages</p>
-                ${data.mortgages && data.mortgages.length > 0 ? data.mortgages.map((mortgage: any) => `
-                    <div style="margin-bottom: 20px; padding: 16px; background-color: #f9f9f9; border-left: 3px solid #000000;">
-                        <p style="margin: 0 0 8px 0; color: #000000; font-size: 14px; font-weight: 500;">${mortgage.documentType}</p>
-                        <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 13px; line-height: 1.6;">
-                            <tr>
-                                <td style="color: #666666; padding: 2px 0;">Recording Number:</td>
-                                <td style="color: #000000; padding: 2px 0;">${mortgage.documentNumber}</td>
-                            </tr>
-                            <tr>
-                                <td style="color: #666666; padding: 2px 0;">Recording Date:</td>
-                                <td style="color: #000000; padding: 2px 0;">${mortgage.filedDate}</td>
-                            </tr>
-                            <tr>
-                                <td style="color: #666666; padding: 2px 0; vertical-align: top;">Grantors:</td>
-                                <td style="color: #000000; padding: 2px 0;">${mortgage.grantors}</td>
-                            </tr>
-                            <tr>
-                                <td style="color: #666666; padding: 2px 0; vertical-align: top;">Grantees:</td>
-                                <td style="color: #000000; padding: 2px 0;">${mortgage.grantees}</td>
-                            </tr>
-                        </table>
-                    </div>
-                `).join('') : '<p style="margin: 0; color: #666666; font-size: 14px; font-style: italic;">No open mortgages found.</p>'}
-            </td>
-        </tr>
+  // Helper function to check if we need a new page
+  const checkPageBreak = (neededSpace: number): void => {
+    if (yPosition + neededSpace > pageHeight - margin) {
+      doc.addPage();
+      yPosition = margin;
+    }
+  };
 
-        <!-- Divider -->
-        <tr>
-            <td style="padding-bottom: 32px;">
-                <div style="height: 1px; background-color: #e5e5e5;"></div>
-            </td>
-        </tr>
-                            
-        <!-- Footer Disclaimer -->
-        <tr>
-            <td style="padding-top: 32px; border-top: 1px solid #e5e5e5;">
-                <p style="margin: 0; color: #999999; font-size: 12px; line-height: 1.6;">
-                    This title report is provided for informational purposes only and does not constitute legal advice. The information is based on public records available at the time of search. This report should be reviewed by a qualified attorney before making any real estate decisions.
-                </p>
-            </td>
-        </tr>
-    </table>    
-</body>
-</html>`
+  // Helper function to add section header
+  const addSectionHeader = (title: string): void => {
+    checkPageBreak(15);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text(title, margin, yPosition);
+    yPosition += 8;
+    doc.setLineWidth(0.5);
+    doc.line(margin, yPosition, pageWidth - margin, yPosition);
+    yPosition += 6;
+  };
 
+  // Helper function to add text with label
+  const addLabelValue = (label: string, value: string, indent: number = 0): void => {
+    checkPageBreak(8);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text(label + ':', margin + indent, yPosition);
+    doc.setFont('helvetica', 'normal');
+    
+    const labelWidth = doc.getTextWidth(label + ': ');
+    const maxWidth = pageWidth - margin * 2 - labelWidth - indent;
+    const lines = doc.splitTextToSize(value, maxWidth);
+    
+    doc.text(lines, margin + indent + labelWidth, yPosition);
+    yPosition += lines.length * 5;
+  };
+
+  // Title Header
+  doc.setFillColor(41, 98, 255);
+  doc.rect(0, 0, pageWidth, 35, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(24);
+  doc.setFont('helvetica', 'bold');
+  doc.text('TITLE REPORT', pageWidth / 2, 20, { align: 'center' });
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Order #${data.orderNumber}`, pageWidth / 2, 28, { align: 'center' });
+  
+  doc.setTextColor(0, 0, 0);
+  yPosition = 45;
+
+  // Report Information Section
+  addSectionHeader('REPORT INFORMATION');
+  addLabelValue('Search Date', data.searchDate);
+  addLabelValue('Effective Date', data.effectiveDate);
+  yPosition += 5;
+
+  // Property Information Section
+  addSectionHeader('PROPERTY INFORMATION');
+  addLabelValue('Property Address', data.property.propertyAddress);
+  addLabelValue('County', data.property.county);
+  addLabelValue('Legal Description', data.property.legalDescription);
+  yPosition += 5;
+
+  // Current Owner Section
+  addSectionHeader('CURRENT OWNER');
+  addLabelValue('Name', data.currentOwner.name);
+  if (data.currentOwner.recordingNumber) {
+    addLabelValue('Recording Number', data.currentOwner.recordingNumber);
+  }
+  if (data.currentOwner.recordingDate) {
+    addLabelValue('Recording Date', data.currentOwner.recordingDate);
+  }
+  yPosition += 5;
+
+  // Helper function to create a table for search results
+  const createSearchResultsTable = (
+    title: string,
+    results: SearchResult[],
+    showAmount: boolean = false
+  ): void => {
+    if (results.length === 0) {
+      checkPageBreak(15);
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'italic');
+      doc.text('None', margin + 5, yPosition);
+      yPosition += 8;
+      return;
+    }
+
+    const tableData = results.map(result => {
+      const row = [
+        result.filedDate,
+        result.documentType,
+        result.documentNumber,
+        result.grantors.join(', '),
+        result.grantees.join(', ')
+      ];
+      if (showAmount) {
+        row.push(result.amount || 'N/A');
+      }
+      return row;
+    });
+
+    const headers = ['Filed Date', 'Document Type', 'Doc Number', 'Grantors', 'Grantees'];
+    if (showAmount) {
+      headers.push('Amount');
+    }
+
+    checkPageBreak(20);
+
+    (doc as any).autoTable({
+      startY: yPosition,
+      head: [headers],
+      body: tableData,
+      margin: { left: margin, right: margin },
+      styles: {
+        fontSize: 8,
+        cellPadding: 2,
+      },
+      headStyles: {
+        fillColor: [41, 98, 255],
+        textColor: [255, 255, 255],
+        fontStyle: 'bold',
+      },
+      alternateRowStyles: {
+        fillColor: [245, 245, 245],
+      },
+      columnStyles: {
+        0: { cellWidth: 22 },
+        1: { cellWidth: showAmount ? 28 : 32 },
+        2: { cellWidth: 25 },
+        3: { cellWidth: showAmount ? 32 : 38 },
+        4: { cellWidth: showAmount ? 32 : 38 },
+        ...(showAmount && { 5: { cellWidth: 22, halign: 'right' } }),
+      },
+      didDrawPage: function (data: any) {
+        yPosition = data.cursor.y + 5;
+      }
+    });
+  };
+
+  // Deed Chain Section
+  addSectionHeader('DEED CHAIN');
+  createSearchResultsTable('Deed Chain', data.deedChain);
+  yPosition += 5;
+
+  // 24-Month Chain Section
+  addSectionHeader('24-MONTH CHAIN OF TITLE');
+  createSearchResultsTable('24-Month Chain', data.chain24Month);
+  yPosition += 5;
+
+  // Open Mortgages Section
+  addSectionHeader('OPEN MORTGAGES');
+  createSearchResultsTable('Open Mortgages', data.openMortgages, true);
+  yPosition += 5;
+
+  // Judgments Section
+  addSectionHeader('JUDGMENTS');
+  createSearchResultsTable('Judgments', data.judgments, true);
+  yPosition += 5;
+
+  // Exceptions Section
+  addSectionHeader('EXCEPTIONS TO TITLE');
+  createSearchResultsTable('Exceptions', data.exceptions);
+  yPosition += 5;
+
+  // All Search Results Section
+  addSectionHeader('ALL SEARCH RESULTS');
+  createSearchResultsTable('All Results', data.searchResults, true);
+
+  // Add footer to all pages
+  const pageCount = (doc as any).internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(128, 128, 128);
+    doc.text(
+      `Page ${i} of ${pageCount}`,
+      pageWidth / 2,
+      pageHeight - 10,
+      { align: 'center' }
+    );
+    doc.text(
+      `Generated on ${new Date().toLocaleDateString()}`,
+      margin,
+      pageHeight - 10
+    );
+  }
+
+  return doc;
+}
+
+// Example usage function
+export function downloadTitleReport(data: TitleReportData, filename?: string): void {
+  const pdf = generateTitleReportPDF(data);
+  const defaultFilename = `Title_Report_${data.orderNumber}_${Date.now()}.pdf`;
+  pdf.save(filename || defaultFilename);
+}
+
+// Function to get PDF as blob (useful for uploading or previewing)
+export function getTitleReportBlob(data: TitleReportData): Blob {
+  const pdf = generateTitleReportPDF(data);
+  return pdf.output('blob');
+}
+
+// Function to get PDF as base64 string
+export function getTitleReportBase64(data: TitleReportData): string {
+  const pdf = generateTitleReportPDF(data);
+  return pdf.output('dataurlstring');
 }

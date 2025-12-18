@@ -11,15 +11,22 @@ export async function POST(request: Request) {
   const event = await request.json();
 
   if (event.type === 'email.received') {
+
+    const { data, error } = await resend.emails.receiving.get(
+      event.data.email_id ,
+    );
+
+    const emailAddress = data?.from;
+
     const response = await resend.emails.receiving.attachments.list({ 
       emailId: event.data.email_id 
     });
     
-    if(response.data && response.data.data){
+    if(response.data && response.data.data && emailAddress){
       const attachment = response.data.data[0];
       const url = attachment.download_url
-      const run = await start(generateReport, [url]);
+      await start(generateReport, [url, emailAddress]);
     }
-}
+  }
   return NextResponse.json({});
 }

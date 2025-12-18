@@ -4,8 +4,7 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "postinstall": "npx puppeteer browsers install"
+    "lint": "next lint"
   },
   "dependencies": {
     "@ai-sdk/cohere": "3.0.0-beta.34",
@@ -27,7 +26,6 @@
     "@radix-ui/react-tooltip": "^1.2.8",
     "@radix-ui/react-use-controllable-state": "^1.2.2",
     "@react-pdf/renderer": "^4.3.1",
-    "@sparticuz/chromium-min": "^143.0.0",
     "@supabase/ssr": "latest",
     "@supabase/supabase-js": "latest",
     "@workflow/ai": "4.0.1-beta.19",
@@ -38,12 +36,12 @@
     "docx": "^9.5.1",
     "embla-carousel-react": "^8.6.0",
     "geist": "^1.5.1",
+    "jspdf": "^3.0.4",
     "lucide-react": "^0.511.0",
     "motion": "^12.23.24",
     "nanoid": "^5.1.6",
     "next": "^15.5.7",
     "next-themes": "^0.4.6",
-    "puppeteer-core": "^24.33.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-syntax-highlighter": "^15.6.6",
