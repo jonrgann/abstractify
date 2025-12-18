@@ -24,7 +24,7 @@ export default function Home() {
 
   const onSubmit = async () => {
     try {
-      const response = await fetch('/api/workflow', {
+      const response = await fetch('/api/workflow-test', {
         method: 'POST',
         body: JSON.stringify({ query }),
       });
