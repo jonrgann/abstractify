@@ -1,4 +1,4 @@
-import { UIMessage, ToolLoopAgent,tool, InferUITools, stepCountIs, hasToolCall, generateText} from 'ai';
+import { UIMessage, ToolLoopAgent,tool, InferUITools, stepCountIs, hasToolCall, generateText, Output} from 'ai';
 import { google, GoogleGenerativeAIProviderOptions } from '@ai-sdk/google';
 import { PropertySyncClient } from '../propertysync/client';
 import { subdivisionAgent } from './subdivision-agent';
@@ -51,6 +51,15 @@ export const researchAgent = new ToolLoopAgent({
         },
       } satisfies GoogleGenerativeAIProviderOptions,
     },
+    output: Output.object({
+      schema: z.object({
+        answer:z.string(),
+        sourceDocument: z.object({
+          documentType: z.string(),
+          documentNumber: z.string()
+        }).optional()
+      })
+    }),
     callOptionsSchema: z.object({
       countyId: z.string(),
       token: z.string(),
@@ -104,7 +113,6 @@ export const researchAgent = new ToolLoopAgent({
                 normalizedAddition = await subdivisionAgent(query.property.addition, subdivisions.map((sub: any) => sub.value))
               }
      
-
               const searchQuery = {
                 queryParams: {
                   excludeOrders: 1,
@@ -229,64 +237,64 @@ export const researchAgent = new ToolLoopAgent({
 
         },
       }),
-      answer: tool({
-        description: 'Answers the users query with source documents and a text response',
-        inputSchema: z.object({
-          documents: z.object({
-            documentId: z.string().nullable(),
-            documentNumber: z.string().nullable(),
-            documentType: z.string().nullable(),
-            filedDate: z.string().nullable(),
-          }).array(),
-          response: z.string().describe('The text replying to the user.  The response should be extremely concise and to the point.')
-        }),
-        async *execute({ documents, response }, { experimental_context: context}) {
-          const typedContext = context as Context
-          console.log(documents, response);
+      // answer: tool({
+      //   description: 'Answers the users query with source documents and a text response',
+      //   inputSchema: z.object({
+      //     documents: z.object({
+      //       documentId: z.string().nullable(),
+      //       documentNumber: z.string().nullable(),
+      //       documentType: z.string().nullable(),
+      //       filedDate: z.string().nullable(),
+      //     }).array(),
+      //     response: z.string().describe('The text replying to the user.  The response should be extremely concise and to the point.')
+      //   }),
+      //   async *execute({ documents, response }, { experimental_context: context}) {
+      //     const typedContext = context as Context
+      //     console.log(documents, response);
 
-          yield {
-            status: 'Thinking...' as const,
-            documents: documents,
-            response: response
-          };
+      //     yield {
+      //       status: 'Thinking...' as const,
+      //       documents: documents,
+      //       response: response
+      //     };
 
-          const detailedDocuments = await Promise.all(
-            documents.map(async (document : any) => {
+      //     const detailedDocuments = await Promise.all(
+      //       documents.map(async (document : any) => {
               
-              const DOCUMENT_GROUP_ID = typedContext.countyId
+      //         const DOCUMENT_GROUP_ID = typedContext.countyId
 
-              const getDocumentDetails = await fetch(
-                `https://api.propertysync.com/v1/indexing/document-groups/${DOCUMENT_GROUP_ID}/documents/${document.documentId}/`,
-                {
-                  method: 'GET',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${typedContext.token}`
-                  },
-                }
-              );
+      //         const getDocumentDetails = await fetch(
+      //           `https://api.propertysync.com/v1/indexing/document-groups/${DOCUMENT_GROUP_ID}/documents/${document.documentId}/`,
+      //           {
+      //             method: 'GET',
+      //             headers: {
+      //               'Content-Type': 'application/json',
+      //               'Authorization': `Bearer ${typedContext.token}`
+      //             },
+      //           }
+      //         );
 
-              const details = await getDocumentDetails.json()
-              return {
-                documentId: details.id,
-                documentNumber: details.json.documentNumber || 
-                (details.json.bookNumber != null && details.json.pageNumber != null 
-                  ? details.json.bookNumber + details.json.pageNumber.padStart(6, '0')
-                  : 'UNKNOWN'),
-                image: details.image ? details.image.s3Path : null,
-                filedDate: new Date(details.json.filedDate).toISOString().split('T')[0],
-                documentType: details.json.instrumentType,
-                grantors:  details.json.grantors.map((grantor: NameObject) => formatFullName(grantor)),
-                grantees: details.json.grantees.map((grantee: NameObject) => formatFullName(grantee)),
-                related: details.relatedDocuments,
-                amount: details.json.consideration
-              };
-            })
-          );
+      //         const details = await getDocumentDetails.json()
+      //         return {
+      //           documentId: details.id,
+      //           documentNumber: details.json.documentNumber || 
+      //           (details.json.bookNumber != null && details.json.pageNumber != null 
+      //             ? details.json.bookNumber + details.json.pageNumber.padStart(6, '0')
+      //             : 'UNKNOWN'),
+      //           image: details.image ? details.image.s3Path : null,
+      //           filedDate: new Date(details.json.filedDate).toISOString().split('T')[0],
+      //           documentType: details.json.instrumentType,
+      //           grantors:  details.json.grantors.map((grantor: NameObject) => formatFullName(grantor)),
+      //           grantees: details.json.grantees.map((grantee: NameObject) => formatFullName(grantee)),
+      //           related: details.relatedDocuments,
+      //           amount: details.json.consideration
+      //         };
+      //       })
+      //     );
 
-          yield { status: "Search complete.", documents: detailedDocuments, response}
-        },
-      }),
+      //     yield { status: "Search complete.", documents: detailedDocuments, response}
+      //   },
+      // }),
     },
     prepareCall: ({ options, ...settings }) => ({
       ...settings,

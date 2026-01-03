@@ -262,7 +262,7 @@ const ConversationDemo = () => {
                         <Message key={`${message.id}-${i}`} from={message.role}>
                           <MessageContent>
                             <MessageResponse>
-                              {part.text}
+                              {JSON.stringify(part.text)}
                             </MessageResponse>
                           </MessageContent>
                           {message.role === 'assistant' && i === messages.length - 1 && (
