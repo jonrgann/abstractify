@@ -5,7 +5,7 @@ export async function generatePDF(
     data: any,
    ) {
      "use step"; 
-
+    console.log(`${process.env.NEXT_PUBLIC_BASE_URL}/api/create-pdf`)
      const response = await fetch(
       `${process.env.NEXT_PUBLIC_BASE_URL}/api/create-pdf`,
         {

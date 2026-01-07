@@ -536,7 +536,7 @@ import {
       console.log('24 month chain', chain24Month);
 
         const exceptions = allDocuments.filter((doc) => ['PLAT','PROTECTIVE COVENANTS',"RESTRICTIONS", "ORDINANCE", "BILL OF ASSURANCES","NOTICE","SURVEY",].includes(doc.documentType.toUpperCase()));
-        const judgments = allDocuments.filter((doc) => ['JUDGMENT','FEDERAL TAX LIEN','STATE TAX LIEN'].includes(doc.documentType.toUpperCase()));
+        const judgments = allDocuments.filter((doc) => ['JUDGMENT','FEDERAL TAX LIEN','STATE TAX LIEN','CERT OF INDEBTEDNESS'].includes(doc.documentType.toUpperCase()));
 
         const report =  { 
           orderNumber: orderInfo.orderNumber, 

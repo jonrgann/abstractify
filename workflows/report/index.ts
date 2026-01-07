@@ -134,7 +134,7 @@ export async function generateReport(url: string, email: string) {
 	const deeds24Months = getDeedsLast24Months(documents);
 	const mortgages = documents.filter((doc) => ['MORTGAGE'].includes(doc.documentType.toUpperCase()));
 	const exceptions = documents.filter((doc) => ['PLAT','PROTECTIVE COVENANTS',"RESTRICTIONS", "ORDINANCE", "BILL OF ASSURANCES","NOTICE","SURVEY"].includes(doc.documentType.toUpperCase()));
-	const judgments = documents.filter((doc) => ['JUDGMENT','FEDERAL TAX LIEN','STATE TAX LIEN'].includes(doc.documentType.toUpperCase()));
+	const judgments = documents.filter((doc) => ['JUDGMENT','FEDERAL TAX LIEN','STATE TAX LIEN','CERT OF INDEBTEDNESS'].includes(doc.documentType.toUpperCase()));
 
 	const releases = documents.filter((doc) => ['RELEASE', 'PARTIAL RELEASE'].includes(doc.documentType.toUpperCase()))
 	const releasedDocumentIds: string[] = [];

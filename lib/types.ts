@@ -468,6 +468,7 @@ export type SubdivisionLegalType = z.infer<typeof SubdivisionLegalSchema>;
     grantor: string;
     grantee: string;
     legal: string;
+    comment?: string
   }
   
   export type SearchResults = SearchResultDocument[];

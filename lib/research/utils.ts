@@ -7,7 +7,12 @@ export interface Document {
     grantors: string[];
     grantees: string[];
     related?: any;
-    amount?: string
+    amount?: string;
+    comment?: string;
+    address?: any;
+    acreageLegal?: any;
+    subdivisionLegal?: any;
+    parcelLegal?: any;
   }
   
   

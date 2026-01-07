@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateTitleReportPDF } from '@/components/generateTitleReportPDF';
+import { generateHOAReportPDF } from '@/components/generateHOALetter';
 
 export async function POST(request: NextRequest) {
   try {
 
     const { data } = await request.json();
-    
-    const pdfBlob = await generateTitleReportPDF(data)
+
+    let pdfBlob;
+    if(data.hoaName){
+      pdfBlob = await generateHOAReportPDF(data);
+    }else{
+      pdfBlob = await generateTitleReportPDF(data);
+    }
     
     // Convert blob to array buffer
     const arrayBuffer = await pdfBlob.arrayBuffer();

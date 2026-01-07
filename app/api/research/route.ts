@@ -397,7 +397,7 @@ export async function POST(req: Request) {
       const allDocuments = [...propertySearchDocuments, ...nameSearchDocuments];
       const openMortgages = allDocuments.filter((doc) => ['MORTGAGE'].includes(doc.documentType.toUpperCase()));
       const exceptions = allDocuments.filter((doc) => ['PLAT','PROTECTIVE COVENANTS'].includes(doc.documentType.toUpperCase()));
-      const judgments = allDocuments.filter((doc) => ['JUDGMENT','FEDERAL TAX LIEN','STATE TAX LIEN'].includes(doc.documentType.toUpperCase()));
+      const judgments = allDocuments.filter((doc) => ['JUDGMENT','FEDERAL TAX LIEN','STATE TAX LIEN',''].includes(doc.documentType.toUpperCase()));
 
       const report =  { 
         orderInfo, 
