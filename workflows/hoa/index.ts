@@ -25,7 +25,7 @@ export const generateHOALetter = async (
 	const subdivisionList = await getSubdivisions(documentGroupId, token);
 
 	// Step
-	const subdivision = await selectFromList(text, subdivisionList);
+	const subdivision = await selectFromList(text, subdivisionList.map((obj: any) => obj.value));
 
 	// Step
 	const searchResponse = await searchPropertySync(documentGroupId,token, {
@@ -63,6 +63,8 @@ export const generateHOALetter = async (
 		emailAddress: hoaContactDoc?.comment,
 		documents: sortedDocuments.map((document) => { return { name: document.comment, url: document.image }})
 	  }
+
+      console.dir(report);
 
 	  const reportURL = await generatePDF(report,'HOA');
 	  console.log(reportURL);
