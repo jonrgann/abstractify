@@ -147,7 +147,8 @@ export interface HOADocument {
   const styles = StyleSheet.create({
     page: {
       paddingHorizontal: 60,
-      paddingVertical: 20,
+      paddingTop: 20,
+      paddingBottom: 120,
       fontSize: 11,
       fontFamily: 'Times-Roman',
       lineHeight: 1.5,
@@ -158,8 +159,8 @@ export interface HOADocument {
       marginBottom:10,
     },
     divider: {
-      borderBottomColor: '#000000',
-      borderBottomWidth: 1,
+      borderBottomColor: '#cb9e5d',
+      borderBottomWidth: 2,
       marginBottom: 10, // Add some space below the line
       marginTop: 10,   // Add some space above the line
       width: '100%',   // Ensure the line spans the full width of its container
@@ -176,7 +177,7 @@ export interface HOADocument {
       marginBottom: 4,
     },
     paragraph: {
-      marginBottom: 2,
+      marginBottom: 10,
       textAlign: 'justify',
       fontFamily: 'Times-Roman',
     },
@@ -187,7 +188,7 @@ export interface HOADocument {
       fontFamily: 'Times-Bold',
     },
     linkItem: {
-      marginLeft: 15,
+      marginLeft: 0,
       fontFamily: 'Times-Roman',
     },
     link: {
@@ -201,9 +202,13 @@ export interface HOADocument {
       marginRight: 5,
     },
     disclaimer: {
+      position: 'absolute',
+      bottom: 30, 
+      left: 0,
+      right: 0, 
+      paddingHorizontal: 60,     // Add this
       fontSize: 9,
       color: '#666666',
-      marginTop: 20,
       lineHeight: 1.4,
       textAlign: 'justify',
       fontFamily: 'Times-Roman',
@@ -216,8 +221,14 @@ export interface HOADocument {
       <Page size="A4" style={styles.page}>
         {/* eslint-disable-next-line jsx-a11y/alt-text */}
         <Image style={styles.logo} src="https://lbndwiqgqqpzjwkhbdip.supabase.co/storage/v1/object/public/uploads/logo.png"/>
+        <View style={styles.divider}></View>
         {/* Title */}
-        <Text style={styles.title}>Property Name: {data.propertyName}</Text>
+        <View style={{...styles.labelValue, marginBottom: 10}}>
+          <Text>
+            <Text style={styles.title}>Property Name: </Text>
+            {data.propertyName}
+          </Text>
+        </View>
         
         {/* Introduction Paragraph */}
         <Text style={styles.paragraph}>
@@ -283,29 +294,21 @@ export interface HOADocument {
         ))}
   
         {/* Additional Information */}
+        <View wrap={false}>
         <Text style={[styles.paragraph, { marginTop: 15 }]}>
-          {`All links provided are verified and safe to access. Please refer to these resources for the most
-          accurate and up-to-date information regarding the association and the property's governing
-          documents.`}
+          {`All links provided are verified and safe to access. Please refer to these resources for the most accurate and up-to-date information regarding the association and the property's governing documents.`}
         </Text>
   
         <Text style={styles.paragraph}>
           If you have any questions regarding this attachment or need assistance locating additional
           documents, please contact our office.
         </Text>
+        </View>
+  
   
         {/* Disclaimer */}
-        <Text style={styles.disclaimer}>
-          {`This attached Homeowner's Association (HOA) informational packet is provided as a courtesy and convenience.
-          This packet is for informational purposes only and may not be complete. Any additional information which is
-          included is not warranted in any fashion and is provided for convenience and informational purposes only. This
-          packet is not and shall not be considered to be a legal opinion, survey, title opinion letter, a title examination
-          report, title guarantee, a title commitment, a title binder, or a policy of title insurance. The covenants, conditions
-          and/or restrictions are sourced directly from the public records of the Clerk and Recorder in and for the parish
-          where the property is located. These documents may contain unlawful and unenforceable provisions under
-          current state and/or federal law including the Fair Housing Act and the ADA and therefore it is not for the parish
-          and its affiliates to determine their legality. Documents are the property of the Texas and/or applicable Title
-          & Abstract Co., and are merely reproduced public records.`}
+        <Text style={styles.disclaimer} fixed>
+         {disclaimer}
         </Text>
       </Page>
     </Document>
@@ -355,6 +358,8 @@ export interface HOADocument {
   //     }
   //   ]
   // };
+
+  const disclaimer = "This attached Homeowner's Association (HOA) informational packet is provided as a courtesy and convenience. This packet is for informational purposes only and may not be complete. Any additional information which is included is not warranted in any fashion and is provided for convenience and informational purposes only. This packet is not and shall not be considered to be a legal opinion, survey, title opinion letter, a title examination report, title guarantee, a title commitment, a title binder, or a policy of title insurance. The covenants, conditions and/or restrictions are sourced directly from the public records of the Clerk and Recorder in and for the parish where the property is located. These documents may contain unlawful and unenforceable provisions under current state and/or federal law including the Fair Housing Act and the ADA and therefore it is not for the parish and its affiliates to determine their legality. Documents are the property of the Texas and/or applicable Title & Abstract Co., and are merely reproduced public records."
   
   // Export the component
   export default HOADocument;

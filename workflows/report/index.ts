@@ -180,7 +180,7 @@ export async function generateReport(url: string, email: string) {
 	}
 
 	// Create PDF
-	const reportURL =  await generatePDF(report);
+	const reportURL =  await generatePDF(report, 'Title-Report');
 
 	// Step 8 Generate Title Report Email.
 	const emailHTML = await generateTitleReportEmail({ 
@@ -218,3 +218,4 @@ function convertToDocuments(data: any[]): Document[]{
 		}
 	})
 }
+

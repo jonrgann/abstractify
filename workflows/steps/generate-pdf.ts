@@ -3,6 +3,7 @@ import { uploadToSupabase } from './upload-file';
 
 export async function generatePDF(
     data: any,
+    fileName: string | 'Untitled',
    ) {
      "use step"; 
     console.log(`${process.env.NEXT_PUBLIC_BASE_URL}/api/create-pdf`)
@@ -38,7 +39,7 @@ export async function generatePDF(
     // Convert blob to base64 string for serialization
     const blob = await response.blob();
 
-    const {publicUrl} = await uploadToSupabase(blob, { bucket:'uploads', filename:'Title Report', contentType: "application/pdf" });
+    const {publicUrl} = await uploadToSupabase(blob, { bucket:'uploads', filename:fileName, contentType: "application/pdf" });
 
     return publicUrl
 }

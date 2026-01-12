@@ -9,6 +9,7 @@ export interface Document {
     related?: any;
     amount?: string;
     comment?: string;
+    caseNumber?:string;
     address?: any;
     acreageLegal?: any;
     subdivisionLegal?: any;

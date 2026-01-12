@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
 
     // Generate a unique filename if not provided
     const timestamp = Date.now();
-    const finalFilename = `${filename}-${timestamp}-upload`;
+    const finalFilename = `/${filename}-${timestamp}`;
 
     // Upload to Supabase Storage
     const { data, error } = await supabase.storage
