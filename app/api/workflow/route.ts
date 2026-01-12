@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     
     if(toEmailAddress.length && toEmailAddress[0].toLowerCase() === 'hoa@orders.abstractify.app'){
 
-      const text = data?.text ?? ''
+      const text = (data?.subject ?? '') + (data?.text ?? '')
       await start(generateHOALetter, [emailAddress, text]);
 
     }else{

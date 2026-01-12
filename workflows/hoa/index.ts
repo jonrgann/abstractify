@@ -10,6 +10,7 @@ import { generateDocX } from '../steps/generate-docx';
 import { sampleHOAData } from '@/components/generateHOADocument';
 import { selectFromList } from '../steps/rerank';
 import { getSubdivisions } from '../steps/get-subdivisions';
+import { generateTextStep } from '../steps/generate-text';
 
 export const generateHOALetter = async (
     email: string,
@@ -21,18 +22,56 @@ export const generateHOALetter = async (
 
 	let documentGroupId = "fa04f162-40ab-44cc-bbed-e8a40c613182";
 
+    const query = await generateTextStep(`AI Agent Prompt: HOA Email Parser
+You are an AI agent that processes emails sent to an automated email address requesting HOA (Homeowner Association) information about specific subdivisions.
+Your primary task:
+Extract the subdivision name from the user's query in the email.
+Instructions:
+
+Read the incoming email content
+Identify the subdivision name being requested
+Handle various phrasings such as:
+
+"Can I get the HOA information for [Subdivision Name]?"
+"What's the HOA info for [Subdivision Name]?"
+"I need homeowner association information for [Subdivision Name]"
+Variations with abbreviations, informal language, or different word orders
+
+
+Return ONLY the subdivision name as plain text (no additional formatting, labels, or explanation)
+
+If you cannot identify a clear subdivision query:
+Return the following standard message:
+"Unable to identify subdivision name from request. This email has been flagged for manual review."
+Examples:
+
+Input: "Can I get the HOA information for Canterberry Place?"
+Output: Canterberry Place
+Input: "What are the rules for Oak Hills subdivision?"
+Output: Oak Hills
+Input: "Hello, I need some information please"
+Output: MISSING SUBDIVISION.`, `<email>${text}</email>`)
+
+    console.log(`query: ${query}`);
+
+    // End Workflow if similarity score is too low.
+    if(query === 'MISSING SUBDIVISION') return;
 	// Step
-	const subdivisionList = await getSubdivisions(documentGroupId, token);
+	const subdivisionsResponse = await getSubdivisions(documentGroupId, token);
+    const subdivisions = subdivisionsResponse.map((obj: any) => obj.value);
 
 	// Step
-	const subdivision = await selectFromList(text, subdivisionList.map((obj: any) => obj.value));
+	const subdivision = await selectFromList(query, subdivisions);
+
+    // End Workflow if similarity score is too low.
+    if(subdivision.score < 0.1) return;
 
 	// Step
 	const searchResponse = await searchPropertySync(documentGroupId,token, {
         queryParams: {
           excludeOrders: 1,
           excludeRelatedDocuments: 1,
-          subdivisions: [{ addition: subdivision}],
+          subdivisions: [{ addition: subdivision.document}],
         } 
     })
 
@@ -185,7 +224,7 @@ async function generateHOAEmail(data: any) {
                     <tr>
                         <td style="padding-bottom: 32px;">
                             <p style="margin: 0; color: #666666; font-size: 15px; line-height: 1.6;">
-                                Attached are the restrictions and HOA information we have for ${data.propertyName} - if you have any questions or need further information please don't hesitate to reach out!
+                                Below are the restrictions and HOA information we have for ${data.propertyName} - if you have any questions or need further information please don't hesitate to reach out!
                             </p>
                         </td>
                     </tr>
@@ -200,7 +239,7 @@ async function generateHOAEmail(data: any) {
                     <!-- Download Button -->
                     <tr>
                         <td style="padding-bottom: 32px;">
-                            <a href="${data.reportURL}" style="display: inline-block; padding: 14px 32px; background-color: #000000; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 500; color-scheme: light">Download Report</a>
+                            <a href="${data.reportURL}" style="display: inline-block; padding: 14px 32px; background-color: #000000; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 500; color-scheme: light">Download PDF</a>
                         </td>
                     </tr>
                     
@@ -208,7 +247,14 @@ async function generateHOAEmail(data: any) {
                     <tr>
                         <td style="padding-top: 32px; border-top: 1px solid #e5e5e5;">
                             <p style="margin: 0; color: #999999; font-size: 12px; line-height: 1.6;">
-                                This title report is provided for informational purposes only and does not constitute legal advice. The information is based on public records available at the time of search. This report should be reviewed by a qualified attorney before making any real estate decisions.
+                                 This attached Homeowner's Association (HOA) informational packet is provided as a courtesy and convenience. This packet is for
+informational purposes only and may not be complete. Any additional information which is included is not warranted in any fashion
+and is provided for convenience and informational purposes only. This packet is not and shall not be considered to be a legal opinion,
+survey, title opinion letter, a title examination report, title guarantee, a title commitment, a title binder, or a policy of title insurance.
+The covenants, conditions and/or restrictions are sourced directly from the public records of the Clerk and Recorder in and for the
+parish where the property is located. These documents may contain unlawful and unenforceable provisions under current state and/or
+federal law including the Fair Housing Act and the ADA and therefore it is not for the parish and its affiliates to determine their
+legality. Documents are the property of the Texas and/or applicable Title & Abstract Co., and are merely reproduced public records.
                             </p>
                         </td>
                     </tr>

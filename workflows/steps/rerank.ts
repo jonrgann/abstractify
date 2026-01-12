@@ -16,6 +16,6 @@ export async function selectFromList(input: string, documents: any[]) {
 
     console.dir(ranking);
   
-    return ranking[0].document;
+    return ranking[0];
 
 };
