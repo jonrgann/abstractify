@@ -119,13 +119,8 @@ Output: MISSING SUBDIVISION.`, `<email>${text}</email>`)
 	  const reportURL = await generatePDF(report,'HOA');
 	  console.log(reportURL);
 	  const emailHTML = await generateHOAEmail({...report, reportURL})
-	// const reportURL = await generateDocX(report);
-	// console.log(reportURL)
 
-	
     //Step 9 Send Email
-
-	// const tempEmail = 'jonrgann@gmail.com'
 
 	await sendEmail('Abstractify <hoa@orders.abstractify.app>', email, `${report.propertyName} HOA Documents and Restrictions`, emailHTML,);
 

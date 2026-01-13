@@ -4,6 +4,7 @@ import { PropertySyncClient } from '../propertysync/client';
 import { subdivisionAgent } from './subdivision-agent';
 import { z } from 'zod';
 import { NameObject, formatFullName, } from '@/lib/research/utils';
+import { answer } from '@/workflows/chat/steps/tools';
 
 const QUICK_RESPONSES = [
   "Let me see what I can find.",
@@ -41,8 +42,10 @@ export const researchAgent = new ToolLoopAgent({
     - Then use the answer tool to provide the response and documents to the user.
     - If the user asks about a specific document, read the document first before answering.
     - If the user does not provide a start or end date use null.
-    - Format dats as YYYY-MM-DD
-    - Use markdown when listing document information to the user.`,
+    - When more than one document is returned in your search, use the askQuestion tool to clarify which document the the user is looking for.
+    - Be concise when answering the users questions.
+    - Use the ask question tool to ask the user clarifying questions until you can answer with a single document. Be very specific and concise with your question.
+    - You must always use the answer tool when you have your final answer for the user.`,
     providerOptions: {
       google: {
         thinkingConfig: {
@@ -51,15 +54,15 @@ export const researchAgent = new ToolLoopAgent({
         },
       } satisfies GoogleGenerativeAIProviderOptions,
     },
-    output: Output.object({
-      schema: z.object({
-        answer:z.string(),
-        sourceDocument: z.object({
-          documentType: z.string(),
-          documentNumber: z.string()
-        }).optional()
-      })
-    }),
+    // output: Output.object({
+    //   schema: z.object({
+    //     answer:z.string(),
+    //     sourceDocument: z.object({
+    //       documentType: z.string(),
+    //       documentNumber: z.string()
+    //     }).optional()
+    //   })
+    // }),
     callOptionsSchema: z.object({
       countyId: z.string(),
       token: z.string(),
@@ -70,10 +73,11 @@ export const researchAgent = new ToolLoopAgent({
           inputSchema: z.object({
             query: z.object({
               property: z.object({
-                  lot: z.string().nullable(),
+                  lot: z.string().optional().nullable(),
                   block: z.string().optional().nullable(),
                   addition: z.string().nullable(),
               }),
+              documentType:z.string().optional().describe('This can be PLAT, MORTGAGE, WARRANTY DEED, PROTECTIVE COVENANTS, or RESTRICTIONS'),
               partyName: z.string().optional(),
               startDate: z.string().describe('The start date of the search formatted YYYY-MM-DD').optional().nullable(),
               endDate: z.string().describe('The end date of the search formatted YYYY-MM-DD').optional().nullable(),
@@ -90,7 +94,7 @@ export const researchAgent = new ToolLoopAgent({
               // Get Subdivisions
 
               const DOCUMENT_GROUP_ID = typedContext.countyId
-
+              console.log(DOCUMENT_GROUP_ID)
               const subdivisionsResponse = await fetch(
                 `https://api.propertysync.com/v1/indexing/document-groups/${DOCUMENT_GROUP_ID}/auto-completes/?type=addition`,
                 {
@@ -108,6 +112,8 @@ export const researchAgent = new ToolLoopAgent({
 
               const subdivisions = await subdivisionsResponse.json();
 
+              console.dir(subdivisions)
+
               let normalizedAddition: string | null = null;
               if(query.property.addition){
                 normalizedAddition = await subdivisionAgent(query.property.addition, subdivisions.map((sub: any) => sub.value))
@@ -122,6 +128,7 @@ export const researchAgent = new ToolLoopAgent({
                     block: query.property.block, 
                     addition: normalizedAddition}],
                   recordingInfos: [{
+                    instrumentType: query.documentType ?? null,
                     dateFrom: null,
                     dateTo: null
                   }],
@@ -237,70 +244,109 @@ export const researchAgent = new ToolLoopAgent({
 
         },
       }),
-      // answer: tool({
-      //   description: 'Answers the users query with source documents and a text response',
-      //   inputSchema: z.object({
-      //     documents: z.object({
-      //       documentId: z.string().nullable(),
-      //       documentNumber: z.string().nullable(),
-      //       documentType: z.string().nullable(),
-      //       filedDate: z.string().nullable(),
-      //     }).array(),
-      //     response: z.string().describe('The text replying to the user.  The response should be extremely concise and to the point.')
-      //   }),
-      //   async *execute({ documents, response }, { experimental_context: context}) {
-      //     const typedContext = context as Context
-      //     console.log(documents, response);
+      answer: tool({
+        description: 'Answers the users query with source documents and a text response',
+        inputSchema: z.object({
+          document: z.object({
+            documentId: z.string().nullable(),
+            documentNumber: z.string().nullable(),
+            documentType: z.string().nullable(),
+            filedDate: z.string().nullable(),
+          }),
+          response: z.string().describe('The text replying to the user.  The response should be extremely concise and to the point.')
+        }),
+        async *execute({ document, response }, { experimental_context: context}) {
+          const typedContext = context as Context
+          console.log(document, response);
 
-      //     yield {
-      //       status: 'Thinking...' as const,
-      //       documents: documents,
-      //       response: response
-      //     };
+          yield {
+            status: 'Thinking...' as const,
+            documents: document,
+            response: response
+          };
 
-      //     const detailedDocuments = await Promise.all(
-      //       documents.map(async (document : any) => {
+          const DOCUMENT_GROUP_ID = typedContext.countyId
+
+          const getDocumentDetails = await fetch(
+            `https://api.propertysync.com/v1/indexing/document-groups/${DOCUMENT_GROUP_ID}/documents/${document.documentId}/`,
+            {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${typedContext.token}`
+              },
+            }
+          );
+
+          const details = await getDocumentDetails.json()
+          const detailedDocument = {
+            documentId: details.id,
+            documentNumber: details.json.documentNumber || 
+            (details.json.bookNumber != null && details.json.pageNumber != null 
+              ? details.json.bookNumber + details.json.pageNumber.padStart(6, '0')
+              : 'UNKNOWN'),
+            image: details.image ? details.image.s3Path : null,
+            filedDate: new Date(details.json.filedDate).toISOString().split('T')[0],
+            documentType: details.json.instrumentType,
+            grantors:  details.json.grantors.map((grantor: NameObject) => formatFullName(grantor)),
+            grantees: details.json.grantees.map((grantee: NameObject) => formatFullName(grantee)),
+            related: details.relatedDocuments,
+            amount: details.json.consideration
+          };
+
+          // const detailedDocuments = await Promise.all(
+          //   documents.map(async (document : any) => {
               
-      //         const DOCUMENT_GROUP_ID = typedContext.countyId
+          //     const DOCUMENT_GROUP_ID = typedContext.countyId
 
-      //         const getDocumentDetails = await fetch(
-      //           `https://api.propertysync.com/v1/indexing/document-groups/${DOCUMENT_GROUP_ID}/documents/${document.documentId}/`,
-      //           {
-      //             method: 'GET',
-      //             headers: {
-      //               'Content-Type': 'application/json',
-      //               'Authorization': `Bearer ${typedContext.token}`
-      //             },
-      //           }
-      //         );
+          //     const getDocumentDetails = await fetch(
+          //       `https://api.propertysync.com/v1/indexing/document-groups/${DOCUMENT_GROUP_ID}/documents/${document.documentId}/`,
+          //       {
+          //         method: 'GET',
+          //         headers: {
+          //           'Content-Type': 'application/json',
+          //           'Authorization': `Bearer ${typedContext.token}`
+          //         },
+          //       }
+          //     );
 
-      //         const details = await getDocumentDetails.json()
-      //         return {
-      //           documentId: details.id,
-      //           documentNumber: details.json.documentNumber || 
-      //           (details.json.bookNumber != null && details.json.pageNumber != null 
-      //             ? details.json.bookNumber + details.json.pageNumber.padStart(6, '0')
-      //             : 'UNKNOWN'),
-      //           image: details.image ? details.image.s3Path : null,
-      //           filedDate: new Date(details.json.filedDate).toISOString().split('T')[0],
-      //           documentType: details.json.instrumentType,
-      //           grantors:  details.json.grantors.map((grantor: NameObject) => formatFullName(grantor)),
-      //           grantees: details.json.grantees.map((grantee: NameObject) => formatFullName(grantee)),
-      //           related: details.relatedDocuments,
-      //           amount: details.json.consideration
-      //         };
-      //       })
-      //     );
+          //     const details = await getDocumentDetails.json()
+          //     return {
+          //       documentId: details.id,
+          //       documentNumber: details.json.documentNumber || 
+          //       (details.json.bookNumber != null && details.json.pageNumber != null 
+          //         ? details.json.bookNumber + details.json.pageNumber.padStart(6, '0')
+          //         : 'UNKNOWN'),
+          //       image: details.image ? details.image.s3Path : null,
+          //       filedDate: new Date(details.json.filedDate).toISOString().split('T')[0],
+          //       documentType: details.json.instrumentType,
+          //       grantors:  details.json.grantors.map((grantor: NameObject) => formatFullName(grantor)),
+          //       grantees: details.json.grantees.map((grantee: NameObject) => formatFullName(grantee)),
+          //       related: details.relatedDocuments,
+          //       amount: details.json.consideration
+          //     };
+          //   })
+          // );
 
-      //     yield { status: "Search complete.", documents: detailedDocuments, response}
-      //   },
-      // }),
+          yield { status: "Search complete.", document: detailedDocument, response }
+        },
+      }),
+      askQuestion: tool({
+        description: 'Ask the user a clarifying question about their search.',
+        inputSchema: z.object({
+          question: z.string().describe('The question to ask the user.')
+        }),
+        async *execute({ question }, { experimental_context: context}) {
+          yield { question }
+        },
+      }),
     },
     prepareCall: ({ options, ...settings }) => ({
       ...settings,
       experimental_context: options as Context,
     }),
-    stopWhen: stepCountIs(10),
+    stopWhen: [hasToolCall('answer'), hasToolCall('askQuestion')],
+    toolChoice: 'required'
 });
 
 type MyTools = InferUITools<typeof researchAgent.tools>;

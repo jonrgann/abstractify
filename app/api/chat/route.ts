@@ -10,9 +10,14 @@ export async function POST(req: Request) {
   const { county, messages }: { county: string, messages: ResearchAgentUIMessage[] } = await req.json();
 
 
-  const PROPERTY_SYNC_USER =process.env.PROPERTYSYNC_USERNAME;
-  const PROPERTY_SYNC_PASS = process.env.PROPERTYSYNC_PASSWORD;
+  let PROPERTY_SYNC_USER = process.env.PROPERTYSYNC_USERNAME;
+  let PROPERTY_SYNC_PASS = process.env.PROPERTYSYNC_PASSWORD;
   const DOCUMENT_GROUP_ID = county
+  
+  if(DOCUMENT_GROUP_ID === 'fa04f162-40ab-44cc-bbed-e8a40c613182'){
+    PROPERTY_SYNC_USER = process.env.DEMO_PROPERTYSYNC_USERNAME
+    PROPERTY_SYNC_PASS = process.env.DEMO_PROPERTYSYNC_PASSWORD;
+  }
 
   const loginResponse = await fetch(
     `https://api.propertysync.com/v1/login`,

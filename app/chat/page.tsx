@@ -90,6 +90,7 @@ const suggestions = [
 const counties = [
     { id: '54766f37-bfad-4922-a607-30963a9c4a60', name: 'Benton' },
     { id: '4c8cdb5e-1335-4a4a-89b0-523e02386af0', name: 'Washington' },
+    // { id: 'fa04f162-40ab-44cc-bbed-e8a40c613182', name: 'Louisiana' },
 ];
 
 const ConversationDemo = () => {
@@ -125,7 +126,7 @@ const ConversationDemo = () => {
   return (
     <div className="relative w-full h-[700px] bg-background">
       <div className="flex flex-col h-full w-full">
-        {/* <Conversation>
+        <Conversation>
           <ConversationContent>
             {messages.length === 0 ? (
               <ConversationEmptyState
@@ -173,35 +174,34 @@ const ConversationDemo = () => {
                                      <Shimmer>{part.output?.status ?? ''}</Shimmer>
                                 )}
                                 <p className="mb-4"><TypewriterText text={part.output?.response ?? ''}/></p>
-                                { part.output?.documents && (
-                                    part.output?.documents.map((doc: any, rowIndex: number) => {
-                                      return (
+                                { part.output?.document && (
+
                                         <motion.div
-                                          key={rowIndex}
+                                          key={i}
                                           initial={{ opacity: 0, y: 20 }}
                                           animate={{ opacity: 1, y: 0 }}
                                           transition={{ 
                                             duration: 0.3,
-                                            delay: rowIndex * 0.1,
+                                            delay: 0.1,
                                             ease: "easeOut"
                                           }}
                                         >
                                       <div className="flex w-full max-w-lg flex-col gap-6">
                                             <Item variant="outline">
                                               <ItemContent>
-                                                <ItemTitle>{doc.documentType}</ItemTitle>
+                                                <ItemTitle>{part.output?.document.documentType}</ItemTitle>
                                                 <div className="flex h-5 items-center space-x-4 text-sm text-muted-foreground">
-                                                  <div>{doc.documentNumber}</div>
+                                                  <div>{part.output?.document.documentNumber}</div>
                                                   <Separator orientation="vertical" />
-                                                  <div>{doc.filedDate}</div>
+                                                  <div>{part.output?.document.filedDate}</div>
                                               </div>
                                               </ItemContent>
-                                              { doc.image && (
+                                              { part.output?.document.image && (
                                                 <ItemActions>
                                                   <Button 
                                                     variant="outline" 
                                                     size="icon"
-                                                    onClick={() => window.open(doc.image, '_blank', 'noopener,noreferrer')}
+                                                    onClick={() => window.open(part.output?.document?.image, '_blank', 'noopener,noreferrer')}
                                                   >
                                                     <DownloadIcon className="size-4" />
                                                   </Button>
@@ -210,11 +210,16 @@ const ConversationDemo = () => {
                                             </Item>
                                           </div>
                                         </motion.div>
-                                      );
-                                    })
+                                 
                                 )}
                               </div>
                             )
+                          case 'tool-askQuestion':
+                              return (
+                                <div  key={`${message.id}-${i}`} className="space-y-4 mb-2">
+                                  <p className="mb-4"><TypewriterText text={part.output?.question ?? ''}/></p>
+                                </div>
+                              )
                         default:
                           if(isToolUIPart(part)){
                             return <div key={`${message.id}-${i}`}>Tool called: {getToolName(part)}</div>;
@@ -229,9 +234,9 @@ const ConversationDemo = () => {
             )}
           </ConversationContent>
           <ConversationScrollButton />
-        </Conversation> */}
+        </Conversation>
 
-<Conversation className="h-full">
+{/* <Conversation className="h-full">
           <ConversationContent>
             {messages.map((message) => (
               <div key={message.id}>
@@ -305,7 +310,7 @@ const ConversationDemo = () => {
             {status === 'submitted' && <Loader />}
           </ConversationContent>
           <ConversationScrollButton />
-        </Conversation>
+</Conversation> */}
 
         {/* <Suggestions>
             {suggestions.map((suggestion) => (
