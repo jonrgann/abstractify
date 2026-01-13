@@ -11,11 +11,11 @@ export async function selectFromList(input: string, documents: any[]) {
       model: cohere.reranking('rerank-v3.5'),
       documents,
       query: input,
-      topN: 2,
+      topN: 5,
     });
 
     console.dir(ranking);
   
-    return ranking[0];
+    return ranking;
 
 };

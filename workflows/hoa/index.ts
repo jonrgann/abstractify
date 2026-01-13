@@ -56,22 +56,33 @@ Output: MISSING SUBDIVISION.`, `<email>${text}</email>`)
 
     // End Workflow if similarity score is too low.
     if(query === 'MISSING SUBDIVISION') return;
+    
 	// Step
 	const subdivisionsResponse = await getSubdivisions(documentGroupId, token);
-    const subdivisions = subdivisionsResponse.map((obj: any) => obj.value);
+    const subdivisions: string[] = subdivisionsResponse.map((obj: any) => obj.value);
+
+    // Early return if query doesn't contain any subdivision keyword
+    const queryLower = query.toLowerCase();
+    const hasSubdivisionKeyword = subdivisions.some(subdivision => 
+        queryLower.includes(subdivision.toLowerCase())
+    );
 
 	// Step
-	const subdivision = await selectFromList(query, subdivisions);
+	const matches = await selectFromList(query, subdivisions);
+    const bestMatch = matches[0];
 
     // End Workflow if similarity score is too low.
-    if(subdivision.score < 0.1) return;
-
+    if(bestMatch.score < 0.1){
+        const notFoundEmail = await generateNoSubdivisionFoundEmail({searchedProperty: query, closestMatches: subdivisions.map((sub) => {return { name: sub}})})
+        await sendEmail('Abstractify <hoa@orders.abstractify.app>', email, `Subdivision Not Found`, notFoundEmail,);
+        return;
+    }
 	// Step
 	const searchResponse = await searchPropertySync(documentGroupId,token, {
         queryParams: {
           excludeOrders: 1,
           excludeRelatedDocuments: 1,
-          subdivisions: [{ addition: subdivision.document}],
+          subdivisions: [{ addition: bestMatch.document}],
         } 
     })
 
@@ -266,4 +277,75 @@ legality. Documents are the property of the Texas and/or applicable Title & Abst
 </body>
 </html>`
 
+}
+
+async function generateNoSubdivisionFoundEmail(data: any) {
+    // data should include:
+    // - searchedProperty: string (what the customer searched for)
+    // - closestMatches: array of objects with { name: string, location?: string }
+    
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subdivision Not Found</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background-color: #ffffff;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+            <td align="center" style="padding: 60px 20px;">
+                <table width="540" cellpadding="0" cellspacing="0" border="0">
+                        
+                    <!-- Introduction -->
+                    <tr>
+                        <td style="padding-bottom: 24px;">
+                            <p style="margin: 0; color: #666666; font-size: 15px; line-height: 1.6;">
+                                We couldn't find an exact match for <strong style="color: #000000;">${data.searchedProperty}</strong> in our records.
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Closest Matches Section -->
+                    <tr>
+                        <td style="padding-bottom: 32px;">
+                            <p style="margin: 0 0 16px 0; color: #000000; font-size: 15px; font-weight: 500;">
+                                Did you mean one of these?
+                            </p>
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                ${data.closestMatches.map((match: any, index: number) => `
+                                <tr>
+                                    <td style="padding: 12px 16px; background-color: #f8f8f8; ${index > 0 ? 'border-top: 1px solid #ffffff;' : ''}">
+                                        <p style="margin: 0; color: #000000; font-size: 14px; font-weight: 500;">
+                                            ${match.name}
+                                        </p>
+                                    </td>
+                                </tr>
+                                `).join('')}
+                            </table>
+                        </td>
+                    </tr>
+                    
+                    <!-- Divider -->
+                    <tr>
+                        <td style="padding-bottom: 24px;">
+                            <div style="height: 1px; background-color: #e5e5e5;"></div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Help Text -->
+                    <tr>
+                        <td style="padding-bottom: 32px;">
+                            <p style="margin: 0; color: #666666; font-size: 15px; line-height: 1.6;">
+                                If none of these match what you're looking for, please reply to this email with more details about the property, and we'll do our best to locate the correct subdivision and HOA information for you.
+                            </p>
+                        </td>
+                    </tr>
+                
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>`
 }
