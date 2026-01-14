@@ -54,7 +54,7 @@ import { Response } from '@/components/ai-elements/response';
 import { Suggestion, Suggestions } from '@/components/ai-elements/suggestion';
 import { getToolName, isToolUIPart } from 'ai';
 import { ResearchAgentUIMessage } from '@/lib/agents/researchAgent';
-import { GlobeIcon, FileText, ChevronRightIcon, Workflow } from 'lucide-react';
+import { GlobeIcon, FileText, ChevronRightIcon, Workflow, FileTextIcon} from 'lucide-react';
 import { Shimmer } from '@/components/ai-elements/shimmer';
 import { TypewriterText } from '@/components/typewrter';
 import { motion, AnimatePresence } from 'motion/react'
@@ -175,7 +175,7 @@ const ConversationDemo = () => {
                                 )}
                                 <p className="mb-4"><TypewriterText text={part.output?.response ?? ''}/></p>
                                 {part.output?.documents && (
-  <div className="flex w-full max-w-lg flex-col gap-6">
+  <div className="flex w-full max-w-lg flex-col gap-4">
     {part.output.documents.map((document:any, docIndex:number) => (
       <motion.div
         key={`${i}-${docIndex}`}
@@ -186,8 +186,21 @@ const ConversationDemo = () => {
           delay: 0.1 + (docIndex * 0.05),
           ease: "easeOut"
         }}
-      >
-        <Item variant="outline">
+      >      
+      <Item variant="outline" size="sm" asChild>
+      <a href={document.image} target="_blank" rel="noopener noreferrer">
+        <ItemMedia>
+          <FileTextIcon className="size-5" />
+        </ItemMedia>
+        <ItemContent>
+          <ItemTitle><span className="font-bold">{document.documentType} </span> <span className="font-light text-muted-foreground">| {document.documentNumber} | {document.filedDate} </span></ItemTitle>
+        </ItemContent>
+        <ItemActions>
+          <ChevronRightIcon className="size-4" />
+        </ItemActions>
+      </a>
+    </Item>
+        {/* <Item variant="outline">
           <ItemContent>
             <ItemTitle>{document.documentType}</ItemTitle>
             <div className="flex h-5 items-center space-x-4 text-sm text-muted-foreground">
@@ -207,7 +220,7 @@ const ConversationDemo = () => {
               </Button>
             </ItemActions>
           )}
-        </Item>
+        </Item> */}
       </motion.div>
     ))}
   </div>
