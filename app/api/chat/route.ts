@@ -14,7 +14,7 @@ export async function POST(req: Request) {
   let PROPERTY_SYNC_PASS = process.env.PROPERTYSYNC_PASSWORD;
   const DOCUMENT_GROUP_ID = county
   
-  if(DOCUMENT_GROUP_ID === 'fa04f162-40ab-44cc-bbed-e8a40c613182'){
+  if(DOCUMENT_GROUP_ID == 'fa04f162-40ab-44cc-bbed-e8a40c613182'){
     PROPERTY_SYNC_USER = process.env.DEMO_PROPERTYSYNC_USERNAME
     PROPERTY_SYNC_PASS = process.env.DEMO_PROPERTYSYNC_PASSWORD;
   }

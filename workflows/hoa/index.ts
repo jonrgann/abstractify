@@ -204,6 +204,76 @@ export function sortDocumentsByFiledDate(
 	});
   }
 
+// async function generateHOAEmail(data: any) {
+
+//     return `<!DOCTYPE html>
+// <html lang="en">
+// <head>
+//     <meta charset="UTF-8">
+//     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+//     <title>HOA Documents and Restrictions</title>
+// </head>
+// <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background-color: #ffffff;">
+//     <table width="100%" cellpadding="0" cellspacing="0" border="0">
+//         <tr>
+//             <td align="center" style="padding: 60px 20px;">
+//                 <table width="540" cellpadding="0" cellspacing="0" border="0">
+                    
+//                     <!-- Header -->
+//                     <tr>
+//                         <td style="padding-bottom: 20px;">
+//                             <h1 style="margin: 0; color: #000000; font-size: 24px; font-weight: 600;">HOA Documents and Restrictions</h1>
+//                         </td>
+//                     </tr>
+                    
+//                     <!-- Introduction -->
+//                     <tr>
+//                         <td style="padding-bottom: 32px;">
+//                             <p style="margin: 0; color: #666666; font-size: 15px; line-height: 1.6;">
+//                                 Below are the restrictions and HOA information we have for ${data.propertyName} - if you have any questions or need further information please don't hesitate to reach out!
+//                             </p>
+//                         </td>
+//                     </tr>
+                       
+//                     <!-- Divider -->
+//                     <tr>
+//                         <td style="padding-bottom: 32px;">
+//                             <div style="height: 1px; background-color: #e5e5e5;"></div>
+//                         </td>
+//                     </tr>
+                                        
+//                     <!-- Download Button -->
+//                     <tr>
+//                         <td style="padding-bottom: 32px;">
+//                             <a href="${data.reportURL}" style="display: inline-block; padding: 14px 32px; background-color: #000000; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 500; color-scheme: light">Download PDF</a>
+//                         </td>
+//                     </tr>
+                    
+//                     <!-- Footer Disclaimer -->
+//                     <tr>
+//                         <td style="padding-top: 32px; border-top: 1px solid #e5e5e5;">
+//                             <p style="margin: 0; color: #999999; font-size: 12px; line-height: 1.6;">
+//                                  This attached Homeowner's Association (HOA) informational packet is provided as a courtesy and convenience. This packet is for
+// informational purposes only and may not be complete. Any additional information which is included is not warranted in any fashion
+// and is provided for convenience and informational purposes only. This packet is not and shall not be considered to be a legal opinion,
+// survey, title opinion letter, a title examination report, title guarantee, a title commitment, a title binder, or a policy of title insurance.
+// The covenants, conditions and/or restrictions are sourced directly from the public records of the Clerk and Recorder in and for the
+// parish where the property is located. These documents may contain unlawful and unenforceable provisions under current state and/or
+// federal law including the Fair Housing Act and the ADA and therefore it is not for the parish and its affiliates to determine their
+// legality. Documents are the property of the Texas and/or applicable Title & Abstract Co., and are merely reproduced public records.
+//                             </p>
+//                         </td>
+//                     </tr>
+                    
+//                 </table>
+//             </td>
+//         </tr>
+//     </table>
+// </body>
+// </html>`
+
+// }
+
 async function generateHOAEmail(data: any) {
 
     return `<!DOCTYPE html>
@@ -213,54 +283,68 @@ async function generateHOAEmail(data: any) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HOA Documents and Restrictions</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background-color: #ffffff;">
-    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background-color: #f5f5f5;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f5f5f5;">
         <tr>
-            <td align="center" style="padding: 60px 20px;">
-                <table width="540" cellpadding="0" cellspacing="0" border="0">
+            <td align="center" style="padding: 0;">
+                <table width="600" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff;">
                     
-                    <!-- Header -->
+                    <!-- Red Header Bar with Logo -->
                     <tr>
-                        <td style="padding-bottom: 20px;">
-                            <h1 style="margin: 0; color: #000000; font-size: 24px; font-weight: 600;">HOA Documents and Restrictions</h1>
+                        <td style="background-color: #a31e22; padding: 24px 40px;">
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                <tr>
+                                    <td>
+                                        <div style="color: #ffffff; font-size: 28px; font-weight: 700; letter-spacing: 0.5px;">
+                                            COMMERCE TITLE
+                                        </div>
+                                        <div style="color: #ffffff; font-size: 13px; letter-spacing: 1px; margin-top: 0px; opacity: 0.95;">
+                                            CLOSE WITH CONFIDENCE
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
                         </td>
                     </tr>
                     
-                    <!-- Introduction -->
+                    <!-- Content Section with Tan Background -->
                     <tr>
-                        <td style="padding-bottom: 32px;">
-                            <p style="margin: 0; color: #666666; font-size: 15px; line-height: 1.6;">
-                                Below are the restrictions and HOA information we have for ${data.propertyName} - if you have any questions or need further information please don't hesitate to reach out!
+                        <td style="background-color: #d4b896; padding: 50px 40px;">
+                            
+                            <!-- Title -->
+                            <h1 style="margin: 0 0 24px 0; color: #ffffff; font-size: 32px; font-weight: 700; line-height: 1.2;">
+                                HOA DOCUMENTS AND RESTRICTIONS
+                            </h1>
+                            
+                            <!-- Introduction -->
+                            <p style="margin: 0; color: #4a4a4a; font-size: 16px; line-height: 1.6;">
+                                Below are the restrictions and HOA information we have for <strong style="color: #2d2d2d;">${data.propertyName}</strong> - if you have any questions or need further information please don't hesitate to reach out!
                             </p>
+                            
                         </td>
                     </tr>
-                       
-                    <!-- Divider -->
+                    
+                    <!-- White Content Area -->
                     <tr>
-                        <td style="padding-bottom: 32px;">
-                            <div style="height: 1px; background-color: #e5e5e5;"></div>
-                        </td>
-                    </tr>
-                                        
-                    <!-- Download Button -->
-                    <tr>
-                        <td style="padding-bottom: 32px;">
-                            <a href="${data.reportURL}" style="display: inline-block; padding: 14px 32px; background-color: #000000; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 500; color-scheme: light">Download PDF</a>
+                        <td style="padding: 40px;">
+                            
+                            <!-- Download Button -->
+                            <table cellpadding="0" cellspacing="0" border="0">
+                                <tr>
+                                    <td>
+                                        <a href="${data.reportURL}" style="display: inline-block; padding: 16px 40px; background-color: #a31e22; color: #ffffff; text-decoration: none; font-size: 15px; font-weight: 600; letter-spacing: 0.5px; border-radius: 2px; color-scheme: light;">DOWNLOAD PDF</a>
+                                    </td>
+                                </tr>
+                            </table>
+                            
                         </td>
                     </tr>
                     
                     <!-- Footer Disclaimer -->
                     <tr>
-                        <td style="padding-top: 32px; border-top: 1px solid #e5e5e5;">
-                            <p style="margin: 0; color: #999999; font-size: 12px; line-height: 1.6;">
-                                 This attached Homeowner's Association (HOA) informational packet is provided as a courtesy and convenience. This packet is for
-informational purposes only and may not be complete. Any additional information which is included is not warranted in any fashion
-and is provided for convenience and informational purposes only. This packet is not and shall not be considered to be a legal opinion,
-survey, title opinion letter, a title examination report, title guarantee, a title commitment, a title binder, or a policy of title insurance.
-The covenants, conditions and/or restrictions are sourced directly from the public records of the Clerk and Recorder in and for the
-parish where the property is located. These documents may contain unlawful and unenforceable provisions under current state and/or
-federal law including the Fair Housing Act and the ADA and therefore it is not for the parish and its affiliates to determine their
-legality. Documents are the property of the Texas and/or applicable Title & Abstract Co., and are merely reproduced public records.
+                        <td style="padding: 32px 40px 40px 40px; background-color: #f9f9f9;">
+                            <p style="margin: 0; color: #888888; font-size: 11px; line-height: 1.7;">
+                                This attached Homeowner's Association (HOA) informational packet is provided as a courtesy and convenience. This packet is for informational purposes only and may not be complete. Any additional information which is included is not warranted in any fashion and is provided for convenience and informational purposes only. This packet is not and shall not be considered to be a legal opinion, survey, title opinion letter, a title examination report, title guarantee, a title commitment, a title binder, or a policy of title insurance. The covenants, conditions and/or restrictions are sourced directly from the public records of the Clerk and Recorder in and for the parish where the property is located. These documents may contain unlawful and unenforceable provisions under current state and/or federal law including the Fair Housing Act and the ADA and therefore it is not for the parish and its affiliates to determine their legality. Documents are the property of the Texas and/or applicable Title & Abstract Co., and are merely reproduced public records.
                             </p>
                         </td>
                     </tr>
@@ -273,6 +357,77 @@ legality. Documents are the property of the Texas and/or applicable Title & Abst
 </html>`
 
 }
+
+// async function generateNoSubdivisionFoundEmail(data: any) {
+//     // data should include:
+//     // - searchedProperty: string (what the customer searched for)
+//     // - closestMatches: array of objects with { name: string, location?: string }
+    
+//     return `<!DOCTYPE html>
+// <html lang="en">
+// <head>
+//     <meta charset="UTF-8">
+//     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+//     <title>Subdivision Not Found</title>
+// </head>
+// <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background-color: #ffffff;">
+//     <table width="100%" cellpadding="0" cellspacing="0" border="0">
+//         <tr>
+//             <td align="center" style="padding: 60px 20px;">
+//                 <table width="540" cellpadding="0" cellspacing="0" border="0">
+                        
+//                     <!-- Introduction -->
+//                     <tr>
+//                         <td style="padding-bottom: 24px;">
+//                             <p style="margin: 0; color: #666666; font-size: 15px; line-height: 1.6;">
+//                                 We couldn't find an exact match for <strong style="color: #000000;">${data.searchedProperty}</strong> in our records.
+//                             </p>
+//                         </td>
+//                     </tr>
+                    
+//                     <!-- Closest Matches Section -->
+//                     <tr>
+//                         <td style="padding-bottom: 32px;">
+//                             <p style="margin: 0 0 16px 0; color: #000000; font-size: 15px; font-weight: 500;">
+//                                 Did you mean one of these?
+//                             </p>
+//                             <table width="100%" cellpadding="0" cellspacing="0" border="0">
+//                                 ${data.closestMatches.map((match: any, index: number) => `
+//                                 <tr>
+//                                     <td style="padding: 12px 16px; background-color: #f8f8f8; ${index > 0 ? 'border-top: 1px solid #ffffff;' : ''}">
+//                                         <p style="margin: 0; color: #000000; font-size: 14px; font-weight: 500;">
+//                                             ${match.name}
+//                                         </p>
+//                                     </td>
+//                                 </tr>
+//                                 `).join('')}
+//                             </table>
+//                         </td>
+//                     </tr>
+                    
+//                     <!-- Divider -->
+//                     <tr>
+//                         <td style="padding-bottom: 24px;">
+//                             <div style="height: 1px; background-color: #e5e5e5;"></div>
+//                         </td>
+//                     </tr>
+                    
+//                     <!-- Help Text -->
+//                     <tr>
+//                         <td style="padding-bottom: 32px;">
+//                             <p style="margin: 0; color: #666666; font-size: 15px; line-height: 1.6;">
+//                                 If none of these match what you're looking for, please reply to this email with more details about the property, and we'll do our best to locate the correct subdivision and HOA information for you.
+//                             </p>
+//                         </td>
+//                     </tr>
+                
+//                 </table>
+//             </td>
+//         </tr>
+//     </table>
+// </body>
+// </html>`
+// }
 
 async function generateNoSubdivisionFoundEmail(data: any) {
     // data should include:
@@ -286,57 +441,82 @@ async function generateNoSubdivisionFoundEmail(data: any) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Subdivision Not Found</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background-color: #ffffff;">
-    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background-color: #f5f5f5;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f5f5f5;">
         <tr>
-            <td align="center" style="padding: 60px 20px;">
-                <table width="540" cellpadding="0" cellspacing="0" border="0">
-                        
-                    <!-- Introduction -->
+            <td align="center" style="padding: 0;">
+                <table width="600" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff;">
+                    
+                    <!-- Red Header Bar with Logo -->
                     <tr>
-                        <td style="padding-bottom: 24px;">
-                            <p style="margin: 0; color: #666666; font-size: 15px; line-height: 1.6;">
-                                We couldn't find an exact match for <strong style="color: #000000;">${data.searchedProperty}</strong> in our records.
-                            </p>
+                        <td style="background-color: #a31e22; padding: 24px 40px;">
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                <tr>
+                                    <td>
+                                        <div style="color: #ffffff; font-size: 28px; font-weight: 700; letter-spacing: 0.5px;">
+                                            COMMERCE TITLE
+                                        </div>
+                                        <div style="color: #ffffff; font-size: 13px; letter-spacing: 1px; margin-top: 0px; opacity: 0.95;">
+                                            CLOSE WITH CONFIDENCE
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
                         </td>
                     </tr>
                     
-                    <!-- Closest Matches Section -->
+                    <!-- Content Section with Tan Background -->
                     <tr>
-                        <td style="padding-bottom: 32px;">
-                            <p style="margin: 0 0 16px 0; color: #000000; font-size: 15px; font-weight: 500;">
+                        <td style="background-color: #d4b896; padding: 20px 40px;">
+                            
+                            <!-- Introduction -->
+                            <p style="margin: 0; color: #4a4a4a; font-size: 16px; line-height: 1.6;">
+                                We couldn't find <strong style="color: #2d2d2d;">${data.searchedProperty}</strong> in our records.
+                            </p>
+                            
+                        </td>
+                    </tr>
+                    
+                    <!-- White Content Area -->
+                    <tr>
+                        <td style="padding: 40px;">
+                            
+                            <!-- Closest Matches Section -->
+                            <p style="margin: 0 0 20px 0; color: #2d2d2d; font-size: 16px; font-weight: 600;">
                                 Did you mean one of these?
                             </p>
-                            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 32px;">
                                 ${data.closestMatches.map((match: any, index: number) => `
                                 <tr>
-                                    <td style="padding: 12px 16px; background-color: #f8f8f8; ${index > 0 ? 'border-top: 1px solid #ffffff;' : ''}">
-                                        <p style="margin: 0; color: #000000; font-size: 14px; font-weight: 500;">
+                                    <td style="padding: 14px 20px; background-color: #f9f9f9; border-top: 2px solid #ffffff; border-radius: 2px;">
+                                        <p style="margin: 0; color: #2d2d2d; font-size: 15px; font-weight: 500;">
                                             ${match.name}
                                         </p>
                                     </td>
                                 </tr>
                                 `).join('')}
                             </table>
-                        </td>
-                    </tr>
-                    
-                    <!-- Divider -->
-                    <tr>
-                        <td style="padding-bottom: 24px;">
-                            <div style="height: 1px; background-color: #e5e5e5;"></div>
-                        </td>
-                    </tr>
-                    
-                    <!-- Help Text -->
-                    <tr>
-                        <td style="padding-bottom: 32px;">
-                            <p style="margin: 0; color: #666666; font-size: 15px; line-height: 1.6;">
+ 
+                            <!-- Divider -->
+                            <div style="height: 1px; background-color: #e5e5e5; margin-bottom: 32px;"></div>
+                            
+                            <!-- Help Text -->
+                            <p style="margin: 0; color: #666666; font-size: 15px; line-height: 1.7;">
                                 If none of these match what you're looking for, please reply to this email with more details about the property, and we'll do our best to locate the correct subdivision and HOA information for you.
+                            </p>
+                            
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="padding: 24px 40px; background-color: #f9f9f9;">
+                            <p style="margin: 0; color: #888888; font-size: 13px; line-height: 1.6;">
+                                Thank you for choosing Commerce Title. If you have any questions, please don't hesitate to reach out.
                             </p>
                         </td>
                     </tr>
-                
+                    
                 </table>
             </td>
         </tr>
@@ -344,3 +524,4 @@ async function generateNoSubdivisionFoundEmail(data: any) {
 </body>
 </html>`
 }
+

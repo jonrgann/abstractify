@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
 
     const emailAddress = "jonrgann@gmail.com";
-    const text= `Can I get the HOA info for CARRINGTON?
+    const text= `Can I get the HOA info for CHARLESTON OAKS?
     
 
 Patrick W. Curry

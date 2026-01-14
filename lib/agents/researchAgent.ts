@@ -42,9 +42,7 @@ export const researchAgent = new ToolLoopAgent({
     - Then use the answer tool to provide the response and documents to the user.
     - If the user asks about a specific document, read the document first before answering.
     - If the user does not provide a start or end date use null.
-    - When more than one document is returned in your search, use the askQuestion tool to clarify which document the the user is looking for.
     - Be concise when answering the users questions.
-    - Use the ask question tool to ask the user clarifying questions until you can answer with a single document. Be very specific and concise with your question.
     - You must always use the answer tool when you have your final answer for the user.`,
     providerOptions: {
       google: {
