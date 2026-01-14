@@ -174,44 +174,44 @@ const ConversationDemo = () => {
                                      <Shimmer>{part.output?.status ?? ''}</Shimmer>
                                 )}
                                 <p className="mb-4"><TypewriterText text={part.output?.response ?? ''}/></p>
-                                { part.output?.document && (
-
-                                        <motion.div
-                                          key={i}
-                                          initial={{ opacity: 0, y: 20 }}
-                                          animate={{ opacity: 1, y: 0 }}
-                                          transition={{ 
-                                            duration: 0.3,
-                                            delay: 0.1,
-                                            ease: "easeOut"
-                                          }}
-                                        >
-                                      <div className="flex w-full max-w-lg flex-col gap-6">
-                                            <Item variant="outline">
-                                              <ItemContent>
-                                                <ItemTitle>{part.output?.document.documentType}</ItemTitle>
-                                                <div className="flex h-5 items-center space-x-4 text-sm text-muted-foreground">
-                                                  <div>{part.output?.document.documentNumber}</div>
-                                                  <Separator orientation="vertical" />
-                                                  <div>{part.output?.document.filedDate}</div>
-                                              </div>
-                                              </ItemContent>
-                                              { part.output?.document.image && (
-                                                <ItemActions>
-                                                  <Button 
-                                                    variant="outline" 
-                                                    size="icon"
-                                                    onClick={() => window.open(part.output?.document?.image, '_blank', 'noopener,noreferrer')}
-                                                  >
-                                                    <DownloadIcon className="size-4" />
-                                                  </Button>
-                                                </ItemActions>
-                                              )}
-                                            </Item>
-                                          </div>
-                                        </motion.div>
-                                 
-                                )}
+                                {part.output?.documents && (
+  <div className="flex w-full max-w-lg flex-col gap-6">
+    {part.output.documents.map((document:any, docIndex:number) => (
+      <motion.div
+        key={`${i}-${docIndex}`}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ 
+          duration: 0.3,
+          delay: 0.1 + (docIndex * 0.05),
+          ease: "easeOut"
+        }}
+      >
+        <Item variant="outline">
+          <ItemContent>
+            <ItemTitle>{document.documentType}</ItemTitle>
+            <div className="flex h-5 items-center space-x-4 text-sm text-muted-foreground">
+              <div>{document.documentNumber}</div>
+              <Separator orientation="vertical" />
+              <div>{document.filedDate}</div>
+            </div>
+          </ItemContent>
+          {document.image && (
+            <ItemActions>
+              <Button 
+                variant="outline" 
+                size="icon"
+                onClick={() => window.open(document.image, '_blank', 'noopener,noreferrer')}
+              >
+                <DownloadIcon className="size-4" />
+              </Button>
+            </ItemActions>
+          )}
+        </Item>
+      </motion.div>
+    ))}
+  </div>
+)}
                               </div>
                             )
                           case 'tool-askQuestion':
