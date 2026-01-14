@@ -17,6 +17,8 @@ export async function POST(req: Request) {
   if(DOCUMENT_GROUP_ID == 'fa04f162-40ab-44cc-bbed-e8a40c613182'){
     PROPERTY_SYNC_USER = process.env.DEMO_PROPERTYSYNC_USERNAME
     PROPERTY_SYNC_PASS = process.env.DEMO_PROPERTYSYNC_PASSWORD;
+    console.log(`louisiana credentials ${PROPERTY_SYNC_USER} ${PROPERTY_SYNC_PASS}`)
+
   }
 
   const loginResponse = await fetch(
@@ -34,6 +36,8 @@ export async function POST(req: Request) {
   );
 
   const { token } = await loginResponse.json();
+
+  console.log(token)
   
   return createAgentUIStreamResponse({
     agent: researchAgent,

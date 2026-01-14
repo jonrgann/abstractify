@@ -90,7 +90,7 @@ const suggestions = [
 const counties = [
     { id: '54766f37-bfad-4922-a607-30963a9c4a60', name: 'Benton' },
     { id: '4c8cdb5e-1335-4a4a-89b0-523e02386af0', name: 'Washington' },
-    // { id: 'fa04f162-40ab-44cc-bbed-e8a40c613182', name: 'Louisiana' },
+    { id: 'fa04f162-40ab-44cc-bbed-e8a40c613182', name: 'Louisiana' },
 ];
 
 const ConversationDemo = () => {
