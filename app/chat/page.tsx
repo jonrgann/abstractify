@@ -160,19 +160,17 @@ const ConversationDemo = () => {
                           case 'tool-readDocument':
                             return (
                               <div  key={`${message.id}-${i}`} className="space-y-4 mb-2">
-                                 {part.output?.status === "Read document." ? (
-                                    <span className="text-muted-foreground">{part.output.status}</span>
-                                  ) : (
-                                    <Shimmer>{part.output?.status ?? ''}</Shimmer>
-                                  )}
+                                {part.output?.status != "Read document." && (
+                                     <Shimmer>{part.output?.status ?? ''}</Shimmer>
+                                )}
                               </div>
                             )
                           case 'tool-answer':
                             return (
                               <div  key={`${message.id}-${i}`} className="space-y-4 mb-2">
-                                {part.output?.status != "Search complete." && (
+                                {/* {part.output?.status != "Search complete." && (
                                      <Shimmer>{part.output?.status ?? ''}</Shimmer>
-                                )}
+                                )} */}
                                 <p className="mb-4"><TypewriterText text={part.output?.response ?? ''}/></p>
                                 {part.output?.documents && (
   <div className="flex w-full max-w-lg flex-col gap-4">

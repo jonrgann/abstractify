@@ -132,7 +132,7 @@ export async function generateReport(url: string, email: string) {
 	// Generate Report PDF
 	const deeds = filterByDeeds(documents);
 	const deeds24Months = getDeedsLast24Months(documents);
-	const mortgages = documents.filter((doc) => ['MORTGAGE'].includes(doc.documentType.toUpperCase()));
+	const mortgages = documents.filter((doc) => ['MORTGAGE','ASSIGMENT OF MORTGAGE', 'MODIFICATION'].includes(doc.documentType.toUpperCase()));
 	const exceptions = documents.filter((doc) => ['PLAT','PROTECTIVE COVENANTS',"RESTRICTIONS", "ORDINANCE", "BILL OF ASSURANCES","NOTICE","SURVEY"].includes(doc.documentType.toUpperCase()));
 	const judgments = documents.filter((doc) => ['JUDGMENT','FEDERAL TAX LIEN','STATE TAX LIEN','CERT OF INDEBTEDNESS'].includes(doc.documentType.toUpperCase()));
 
@@ -148,6 +148,11 @@ export async function generateReport(url: string, email: string) {
 
 	// Create openMortgages by filtering out released mortgages
 	const openMortgages = mortgages.filter((mortgage) => 
+		!releasedDocumentIds.includes(mortgage.documentId)
+	);
+
+	// Create openJudgments by filtering out released mortgages
+	const openJudgments = judgments.filter((mortgage) => 
 		!releasedDocumentIds.includes(mortgage.documentId)
 	);
 	  
@@ -176,7 +181,7 @@ export async function generateReport(url: string, email: string) {
 	  searchResults: documents, 
 	  openMortgages: openMortgages,
 	  exceptions: exceptions,
-	  judgments: judgments
+	  judgments: openJudgments
 	}
 
 	// Create PDF

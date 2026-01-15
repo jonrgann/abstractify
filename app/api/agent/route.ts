@@ -438,7 +438,7 @@ import {
         const vestingInfo = { name: vestingName.grantee, recordingDate: lastDeed.filedDate, recordingNumber: lastDeed.documentNumber }
 
         const allDocuments = [...propertySearchDocuments, ...nameSearchDocuments];
-        const mortgages = propertySearchDocuments.filter((doc) => ['MORTGAGE'].includes(doc.documentType.toUpperCase()));
+        const mortgages = allPropertyDocuments.filter((doc) => ['MORTGAGE','ASSIGMENT OF MORTGAGE', 'MODIFICATION'].includes(doc.documentType.toUpperCase()));
         const releases = allPropertyDocuments.filter((doc) => ['RELEASE', 'PARTIAL RELEASE'].includes(doc.documentType.toUpperCase()))
         const releasedDocumentIds: string[] = [];
         for ( const doc of releases){
@@ -538,6 +538,11 @@ import {
         const exceptions = allDocuments.filter((doc) => ['PLAT','PROTECTIVE COVENANTS',"RESTRICTIONS", "ORDINANCE", "BILL OF ASSURANCES","NOTICE","SURVEY",].includes(doc.documentType.toUpperCase()));
         const judgments = allDocuments.filter((doc) => ['JUDGMENT','FEDERAL TAX LIEN','STATE TAX LIEN','CERT OF INDEBTEDNESS'].includes(doc.documentType.toUpperCase()));
 
+        // Create openJudgments by filtering out released mortgages
+        const openJudgments = judgments.filter((mortgage) => 
+          !releasedDocumentIds.includes(mortgage.documentId)
+        );
+
         const report =  { 
           orderNumber: orderInfo.orderNumber, 
           effectiveDate, 
@@ -547,7 +552,7 @@ import {
           deedChain: deeds,
           chain24Month: chain24Month,
           searchResults: propertySearchDocuments, 
-          openMortgages: openMortgages,
+          openMortgages: openJudgments,
           exceptions: exceptions,
           judgments: judgments
         }
