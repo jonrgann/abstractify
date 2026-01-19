@@ -552,9 +552,9 @@ import {
           deedChain: deeds,
           chain24Month: chain24Month,
           searchResults: propertySearchDocuments, 
-          openMortgages: openJudgments,
+          openMortgages: openMortgages,
           exceptions: exceptions,
-          judgments: judgments
+          judgments: openJudgments
         }
     
         writer.write({

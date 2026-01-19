@@ -46,6 +46,7 @@ export async function generateReport(url: string, email: string) {
 
 	// Get context from plant.  Subdivisions, effective date etc.
 	const subdivisions = await getSubdivisions(documentGroupId, token);
+
 	const { plantEffectiveDate, name: plantName } = await getPlantDetails(documentGroupId, token);
 
 	// Step 2: Generate Property Search Query
@@ -224,3 +225,100 @@ function convertToDocuments(data: any[]): Document[]{
 	})
 }
 
+/*
+
+# Title Report
+
+## Purpose and Scope
+This document outlines the examination procedures and requirements for a Title Report. The report identifies current ownership, recent title transfers, encumbrances, and exceptions that may affect the insurability of the property.
+
+---
+
+## Report Components
+
+### 1. Ownership Information
+
+**Name**
+- Extract the exact legal names of current owners from the latest bonafide deed
+- Include complete vesting information exactly as written in the deed
+- Capture marital status designations (e.g., "a married man," "a single woman," "husband and wife")
+- Note ownership percentages or type of ownership (e.g., joint tenants, tenants in common, tenants by the entirety)
+- Include any special designations (e.g., trustee, personal representative, life tenant)
+- Record full legal names without abbreviation
+
+**Date Acquired**
+- The recording date of the bonafide deed conveying the property to current owners
+
+**Recording Number**
+- The document number/book and page where the individuals acquired the property
+
+**Note:** A "bonafide deed" excludes quitclaim deeds and includes only instruments that actually convey title with warranties or consideration.
+
+---
+
+### 2. 24 Month Chain of Title
+
+**Scope**
+- Show all deeds recorded within the last 24 months that transfer title to the property
+- For each deed, include:
+  - Grantor name(s)
+  - Grantee name(s)
+  - Recording date
+  - Recording number
+  - Type of deed
+
+**If No Deeds Within 24 Months**
+- Use the last bonafide deed on record and note the recording date
+
+**Exclusions**
+- Quitclaim deeds are excluded from this section
+
+---
+
+### 3. Open Mortgages, Assignments, and Modifications
+
+**Definition**
+- All mortgages, deeds of trust, or security instruments found in the record where there is no corresponding release, satisfaction, or reconveyance
+
+**Include**
+- Original mortgages without releases
+- Assignments of mortgage (track to current holder)
+- Modifications to existing mortgages
+
+---
+
+### 4. Active Judgments, Tax Liens, and Certificates of Indebtedness
+
+**Scope**
+- Judgments without documents releasing or satisfying them
+- Tax liens (federal, state, or local) without releases
+- Certificates of Indebtedness (COIs) without satisfaction
+
+---
+
+### 5. Exceptions
+
+**Documents to Include**
+All recorded documents affecting the property in the following categories:
+- PLAT (subdivision plats, replats)
+- PROTECTIVE COVENANTS
+- RESTRICTIONS (deed restrictions, building restrictions)
+- ORDINANCE (zoning ordinances, municipal orders)
+- BILL OF ASSURANCES
+- NOTICE (notices of violation, lis pendens)
+- SURVEY (recorded surveys showing encroachments or easements)
+
+**Reporting**
+- List each exception with recording information
+- Note any documents that may affect use, enjoyment, or marketability of the property
+
+---
+
+## Examination Notes
+[Space for examiner's additional observations, concerns, or recommendations]
+
+---
+
+*This examination logic is designed to provide comprehensive title information necessary for underwriting title insurance policies.*
+
+*/
