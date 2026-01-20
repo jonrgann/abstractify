@@ -18,7 +18,6 @@ import {
       execute: async ({ writer }) => {
 
         // step 1 example: forced tool call
-
         writer.write({
             type: 'data-workflowReadOrder',
             id: 'workflowReadOrder-1',

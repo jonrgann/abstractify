@@ -73,7 +73,7 @@ function fuzzyMatchSubdivisions(input: string, subdivisions: string[]): string[]
     });
   }
   
-  function levenshteinDistance(str1: string, str2: string): number {
+function levenshteinDistance(str1: string, str2: string): number {
     const len1 = str1.length;
     const len2 = str2.length;
     const matrix: number[][] = [];
@@ -100,7 +100,7 @@ function fuzzyMatchSubdivisions(input: string, subdivisions: string[]): string[]
   
     return matrix[len1][len2];}
   
-  function findMatchIgnoringSpaces(inputString: string, stringArray: string[]) {
+function findMatchIgnoringSpaces(inputString: string, stringArray: string[]) {
     if (!inputString || !stringArray || !Array.isArray(stringArray)) {
       return null;
     }
@@ -130,5 +130,5 @@ function fuzzyMatchSubdivisions(input: string, subdivisions: string[]): string[]
           current.length < shortest.length ? current : shortest
         )
       : null;
-  }
+}
   

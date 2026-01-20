@@ -102,11 +102,63 @@ export interface Document {
   
   
   export function filterByDeeds(documents: Document[]): Document[] {
-    return documents.filter(doc => 
-      DEED_TYPES.some(deedType => 
-        doc.documentType.toUpperCase() === deedType
-      )
-    );
+    const DEED_KEYWORDS = [
+      'AFFIDAVIT ADVERSE POSSESSION',
+      'BENEFICIARY DEED',
+      'CEMETERY DEED',
+      'COMMISSIONERS DEED',
+      'CORRECTION DEED',
+      'DEED',
+      'DEED IN LIEU OF FORECLOSURE',
+      'DEED RESTRICTION',
+      'EXECUTOR\'S DEED',
+      'FIDUCIARYS DEED',
+      'GUARDIANS DEED',
+      'LIMITED WD',
+      'MASTER DEED',
+      'MINERAL DEED',
+      'MORTGAGEES DEED',
+      'QUITCLAIM DEED',
+      'REDEMPTION DEED',
+      'SHERIFFS DEED',
+      'SPECIAL WD',
+      'TAX DEED',
+      'TRUSTEES DEED',
+      'WARRANTY DEED',
+      'FORECLOSURE DECREE',
+      'QUIET TITLE DECREE',
+      'PARTITION DECREE',
+      'DECLARATION OF TAKING',
+      'PATENT',
+      'AFFIDAVIT OF HEIRSHIP'
+    ];
+  
+    const EXCLUSIONS = ['DEED OF TRUST'];
+  
+    return documents.filter(doc => {
+      const docTypeUpper = doc.documentType.toUpperCase();
+      
+      // First check: contains "DEED"
+      if (!docTypeUpper.includes('DEED')) {
+        return false;
+      }
+      
+      // Second check: matches our deed list
+      const matchesDeedList = DEED_KEYWORDS.some(deedType => 
+        docTypeUpper === deedType
+      );
+      
+      if (!matchesDeedList) {
+        return false;
+      }
+      
+      // Third check: exclude specific types
+      const isExcluded = EXCLUSIONS.some(exclusion => 
+        docTypeUpper === exclusion
+      );
+      
+      return !isExcluded;
+    });
   }
   
   // Optional: More flexible function that accepts custom deed types
