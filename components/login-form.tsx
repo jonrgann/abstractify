@@ -51,7 +51,7 @@ export function LoginForm({
     <form onSubmit={handleLogin} className="p-6 md:p-8 mt-10">
     <FieldGroup>
       <div className="flex flex-col items-center gap-2 text-center">
-        <h1 className="text-2xl font-bold">Get Started</h1>
+        <h1 className="font-display text-3xl font-bold tracking-tight">Get Started</h1>
         <Shimmer duration={3}>Title research in seconds.</Shimmer>
       </div>
       <Field>
@@ -79,7 +79,7 @@ export function LoginForm({
         />
       </Field>
       <Field>
-      <Button type="submit" disabled={isLoading}>
+      <Button type="submit" className="font-display" disabled={isLoading}>
           {isLoading ? "Logging in..." : "Login"}
         </Button>
       </Field>

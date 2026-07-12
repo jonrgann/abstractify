@@ -44,7 +44,7 @@ export default function Home() {
           Email Reports
         </h1>
         <p className="mt-2 text-xs text-muted-foreground">
-          Abstractify + PropertySync
+          AboundAI + PropertySync
         </p>
 
         <div className="mt-10 mx-auto w-full max-w-md">

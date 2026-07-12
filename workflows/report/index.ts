@@ -128,7 +128,7 @@ export async function generateReport(url: string, email: string) {
 		);
 			documents.push(...convertToDocuments(nameSearchDocuments));
 		}
-	  }
+	}
 
 	// Generate Report PDF
 	const deeds = filterByDeeds(documents);

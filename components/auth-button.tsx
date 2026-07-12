@@ -13,15 +13,15 @@ export async function AuthButton() {
 
   return user ? (
     <div className="flex items-center gap-4">
-      {user.email}
+      <span className="text-muted-foreground">{user.email}</span>
       <LogoutButton />
     </div>
   ) : (
     <div className="flex gap-2">
-      <Button asChild size="sm" variant={"outline"}>
+      <Button asChild size="sm" variant={"outline"} className="font-display">
         <Link href="/auth/login">Sign in</Link>
       </Button>
-      <Button asChild size="sm" variant={"default"}>
+      <Button asChild size="sm" variant={"default"} className="font-display">
         <Link href="/auth/sign-up">Sign up</Link>
       </Button>
     </div>

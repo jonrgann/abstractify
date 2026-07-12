@@ -7,7 +7,6 @@ import {
   StyleSheet,
   pdf,
 } from '@react-pdf/renderer';
-import { AlignCenter } from 'lucide-react';
 
 // Define types for the title report data
 interface PropertyInfo {
@@ -20,7 +19,7 @@ interface Owner {
   name: string;
   recordingNumber?: string;
   recordingDate?: string;
-  // vestingInstrument?: string;
+
 }
 
 interface SearchResult {
@@ -253,13 +252,6 @@ const TitleReport: React.FC<{ data: TitleReportData }> = ({ data }) => (
               <Text style={styles.label}>Recording Number:</Text>
               <Text style={styles.value}>{deed.documentNumber}</Text>
             </View>
-
-            {/* {deed.notes && (
-              <View style={styles.row}>
-                <Text style={styles.label}>Notes:</Text>
-                <Text style={styles.notes}>{deed.notes}</Text>
-              </View>
-            )} */}
           </View>
         ))}
         
@@ -455,7 +447,7 @@ const TitleReport: React.FC<{ data: TitleReportData }> = ({ data }) => (
 );
 
 
-  function formatDate(dateString: string): string {
+function formatDate(dateString: string): string {
     const date = new Date(dateString);
     
     const options: Intl.DateTimeFormatOptions = {
@@ -465,13 +457,13 @@ const TitleReport: React.FC<{ data: TitleReportData }> = ({ data }) => (
     };
     
     return date.toLocaleDateString('en-US', options);
-  }
+}
 
-  function formatCurrency(amount: string): string {
+function formatCurrency(amount: string): string {
     const usdFormatter = new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD'
     });
     
     return usdFormatter.format(Number(amount));
-  }
+}
